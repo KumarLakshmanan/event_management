@@ -3,6 +3,12 @@
  * Helper functions for database operations and common tasks
  */
 
+// Constants for notification types
+define('NOTIFICATION_INFO', 'info');
+define('NOTIFICATION_SUCCESS', 'success');
+define('NOTIFICATION_WARNING', 'warning');
+define('NOTIFICATION_DANGER', 'danger');
+
 /**
  * Insert a record into a database table
  * 
