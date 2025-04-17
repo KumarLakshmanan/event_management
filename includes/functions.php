@@ -10,6 +10,127 @@ define('NOTIFICATION_WARNING', 'warning');
 define('NOTIFICATION_DANGER', 'danger');
 
 /**
+ * Check if user has a specific role
+ * 
+ * @param string $role The role to check for (admin, manager, client)
+ * @return bool True if user has the requested role, false otherwise
+ */
+function hasRole($role) {
+    if (!isset($_SESSION['user_role'])) {
+        return false;
+    }
+    
+    if ($role === 'admin') {
+        return $_SESSION['user_role'] === 'admin';
+    } else if ($role === 'manager') {
+        return $_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager';
+    } else if ($role === 'client') {
+        return $_SESSION['user_role'] === 'client';
+    }
+    
+    return false;
+}
+
+/**
+ * Add a notification for a user
+ * 
+ * @param string $type The notification type (e.g., booking_confirmed)
+ * @param string $message The notification message
+ * @param int|null $userId The user ID or null for system notification (admin/manager only)
+ * @param string $link Link to related page (optional)
+ * @param string $alertType The alert type (info, success, warning, danger)
+ * @return int|bool The notification ID or false on failure
+ */
+function addNotification($type, $message, $userId = null, $link = null, $alertType = NOTIFICATION_INFO) {
+    if (USE_DATABASE) {
+        $db = Database::getInstance();
+        
+        $data = [
+            'type' => $type,
+            'message' => $message,
+            'user_id' => $userId,
+            'link' => $link,
+            'alert_type' => $alertType,
+            'is_read' => false,
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+        
+        return insertRecord('notifications', $data);
+    } else {
+        // Fallback to mock data
+        $notifications = getMockData('notifications.json');
+        
+        // Generate ID
+        $id = count($notifications) > 0 ? max(array_column($notifications, 'id')) + 1 : 1;
+        
+        $newNotification = [
+            'id' => $id,
+            'type' => $type,
+            'message' => $message,
+            'user_id' => $userId,
+            'link' => $link,
+            'alert_type' => $alertType,
+            'is_read' => false,
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+        
+        $notifications[] = $newNotification;
+        
+        if (saveMockData('notifications.json', $notifications)) {
+            return $id;
+        }
+        
+        return false;
+    }
+}
+
+/**
+ * Check if a user can give discounts
+ * 
+ * @return bool True if user can give discounts, false otherwise
+ */
+function canGiveDiscount() {
+    if (!isset($_SESSION['user_id'])) {
+        return false;
+    }
+    
+    // Admins can always give discounts
+    if ($_SESSION['user_role'] === 'admin') {
+        return true;
+    }
+    
+    // Managers need the permission to give discounts
+    if ($_SESSION['user_role'] === 'manager') {
+        // Check if has permission in session
+        if (isset($_SESSION['can_give_discount']) && $_SESSION['can_give_discount']) {
+            return true;
+        }
+        
+        // If not in session, check from database
+        if (USE_DATABASE) {
+            $db = Database::getInstance();
+            $user = $db->querySingle("SELECT * FROM users WHERE id = ?", [$_SESSION['user_id']]);
+            
+            if ($user && isset($user['can_give_discount']) && $user['can_give_discount']) {
+                $_SESSION['can_give_discount'] = true;
+                return true;
+            }
+        } else {
+            // Check from mock data
+            $users = getMockData('users.json');
+            foreach ($users as $user) {
+                if ($user['id'] == $_SESSION['user_id'] && isset($user['can_give_discount']) && $user['can_give_discount']) {
+                    $_SESSION['can_give_discount'] = true;
+                    return true;
+                }
+            }
+        }
+    }
+    
+    return false;
+}
+
+/**
  * Insert a record into a database table
  * 
  * @param string $table The table name
@@ -76,36 +197,6 @@ function sanitizeInput($input) {
     $input = stripslashes($input);
     $input = htmlspecialchars($input, ENT_QUOTES, 'UTF-8');
     return $input;
-}
-
-/**
- * Get mock data from a JSON file
- * 
- * @param string $filename The JSON file name
- * @return array The data from the JSON file
- */
-function getMockData($filename) {
-    $filePath = '../mock/' . $filename;
-    
-    if (file_exists($filePath)) {
-        $json = file_get_contents($filePath);
-        return json_decode($json, true) ?? [];
-    }
-    
-    return [];
-}
-
-/**
- * Save mock data to a JSON file
- * 
- * @param string $filename The JSON file name
- * @param array $data The data to save
- * @return bool True on success, false on failure
- */
-function saveMockData($filename, $data) {
-    $filePath = '../mock/' . $filename;
-    $json = json_encode($data, JSON_PRETTY_PRINT);
-    return file_put_contents($filePath, $json) !== false;
 }
 
 /**
