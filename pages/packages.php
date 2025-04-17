@@ -7,9 +7,48 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// Get mock data
-$packages = getMockData('packages.json');
-$services = getMockData('services.json');
+// Get packages and services data
+if (USE_DATABASE) {
+    $db = Database::getInstance();
+    
+    // Get services for lookup
+    $services = $db->query("SELECT * FROM services ORDER BY name");
+    
+    // Get packages based on user role
+    if ($_SESSION['user_role'] === 'client') {
+        // For clients: show standard packages (customized=false) OR their own custom packages
+        $packages = $db->query("
+            SELECT p.*, 
+                   (SELECT array_agg(ps.service_id) FROM package_services ps WHERE ps.package_id = p.id) as services
+            FROM packages p 
+            WHERE p.customized = false 
+               OR (p.customized = true AND p.created_by = ?)
+            ORDER BY p.name", 
+            [$_SESSION['user_id']]
+        );
+    } else {
+        // For admins/managers: show all packages
+        $packages = $db->query("
+            SELECT p.*, 
+                   (SELECT array_agg(ps.service_id) FROM package_services ps WHERE ps.package_id = p.id) as services
+            FROM packages p 
+            ORDER BY p.name"
+        );
+    }
+    
+} else {
+    // Fallback to mock data if database is not available
+    $packages = getMockData('packages.json');
+    $services = getMockData('services.json');
+    
+    // For clients: filter packages to show only standard ones or their own custom packages
+    if ($_SESSION['user_role'] === 'client') {
+        $packages = array_filter($packages, function($package) {
+            return !isset($package['customized']) || $package['customized'] === false || 
+                   (isset($package['created_by']) && $package['created_by'] == $_SESSION['user_id']);
+        });
+    }
+}
 
 // Create lookup array for services
 $servicesById = [];
@@ -32,7 +71,11 @@ if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
 <!-- Page Heading -->
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Packages</h1>
-    <?php if ($_SESSION['user_role'] !== 'client'): ?>
+    <?php if ($_SESSION['user_role'] === 'client'): ?>
+    <a href="customize-package.php" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+        <i class="fas fa-magic fa-sm text-white-50"></i> Create Custom Package
+    </a>
+    <?php else: ?>
     <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" data-toggle="modal" data-target="#packageModal">
         <i class="fas fa-plus fa-sm text-white-50"></i> Add New Package
     </a>

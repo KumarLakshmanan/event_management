@@ -1,444 +1,592 @@
 <?php
 session_start();
 require_once '../config/config.php';
-require_once 'api.php';
+require_once '../includes/functions.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Content-Type: application/json');
-    echo json_encode(['error' => 'Unauthorized']);
+    respondWithError('Unauthorized', 401);
     exit;
 }
 
-// Check action parameter
-$action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
+// Get the requested action
+$action = sanitizeInput($_POST['action'] ?? $_GET['action'] ?? '');
 
 switch ($action) {
     case 'create':
-        handleCreate();
+        handleCreateGuest();
         break;
-        
     case 'update':
-        handleUpdate();
+        handleUpdateGuest();
         break;
-        
     case 'delete':
-        handleDelete();
+        handleDeleteGuest();
         break;
-        
     case 'send_invite':
         handleSendInvite();
         break;
-        
-    case 'update_rsvp':
-        handleUpdateRsvp();
-        break;
-        
     default:
-        // Invalid action
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Invalid action']);
-        exit;
+        respondWithError('Invalid action specified');
+        break;
 }
 
 /**
  * Handle guest creation
  */
-function handleCreate() {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Invalid request method']);
-        exit;
-    }
-    
-    // Get input data
-    $bookingId = intval($_POST['booking_id'] ?? 0);
+function handleCreateGuest() {
+    // Validate input
     $name = sanitizeInput($_POST['name'] ?? '');
     $email = sanitizeInput($_POST['email'] ?? '');
     $phone = sanitizeInput($_POST['phone'] ?? '');
+    $bookingId = filter_var($_POST['booking_id'] ?? 0, FILTER_VALIDATE_INT);
+    $isClient = isset($_POST['client']) && $_POST['client'] == 1;
     
-    // Validate input
-    if ($bookingId <= 0 || empty($name) || empty($email)) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Name, email, and booking ID are required']);
-        exit;
+    if (empty($name) || empty($email) || !$bookingId) {
+        respondWithError('All fields are required');
+        return;
     }
     
-    // Validate email format
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Invalid email format']);
-        exit;
-    }
-    
-    // Verify booking exists and is accessible by the user
-    $bookings = getMockData('bookings.json');
-    $booking = null;
-    foreach ($bookings as $b) {
-        if ($b['id'] === $bookingId) {
-            $booking = $b;
-            break;
+    // Verify booking exists and user has permission to add guests
+    if (USE_DATABASE) {
+        $db = Database::getInstance();
+        
+        // Get booking
+        $booking = $db->querySingle(
+            "SELECT * FROM bookings WHERE id = ?", 
+            [$bookingId]
+        );
+        
+        if (!$booking) {
+            respondWithError('Booking not found');
+            return;
         }
+        
+        // Check permission based on user role
+        if ($_SESSION['user_role'] === 'client') {
+            // Clients can only add guests to their own bookings
+            if ($booking['user_id'] != $_SESSION['user_id']) {
+                respondWithError('Permission denied', 403);
+                return;
+            }
+        } else if ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'manager') {
+            // Only admins and managers can add guests to any booking
+            respondWithError('Permission denied', 403);
+            return;
+        }
+        
+        // Insert guest
+        $guestData = [
+            'booking_id' => $bookingId,
+            'name' => $name,
+            'email' => $email,
+            'phone' => $phone,
+            'rsvp_status' => 'pending',
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+        
+        $guestId = insertRecord('guests', $guestData);
+        
+        if ($guestId) {
+            respondWithSuccess('Guest added successfully', ['id' => $guestId]);
+        } else {
+            respondWithError('Failed to add guest');
+        }
+    } else {
+        // Fallback to mock data
+        $bookings = getMockData('bookings.json');
+        $guests = getMockData('guests.json');
+        
+        // Find booking
+        $bookingFound = false;
+        foreach ($bookings as $booking) {
+            if ($booking['id'] == $bookingId) {
+                $bookingFound = true;
+                
+                // Check permission based on user role
+                if ($_SESSION['user_role'] === 'client') {
+                    // Clients can only add guests to their own bookings
+                    if ($booking['user_id'] != $_SESSION['user_id']) {
+                        respondWithError('Permission denied', 403);
+                        return;
+                    }
+                } else if ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'manager') {
+                    // Only admins and managers can add guests to any booking
+                    respondWithError('Permission denied', 403);
+                    return;
+                }
+                
+                break;
+            }
+        }
+        
+        if (!$bookingFound) {
+            respondWithError('Booking not found');
+            return;
+        }
+        
+        // Generate guest ID
+        $id = count($guests) > 0 ? max(array_column($guests, 'id')) + 1 : 1;
+        
+        // Create new guest
+        $newGuest = [
+            'id' => $id,
+            'booking_id' => $bookingId,
+            'name' => $name,
+            'email' => $email,
+            'phone' => $phone,
+            'rsvp_status' => 'pending',
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+        
+        // Add guest to data
+        $guests[] = $newGuest;
+        
+        // Save data
+        saveMockData('guests.json', $guests);
+        
+        respondWithSuccess('Guest added successfully', ['id' => $id]);
     }
-    
-    if (!$booking) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Booking not found']);
-        exit;
-    }
-    
-    // Check if user has access to this booking
-    if ($booking['user_id'] !== intval($_SESSION['user_id']) && !hasRole('manager')) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Access denied to this booking']);
-        exit;
-    }
-    
-    // Check if booking is confirmed before adding guests
-    if ($booking['status'] !== 'confirmed' && !hasRole('manager')) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Cannot add guests to unconfirmed bookings']);
-        exit;
-    }
-    
-    // Get guests data
-    $guests = getMockData('guests.json');
-    
-    // Generate guest ID
-    $id = count($guests) > 0 ? max(array_column($guests, 'id')) + 1 : 1;
-    
-    // Create new guest
-    $newGuest = [
-        'id' => $id,
-        'booking_id' => $bookingId,
-        'name' => $name,
-        'email' => $email,
-        'phone' => $phone,
-        'rsvp_status' => 'pending'
-    ];
-    
-    // Add guest to data
-    $guests[] = $newGuest;
-    
-    // Save data
-    saveMockData('guests.json', $guests);
-    
-    // Send API request to external API
-    apiPost('guests', $newGuest);
-    
-    // Return success response
-    header('Content-Type: application/json');
-    echo json_encode(['success' => true, 'guest' => $newGuest]);
-    exit;
 }
 
 /**
  * Handle guest update
  */
-function handleUpdate() {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Invalid request method']);
-        exit;
-    }
-    
-    // Get input data
-    $id = intval($_POST['id'] ?? 0);
-    $bookingId = intval($_POST['booking_id'] ?? 0);
+function handleUpdateGuest() {
+    // Validate input
+    $id = filter_var($_POST['id'] ?? 0, FILTER_VALIDATE_INT);
     $name = sanitizeInput($_POST['name'] ?? '');
     $email = sanitizeInput($_POST['email'] ?? '');
     $phone = sanitizeInput($_POST['phone'] ?? '');
-    $rsvpStatus = sanitizeInput($_POST['rsvp_status'] ?? '');
+    $rsvpStatus = sanitizeInput($_POST['rsvp_status'] ?? 'pending');
+    $bookingId = filter_var($_POST['booking_id'] ?? 0, FILTER_VALIDATE_INT);
+    $isClient = isset($_POST['client']) && $_POST['client'] == 1;
     
-    // Validate input
-    if ($id <= 0 || $bookingId <= 0 || empty($name) || empty($email)) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'ID, booking ID, name, and email are required']);
-        exit;
+    if (!$id || empty($name) || empty($email) || !$bookingId) {
+        respondWithError('All fields are required');
+        return;
     }
     
-    // Validate email format
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Invalid email format']);
-        exit;
-    }
-    
-    // Verify booking exists and is accessible by the user
-    $bookings = getMockData('bookings.json');
-    $booking = null;
-    foreach ($bookings as $b) {
-        if ($b['id'] === $bookingId) {
-            $booking = $b;
-            break;
+    // Update guest in database or mock data
+    if (USE_DATABASE) {
+        $db = Database::getInstance();
+        
+        // Get guest and booking to verify permission
+        $guest = $db->querySingle(
+            "SELECT * FROM guests WHERE id = ?", 
+            [$id]
+        );
+        
+        if (!$guest) {
+            respondWithError('Guest not found');
+            return;
+        }
+        
+        // Verify booking
+        $booking = $db->querySingle(
+            "SELECT * FROM bookings WHERE id = ?", 
+            [$guest['booking_id']]
+        );
+        
+        if (!$booking) {
+            respondWithError('Booking not found');
+            return;
+        }
+        
+        // Check permission based on user role
+        if ($_SESSION['user_role'] === 'client') {
+            // Clients can only update guests for their own bookings
+            if ($booking['user_id'] != $_SESSION['user_id']) {
+                respondWithError('Permission denied', 403);
+                return;
+            }
+        } else if ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'manager') {
+            // Only admins and managers can update guests for any booking
+            respondWithError('Permission denied', 403);
+            return;
+        }
+        
+        // Update guest
+        $guestData = [
+            'name' => $name,
+            'email' => $email,
+            'phone' => $phone,
+            'rsvp_status' => $rsvpStatus
+        ];
+        
+        $result = updateRecord('guests', $id, $guestData);
+        
+        if ($result) {
+            respondWithSuccess('Guest updated successfully');
+        } else {
+            respondWithError('Failed to update guest');
+        }
+    } else {
+        // Fallback to mock data
+        $bookings = getMockData('bookings.json');
+        $guests = getMockData('guests.json');
+        $updated = false;
+        
+        // Find guest
+        foreach ($guests as $index => $guest) {
+            if ($guest['id'] == $id) {
+                // Get booking to verify permission
+                $bookingFound = false;
+                $booking = null;
+                
+                foreach ($bookings as $b) {
+                    if ($b['id'] == $guest['booking_id']) {
+                        $booking = $b;
+                        $bookingFound = true;
+                        break;
+                    }
+                }
+                
+                if (!$bookingFound) {
+                    respondWithError('Booking not found');
+                    return;
+                }
+                
+                // Check permission based on user role
+                if ($_SESSION['user_role'] === 'client') {
+                    // Clients can only update guests for their own bookings
+                    if ($booking['user_id'] != $_SESSION['user_id']) {
+                        respondWithError('Permission denied', 403);
+                        return;
+                    }
+                } else if ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'manager') {
+                    // Only admins and managers can update guests for any booking
+                    respondWithError('Permission denied', 403);
+                    return;
+                }
+                
+                // Update guest
+                $guests[$index]['name'] = $name;
+                $guests[$index]['email'] = $email;
+                $guests[$index]['phone'] = $phone;
+                $guests[$index]['rsvp_status'] = $rsvpStatus;
+                
+                $updated = true;
+                break;
+            }
+        }
+        
+        if ($updated) {
+            saveMockData('guests.json', $guests);
+            respondWithSuccess('Guest updated successfully');
+        } else {
+            respondWithError('Guest not found');
         }
     }
-    
-    if (!$booking) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Booking not found']);
-        exit;
-    }
-    
-    // Check if user has access to this booking
-    if ($booking['user_id'] !== intval($_SESSION['user_id']) && !hasRole('manager')) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Access denied to this booking']);
-        exit;
-    }
-    
-    // Get guests data
-    $guests = getMockData('guests.json');
-    
-    // Find guest to update
-    $guestIndex = -1;
-    foreach ($guests as $index => $guest) {
-        if ($guest['id'] === $id) {
-            $guestIndex = $index;
-            break;
-        }
-    }
-    
-    if ($guestIndex === -1) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Guest not found']);
-        exit;
-    }
-    
-    // Validate RSVP status
-    $validRsvpStatuses = ['pending', 'yes', 'no'];
-    if (!empty($rsvpStatus) && !in_array($rsvpStatus, $validRsvpStatuses)) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Invalid RSVP status']);
-        exit;
-    }
-    
-    // Update guest
-    $guests[$guestIndex]['name'] = $name;
-    $guests[$guestIndex]['email'] = $email;
-    $guests[$guestIndex]['phone'] = $phone;
-    if (!empty($rsvpStatus)) {
-        $guests[$guestIndex]['rsvp_status'] = $rsvpStatus;
-    }
-    
-    // Save data
-    saveMockData('guests.json', $guests);
-    
-    // Send API request to external API
-    apiPut('guests/' . $id, $guests[$guestIndex]);
-    
-    // Return success response
-    header('Content-Type: application/json');
-    echo json_encode(['success' => true, 'guest' => $guests[$guestIndex]]);
-    exit;
 }
 
 /**
  * Handle guest deletion
  */
-function handleDelete() {
-    // Get input data
-    $id = intval($_REQUEST['id'] ?? 0);
-    $bookingId = intval($_REQUEST['booking_id'] ?? 0);
+function handleDeleteGuest() {
+    // Validate input
+    $id = filter_var($_GET['id'] ?? 0, FILTER_VALIDATE_INT);
+    $bookingId = filter_var($_GET['booking_id'] ?? 0, FILTER_VALIDATE_INT);
+    $isClient = isset($_GET['client']) && $_GET['client'] == 1;
     
-    if ($id <= 0 || $bookingId <= 0) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Invalid guest ID or booking ID']);
-        exit;
+    if (!$id || !$bookingId) {
+        respondWithError('Invalid guest ID or booking ID');
+        return;
     }
     
-    // Verify booking exists and is accessible by the user
-    $bookings = getMockData('bookings.json');
-    $booking = null;
-    foreach ($bookings as $b) {
-        if ($b['id'] === $bookingId) {
-            $booking = $b;
-            break;
+    // Delete guest from database or mock data
+    if (USE_DATABASE) {
+        $db = Database::getInstance();
+        
+        // Get guest to verify booking
+        $guest = $db->querySingle(
+            "SELECT * FROM guests WHERE id = ?", 
+            [$id]
+        );
+        
+        if (!$guest) {
+            respondWithError('Guest not found');
+            return;
+        }
+        
+        // Verify booking
+        $booking = $db->querySingle(
+            "SELECT * FROM bookings WHERE id = ?", 
+            [$guest['booking_id']]
+        );
+        
+        if (!$booking) {
+            respondWithError('Booking not found');
+            return;
+        }
+        
+        // Check permission based on user role
+        if ($_SESSION['user_role'] === 'client') {
+            // Clients can only delete guests for their own bookings
+            if ($booking['user_id'] != $_SESSION['user_id']) {
+                respondWithError('Permission denied', 403);
+                return;
+            }
+        } else if ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'manager') {
+            // Only admins and managers can delete guests for any booking
+            respondWithError('Permission denied', 403);
+            return;
+        }
+        
+        // Delete guest
+        $result = $db->execute("DELETE FROM guests WHERE id = ?", [$id]);
+        
+        if ($result) {
+            // Redirect back to appropriate page
+            $redirectUrl = $isClient ? "../pages/my-guests.php?booking=$bookingId" : "../pages/guests.php?booking=$bookingId";
+            header("Location: $redirectUrl");
+            exit;
+        } else {
+            // Redirect with error
+            $redirectUrl = $isClient ? "../pages/my-guests.php?booking=$bookingId" : "../pages/guests.php?booking=$bookingId";
+            header("Location: $redirectUrl&error=" . urlencode('Failed to delete guest'));
+            exit;
+        }
+    } else {
+        // Fallback to mock data
+        $bookings = getMockData('bookings.json');
+        $guests = getMockData('guests.json');
+        $deleted = false;
+        $guestExists = false;
+        
+        // Find guest
+        foreach ($guests as $index => $guest) {
+            if ($guest['id'] == $id) {
+                $guestExists = true;
+                
+                // Get booking to verify permission
+                $bookingFound = false;
+                $booking = null;
+                
+                foreach ($bookings as $b) {
+                    if ($b['id'] == $guest['booking_id']) {
+                        $booking = $b;
+                        $bookingFound = true;
+                        break;
+                    }
+                }
+                
+                if (!$bookingFound) {
+                    // Redirect with error
+                    $redirectUrl = $isClient ? "../pages/my-guests.php?booking=$bookingId" : "../pages/guests.php?booking=$bookingId";
+                    header("Location: $redirectUrl&error=" . urlencode('Booking not found'));
+                    exit;
+                }
+                
+                // Check permission based on user role
+                if ($_SESSION['user_role'] === 'client') {
+                    // Clients can only delete guests for their own bookings
+                    if ($booking['user_id'] != $_SESSION['user_id']) {
+                        // Redirect with error
+                        $redirectUrl = $isClient ? "../pages/my-guests.php?booking=$bookingId" : "../pages/guests.php?booking=$bookingId";
+                        header("Location: $redirectUrl&error=" . urlencode('Permission denied'));
+                        exit;
+                    }
+                } else if ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'manager') {
+                    // Only admins and managers can delete guests for any booking
+                    // Redirect with error
+                    $redirectUrl = $isClient ? "../pages/my-guests.php?booking=$bookingId" : "../pages/guests.php?booking=$bookingId";
+                    header("Location: $redirectUrl&error=" . urlencode('Permission denied'));
+                    exit;
+                }
+                
+                // Remove guest
+                array_splice($guests, $index, 1);
+                $deleted = true;
+                break;
+            }
+        }
+        
+        if ($deleted) {
+            saveMockData('guests.json', $guests);
+            
+            // Redirect back to appropriate page
+            $redirectUrl = $isClient ? "../pages/my-guests.php?booking=$bookingId" : "../pages/guests.php?booking=$bookingId";
+            header("Location: $redirectUrl");
+            exit;
+        } else if ($guestExists) {
+            // Redirect with error
+            $redirectUrl = $isClient ? "../pages/my-guests.php?booking=$bookingId" : "../pages/guests.php?booking=$bookingId";
+            header("Location: $redirectUrl&error=" . urlencode('Failed to delete guest'));
+            exit;
+        } else {
+            // Redirect with error
+            $redirectUrl = $isClient ? "../pages/my-guests.php?booking=$bookingId" : "../pages/guests.php?booking=$bookingId";
+            header("Location: $redirectUrl&error=" . urlencode('Guest not found'));
+            exit;
         }
     }
-    
-    if (!$booking) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Booking not found']);
-        exit;
-    }
-    
-    // Check if user has access to this booking
-    if ($booking['user_id'] !== intval($_SESSION['user_id']) && !hasRole('manager')) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Access denied to this booking']);
-        exit;
-    }
-    
-    // Get guests data
-    $guests = getMockData('guests.json');
-    
-    // Find guest to delete
-    $guestIndex = -1;
-    foreach ($guests as $index => $guest) {
-        if ($guest['id'] === $id && $guest['booking_id'] === $bookingId) {
-            $guestIndex = $index;
-            break;
-        }
-    }
-    
-    if ($guestIndex === -1) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Guest not found']);
-        exit;
-    }
-    
-    // Remove guest from data
-    array_splice($guests, $guestIndex, 1);
-    
-    // Save data
-    saveMockData('guests.json', $guests);
-    
-    // Send API request to external API
-    apiDelete('guests/' . $id);
-    
-    // Return success response
-    header('Content-Type: application/json');
-    echo json_encode(['success' => true]);
-    exit;
 }
 
 /**
- * Handle sending invitation to a guest
+ * Handle sending invite to guest
  */
 function handleSendInvite() {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Invalid request method']);
-        exit;
+    // Validate input
+    $id = filter_var($_POST['id'] ?? 0, FILTER_VALIDATE_INT);
+    $bookingId = filter_var($_POST['booking_id'] ?? 0, FILTER_VALIDATE_INT);
+    
+    if (!$id || !$bookingId) {
+        respondWithError('Invalid guest ID or booking ID');
+        return;
     }
     
-    // Get input data
-    $id = intval($_POST['id'] ?? 0);
-    $bookingId = intval($_POST['booking_id'] ?? 0);
-    
-    if ($id <= 0 || $bookingId <= 0) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Invalid guest ID or booking ID']);
-        exit;
-    }
-    
-    // Verify booking exists and is accessible by the user
-    $bookings = getMockData('bookings.json');
-    $booking = null;
-    foreach ($bookings as $b) {
-        if ($b['id'] === $bookingId) {
-            $booking = $b;
-            break;
+    // Get guest from database or mock data
+    if (USE_DATABASE) {
+        $db = Database::getInstance();
+        
+        // Get guest
+        $guest = $db->querySingle(
+            "SELECT * FROM guests WHERE id = ?", 
+            [$id]
+        );
+        
+        if (!$guest) {
+            respondWithError('Guest not found');
+            return;
+        }
+        
+        // Verify booking
+        $booking = $db->querySingle(
+            "SELECT b.*, p.name as package_name 
+             FROM bookings b 
+             LEFT JOIN packages p ON b.package_id = p.id
+             WHERE b.id = ?", 
+            [$guest['booking_id']]
+        );
+        
+        if (!$booking) {
+            respondWithError('Booking not found');
+            return;
+        }
+        
+        // Check permission based on user role
+        if ($_SESSION['user_role'] === 'client') {
+            // Clients can only send invites for their own bookings
+            if ($booking['user_id'] != $_SESSION['user_id']) {
+                respondWithError('Permission denied', 403);
+                return;
+            }
+        } else if ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'manager') {
+            // Only admins and managers can send invites for any booking
+            respondWithError('Permission denied', 403);
+            return;
+        }
+        
+        // In a real application, you would send an email here
+        // For the demo, we'll just simulate success
+        
+        // Update guest's last invited timestamp
+        $db->execute(
+            "UPDATE guests SET last_invited_at = ? WHERE id = ?",
+            [date('Y-m-d H:i:s'), $id]
+        );
+        
+        respondWithSuccess('Invitation sent successfully');
+    } else {
+        // Fallback to mock data
+        $bookings = getMockData('bookings.json');
+        $guests = getMockData('guests.json');
+        $packages = getMockData('packages.json');
+        $guestFound = false;
+        
+        // Find guest
+        foreach ($guests as $index => $guest) {
+            if ($guest['id'] == $id) {
+                $guestFound = true;
+                
+                // Get booking
+                $bookingFound = false;
+                $booking = null;
+                
+                foreach ($bookings as $b) {
+                    if ($b['id'] == $guest['booking_id']) {
+                        $booking = $b;
+                        $bookingFound = true;
+                        break;
+                    }
+                }
+                
+                if (!$bookingFound) {
+                    respondWithError('Booking not found');
+                    return;
+                }
+                
+                // Check permission based on user role
+                if ($_SESSION['user_role'] === 'client') {
+                    // Clients can only send invites for their own bookings
+                    if ($booking['user_id'] != $_SESSION['user_id']) {
+                        respondWithError('Permission denied', 403);
+                        return;
+                    }
+                } else if ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'manager') {
+                    // Only admins and managers can send invites for any booking
+                    respondWithError('Permission denied', 403);
+                    return;
+                }
+                
+                // Get package name
+                $packageName = 'Unknown Package';
+                foreach ($packages as $p) {
+                    if ($p['id'] == $booking['package_id']) {
+                        $packageName = $p['name'];
+                        break;
+                    }
+                }
+                
+                // In a real application, you would send an email here
+                // For the demo, we'll just simulate success
+                
+                // Update guest's last invited timestamp
+                $guests[$index]['last_invited_at'] = date('Y-m-d H:i:s');
+                
+                // Save updated guests data
+                saveMockData('guests.json', $guests);
+                
+                respondWithSuccess('Invitation sent successfully');
+                return;
+            }
+        }
+        
+        if (!$guestFound) {
+            respondWithError('Guest not found');
         }
     }
+}
+
+/**
+ * Respond with success JSON
+ */
+function respondWithSuccess($message, $data = []) {
+    $response = [
+        'success' => true,
+        'message' => $message
+    ];
     
-    if (!$booking) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Booking not found']);
-        exit;
+    if (!empty($data)) {
+        $response['data'] = $data;
     }
     
-    // Check if user has access to this booking
-    if ($booking['user_id'] !== intval($_SESSION['user_id']) && !hasRole('manager')) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Access denied to this booking']);
-        exit;
-    }
-    
-    // Get guests data
-    $guests = getMockData('guests.json');
-    
-    // Find guest to send invitation
-    $guest = null;
-    foreach ($guests as $g) {
-        if ($g['id'] === $id && $g['booking_id'] === $bookingId) {
-            $guest = $g;
-            break;
-        }
-    }
-    
-    if (!$guest) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Guest not found']);
-        exit;
-    }
-    
-    // In a real application, you would send an actual email invitation
-    // For demo purposes, we'll simulate sending an email
-    $result = sendInvitation($guest, $booking);
-    
-    if (!$result) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Failed to send invitation']);
-        exit;
-    }
-    
-    // Return success response
     header('Content-Type: application/json');
-    echo json_encode(['success' => true, 'message' => 'Invitation sent successfully']);
+    echo json_encode($response);
     exit;
 }
 
 /**
- * Handle updating RSVP status (from invitation link)
+ * Respond with error JSON
  */
-function handleUpdateRsvp() {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Invalid request method']);
-        exit;
-    }
+function respondWithError($message, $code = 400) {
+    http_response_code($code);
     
-    // Get input data
-    $guestId = intval($_POST['guest_id'] ?? 0);
-    $rsvpStatus = sanitizeInput($_POST['rsvp_status'] ?? '');
-    
-    // Validate input
-    if ($guestId <= 0 || empty($rsvpStatus)) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Guest ID and RSVP status are required']);
-        exit;
-    }
-    
-    // Validate RSVP status
-    $validRsvpStatuses = ['yes', 'no'];
-    if (!in_array($rsvpStatus, $validRsvpStatuses)) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Invalid RSVP status']);
-        exit;
-    }
-    
-    // Get guests data
-    $guests = getMockData('guests.json');
-    
-    // Find guest to update
-    $guestIndex = -1;
-    foreach ($guests as $index => $guest) {
-        if ($guest['id'] === $guestId) {
-            $guestIndex = $index;
-            break;
-        }
-    }
-    
-    if ($guestIndex === -1) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Guest not found']);
-        exit;
-    }
-    
-    // Update RSVP status
-    $guests[$guestIndex]['rsvp_status'] = $rsvpStatus;
-    
-    // Save data
-    saveMockData('guests.json', $guests);
-    
-    // Send API request to external API
-    apiPut('guests/' . $guestId, $guests[$guestIndex]);
-    
-    // Return success response
     header('Content-Type: application/json');
-    echo json_encode(['success' => true, 'guest' => $guests[$guestIndex]]);
+    echo json_encode([
+        'success' => false,
+        'message' => $message
+    ]);
     exit;
 }
 ?>

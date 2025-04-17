@@ -1,236 +1,479 @@
 <?php
 session_start();
 require_once '../config/config.php';
-require_once 'api.php';
+require_once '../includes/functions.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Content-Type: application/json');
-    echo json_encode(['error' => 'Unauthorized']);
+    respondWithError('Unauthorized', 401);
     exit;
 }
 
-// Check action parameter
-$action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
+// Get the requested action
+$action = sanitizeInput($_POST['action'] ?? $_GET['action'] ?? '');
 
 switch ($action) {
     case 'create':
-        handleCreate();
+        handleCreatePackage();
         break;
-        
+    case 'create_custom':
+        handleCreateCustomPackage();
+        break;
     case 'update':
-        handleUpdate();
+        handleUpdatePackage();
         break;
-        
     case 'delete':
-        handleDelete();
+        handleDeletePackage();
         break;
-        
     default:
-        // Invalid action
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Invalid action']);
-        exit;
+        respondWithError('Invalid action specified');
+        break;
 }
 
 /**
  * Handle package creation
  */
-function handleCreate() {
-    // Check if user has manager or admin role
-    if (!hasRole('manager')) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Permission denied']);
-        exit;
+function handleCreatePackage() {
+    // Check if user has permission (managers/admins only)
+    if ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'manager') {
+        respondWithError('Permission denied', 403);
+        return;
     }
-    
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Invalid request method']);
-        exit;
-    }
-    
-    // Get input data
-    $name = sanitizeInput($_POST['name'] ?? '');
-    $price = floatval($_POST['price'] ?? 0);
-    $description = sanitizeInput($_POST['description'] ?? '');
-    $services = isset($_POST['services']) && is_array($_POST['services']) ? $_POST['services'] : [];
     
     // Validate input
-    if (empty($name) || $price <= 0 || empty($description) || empty($services)) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'All fields are required']);
-        exit;
+    $name = sanitizeInput($_POST['name'] ?? '');
+    $description = sanitizeInput($_POST['description'] ?? '');
+    $price = filter_var($_POST['price'] ?? 0, FILTER_VALIDATE_FLOAT);
+    $services = $_POST['services'] ?? [];
+    
+    if (empty($name) || empty($description) || $price <= 0 || empty($services)) {
+        respondWithError('All fields are required');
+        return;
     }
     
-    // Get packages data
-    $packages = getMockData('packages.json');
-    
-    // Generate package ID
-    $id = count($packages) > 0 ? max(array_column($packages, 'id')) + 1 : 1;
-    
-    // Process image upload
-    $imageUrl = null;
-    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        // In a real application, you would process the upload and save the file
-        // For demo, we'll use a placeholder image
-        $imageUrl = 'https://via.placeholder.com/500x300';
+    // Insert package into database or mock data
+    if (USE_DATABASE) {
+        $db = Database::getInstance();
+        
+        // Begin transaction
+        $db->beginTransaction();
+        
+        try {
+            // Insert package
+            $packageData = [
+                'name' => $name,
+                'description' => $description,
+                'price' => $price,
+                'customized' => 'false',
+                'created_by' => $_SESSION['user_id'],
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+            
+            // Handle image upload if provided
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                $imagePath = handleImageUpload($_FILES['image']);
+                if ($imagePath) {
+                    $packageData['image_url'] = $imagePath;
+                }
+            }
+            
+            // Insert package and get ID
+            $packageId = insertRecord('packages', $packageData);
+            
+            if ($packageId) {
+                // Insert package services
+                foreach ($services as $serviceId) {
+                    $db->execute(
+                        "INSERT INTO package_services (package_id, service_id) VALUES (?, ?)",
+                        [$packageId, $serviceId]
+                    );
+                }
+                
+                // Commit transaction
+                $db->commit();
+                
+                respondWithSuccess('Package created successfully', ['id' => $packageId]);
+            } else {
+                throw new Exception('Failed to create package');
+            }
+        } catch (Exception $e) {
+            // Rollback transaction
+            $db->rollback();
+            respondWithError('Error creating package: ' . $e->getMessage());
+        }
+    } else {
+        // Fallback to mock data
+        $packages = getMockData('packages.json');
+        
+        // Generate package ID
+        $id = count($packages) > 0 ? max(array_column($packages, 'id')) + 1 : 1;
+        
+        // Create new package
+        $newPackage = [
+            'id' => $id,
+            'name' => $name,
+            'description' => $description,
+            'price' => $price,
+            'image_url' => '',
+            'customized' => false,
+            'created_by' => $_SESSION['user_id'],
+            'created_at' => date('Y-m-d H:i:s'),
+            'services' => $services
+        ];
+        
+        // Handle image upload if provided
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+            $imagePath = handleImageUpload($_FILES['image']);
+            if ($imagePath) {
+                $newPackage['image_url'] = $imagePath;
+            }
+        }
+        
+        // Add package to data
+        $packages[] = $newPackage;
+        
+        // Save data
+        saveMockData('packages.json', $packages);
+        
+        respondWithSuccess('Package created successfully', ['id' => $id]);
+    }
+}
+
+/**
+ * Handle custom package creation by clients
+ */
+function handleCreateCustomPackage() {
+    // Check if user is a client
+    if ($_SESSION['user_role'] !== 'client') {
+        respondWithError('Permission denied', 403);
+        return;
     }
     
-    // Create new package
-    $newPackage = [
-        'id' => $id,
-        'name' => $name,
-        'image_url' => $imageUrl,
-        'description' => $description,
-        'price' => $price,
-        'customized' => false,
-        'created_by' => $_SESSION['user_id'],
-        'created_at' => date('Y-m-d H:i:s'),
-        'services' => array_map('intval', $services)
-    ];
+    // Validate input
+    $name = sanitizeInput($_POST['name'] ?? '');
+    $description = sanitizeInput($_POST['description'] ?? '');
+    $price = filter_var($_POST['price'] ?? 0, FILTER_VALIDATE_FLOAT);
+    $services = $_POST['services'] ?? [];
+    $created_by = $_SESSION['user_id'];
     
-    // Add package to data
-    $packages[] = $newPackage;
+    if (empty($name) || empty($description) || $price <= 0 || empty($services)) {
+        respondWithError('All fields are required');
+        return;
+    }
     
-    // Save data
-    saveMockData('packages.json', $packages);
-    
-    // Send API request to external API
-    apiPost('packages', $newPackage);
-    
-    // Return success response
-    header('Content-Type: application/json');
-    echo json_encode(['success' => true, 'package' => $newPackage]);
-    exit;
+    // Insert custom package into database or mock data
+    if (USE_DATABASE) {
+        $db = Database::getInstance();
+        
+        // Begin transaction
+        $db->beginTransaction();
+        
+        try {
+            // Insert package
+            $packageData = [
+                'name' => $name,
+                'description' => $description,
+                'price' => $price,
+                'customized' => 'true', // Mark as custom package
+                'created_by' => $created_by,
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+            
+            // Insert package and get ID
+            $packageId = insertRecord('packages', $packageData);
+            
+            if ($packageId) {
+                // Insert package services
+                foreach ($services as $serviceId) {
+                    $db->execute(
+                        "INSERT INTO package_services (package_id, service_id) VALUES (?, ?)",
+                        [$packageId, $serviceId]
+                    );
+                }
+                
+                // Commit transaction
+                $db->commit();
+                
+                respondWithSuccess('Custom package created successfully', ['id' => $packageId]);
+            } else {
+                throw new Exception('Failed to create custom package');
+            }
+        } catch (Exception $e) {
+            // Rollback transaction
+            $db->rollback();
+            respondWithError('Error creating custom package: ' . $e->getMessage());
+        }
+    } else {
+        // Fallback to mock data
+        $packages = getMockData('packages.json');
+        
+        // Generate package ID
+        $id = count($packages) > 0 ? max(array_column($packages, 'id')) + 1 : 1;
+        
+        // Create new custom package
+        $newPackage = [
+            'id' => $id,
+            'name' => $name,
+            'description' => $description,
+            'price' => $price,
+            'image_url' => '',
+            'customized' => true, // Mark as custom package
+            'created_by' => $created_by,
+            'created_at' => date('Y-m-d H:i:s'),
+            'services' => $services
+        ];
+        
+        // Add package to data
+        $packages[] = $newPackage;
+        
+        // Save data
+        saveMockData('packages.json', $packages);
+        
+        respondWithSuccess('Custom package created successfully', ['id' => $id]);
+    }
 }
 
 /**
  * Handle package update
  */
-function handleUpdate() {
-    // Check if user has manager or admin role
-    if (!hasRole('manager')) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Permission denied']);
-        exit;
+function handleUpdatePackage() {
+    // Check if user has permission (managers/admins only)
+    if ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'manager') {
+        respondWithError('Permission denied', 403);
+        return;
     }
-    
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Invalid request method']);
-        exit;
-    }
-    
-    // Get input data
-    $id = intval($_POST['id'] ?? 0);
-    $name = sanitizeInput($_POST['name'] ?? '');
-    $price = floatval($_POST['price'] ?? 0);
-    $description = sanitizeInput($_POST['description'] ?? '');
-    $services = isset($_POST['services']) && is_array($_POST['services']) ? $_POST['services'] : [];
     
     // Validate input
-    if ($id <= 0 || empty($name) || $price <= 0 || empty($description) || empty($services)) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'All fields are required']);
-        exit;
+    $id = filter_var($_POST['id'] ?? 0, FILTER_VALIDATE_INT);
+    $name = sanitizeInput($_POST['name'] ?? '');
+    $description = sanitizeInput($_POST['description'] ?? '');
+    $price = filter_var($_POST['price'] ?? 0, FILTER_VALIDATE_FLOAT);
+    $services = $_POST['services'] ?? [];
+    
+    if (!$id || empty($name) || empty($description) || $price <= 0 || empty($services)) {
+        respondWithError('All fields are required');
+        return;
     }
     
-    // Get packages data
-    $packages = getMockData('packages.json');
-    
-    // Find package to update
-    $packageIndex = -1;
-    foreach ($packages as $index => $package) {
-        if ($package['id'] === $id) {
-            $packageIndex = $index;
-            break;
+    // Update package in database or mock data
+    if (USE_DATABASE) {
+        $db = Database::getInstance();
+        
+        // Begin transaction
+        $db->beginTransaction();
+        
+        try {
+            // Update package
+            $packageData = [
+                'name' => $name,
+                'description' => $description,
+                'price' => $price
+            ];
+            
+            // Handle image upload if provided
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                $imagePath = handleImageUpload($_FILES['image']);
+                if ($imagePath) {
+                    $packageData['image_url'] = $imagePath;
+                }
+            }
+            
+            // Update package
+            $result = updateRecord('packages', $id, $packageData);
+            
+            if ($result) {
+                // Delete existing package services
+                $db->execute("DELETE FROM package_services WHERE package_id = ?", [$id]);
+                
+                // Insert updated package services
+                foreach ($services as $serviceId) {
+                    $db->execute(
+                        "INSERT INTO package_services (package_id, service_id) VALUES (?, ?)",
+                        [$id, $serviceId]
+                    );
+                }
+                
+                // Commit transaction
+                $db->commit();
+                
+                respondWithSuccess('Package updated successfully');
+            } else {
+                throw new Exception('Failed to update package');
+            }
+        } catch (Exception $e) {
+            // Rollback transaction
+            $db->rollback();
+            respondWithError('Error updating package: ' . $e->getMessage());
+        }
+    } else {
+        // Fallback to mock data
+        $packages = getMockData('packages.json');
+        $updated = false;
+        
+        foreach ($packages as $index => $package) {
+            if ($package['id'] == $id) {
+                $packages[$index]['name'] = $name;
+                $packages[$index]['description'] = $description;
+                $packages[$index]['price'] = $price;
+                $packages[$index]['services'] = $services;
+                
+                // Handle image upload if provided
+                if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                    $imagePath = handleImageUpload($_FILES['image']);
+                    if ($imagePath) {
+                        $packages[$index]['image_url'] = $imagePath;
+                    }
+                }
+                
+                $updated = true;
+                break;
+            }
+        }
+        
+        if ($updated) {
+            saveMockData('packages.json', $packages);
+            respondWithSuccess('Package updated successfully');
+        } else {
+            respondWithError('Package not found');
         }
     }
-    
-    if ($packageIndex === -1) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Package not found']);
-        exit;
-    }
-    
-    // Process image upload
-    $imageUrl = $packages[$packageIndex]['image_url'];
-    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        // In a real application, you would process the upload and save the file
-        // For demo, we'll use a placeholder image
-        $imageUrl = 'https://via.placeholder.com/500x300';
-    }
-    
-    // Update package
-    $packages[$packageIndex]['name'] = $name;
-    $packages[$packageIndex]['image_url'] = $imageUrl;
-    $packages[$packageIndex]['description'] = $description;
-    $packages[$packageIndex]['price'] = $price;
-    $packages[$packageIndex]['services'] = array_map('intval', $services);
-    
-    // Save data
-    saveMockData('packages.json', $packages);
-    
-    // Send API request to external API
-    apiPut('packages/' . $id, $packages[$packageIndex]);
-    
-    // Return success response
-    header('Content-Type: application/json');
-    echo json_encode(['success' => true, 'package' => $packages[$packageIndex]]);
-    exit;
 }
 
 /**
  * Handle package deletion
  */
-function handleDelete() {
-    // Check if user has manager or admin role
-    if (!hasRole('manager')) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Permission denied']);
-        exit;
+function handleDeletePackage() {
+    // Check if user has permission (managers/admins only)
+    if ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'manager') {
+        respondWithError('Permission denied', 403);
+        return;
     }
     
-    // Get package ID
-    $id = intval($_REQUEST['id'] ?? 0);
+    // Validate input
+    $id = filter_var($_GET['id'] ?? 0, FILTER_VALIDATE_INT);
     
-    if ($id <= 0) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Invalid package ID']);
-        exit;
+    if (!$id) {
+        respondWithError('Invalid package ID');
+        return;
     }
     
-    // Get packages data
-    $packages = getMockData('packages.json');
-    
-    // Find package to delete
-    $packageIndex = -1;
-    foreach ($packages as $index => $package) {
-        if ($package['id'] === $id) {
-            $packageIndex = $index;
-            break;
+    // Delete package from database or mock data
+    if (USE_DATABASE) {
+        $db = Database::getInstance();
+        
+        // Begin transaction
+        $db->beginTransaction();
+        
+        try {
+            // Delete package services first (cascading should handle this, but just to be sure)
+            $db->execute("DELETE FROM package_services WHERE package_id = ?", [$id]);
+            
+            // Delete package
+            $result = $db->execute("DELETE FROM packages WHERE id = ?", [$id]);
+            
+            if ($result) {
+                // Commit transaction
+                $db->commit();
+                
+                // Redirect back to packages page
+                header("Location: ../pages/packages.php");
+                exit;
+            } else {
+                throw new Exception('Failed to delete package');
+            }
+        } catch (Exception $e) {
+            // Rollback transaction
+            $db->rollback();
+            
+            // Redirect with error
+            header("Location: ../pages/packages.php?error=" . urlencode('Error deleting package: ' . $e->getMessage()));
+            exit;
+        }
+    } else {
+        // Fallback to mock data
+        $packages = getMockData('packages.json');
+        $deleted = false;
+        
+        foreach ($packages as $index => $package) {
+            if ($package['id'] == $id) {
+                array_splice($packages, $index, 1);
+                $deleted = true;
+                break;
+            }
+        }
+        
+        if ($deleted) {
+            saveMockData('packages.json', $packages);
+            
+            // Redirect back to packages page
+            header("Location: ../pages/packages.php");
+            exit;
+        } else {
+            // Redirect with error
+            header("Location: ../pages/packages.php?error=" . urlencode('Package not found'));
+            exit;
         }
     }
+}
+
+/**
+ * Handle image upload
+ */
+function handleImageUpload($file) {
+    $uploadDir = '../assets/uploads/';
     
-    if ($packageIndex === -1) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Package not found']);
-        exit;
+    // Create upload directory if it doesn't exist
+    if (!file_exists($uploadDir)) {
+        mkdir($uploadDir, 0777, true);
     }
     
-    // Remove package from data
-    array_splice($packages, $packageIndex, 1);
+    // Generate unique filename
+    $fileName = uniqid() . '_' . basename($file['name']);
+    $uploadPath = $uploadDir . $fileName;
     
-    // Save data
-    saveMockData('packages.json', $packages);
+    // Validate file type
+    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!in_array($file['type'], $allowedTypes)) {
+        return false;
+    }
     
-    // Send API request to external API
-    apiDelete('packages/' . $id);
+    // Move uploaded file
+    if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
+        return $uploadPath;
+    }
     
-    // Return success response
+    return false;
+}
+
+/**
+ * Respond with success JSON
+ */
+function respondWithSuccess($message, $data = []) {
+    $response = [
+        'success' => true,
+        'message' => $message
+    ];
+    
+    if (!empty($data)) {
+        $response['data'] = $data;
+    }
+    
     header('Content-Type: application/json');
-    echo json_encode(['success' => true]);
+    echo json_encode($response);
+    exit;
+}
+
+/**
+ * Respond with error JSON
+ */
+function respondWithError($message, $code = 400) {
+    http_response_code($code);
+    
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => false,
+        'message' => $message
+    ]);
     exit;
 }
 ?>
