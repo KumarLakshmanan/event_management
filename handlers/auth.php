@@ -41,15 +41,19 @@ function handleLogin() {
         return;
     }
     
-    // Get users data
-    $users = getMockData('users.json');
-    
     // Find user by email
     $user = null;
-    foreach ($users as $u) {
-        if ($u['email'] === $email) {
-            $user = $u;
-            break;
+    if (USE_DATABASE) {
+        $db = Database::getInstance();
+        $user = $db->queryOne("SELECT * FROM users WHERE email = ?", [$email]);
+    } else {
+        // Fallback to mock data
+        $users = getMockData('users.json');
+        foreach ($users as $u) {
+            if ($u['email'] === $email) {
+                $user = $u;
+                break;
+            }
         }
     }
     
@@ -107,26 +111,34 @@ function handleRegister() {
         return;
     }
     
-    // Get users data
-    $users = getMockData('users.json');
-    
     // Check if email already exists
-    foreach ($users as $user) {
-        if ($user['email'] === $email) {
-            redirect('../pages/register.php', 'Email already in use', 'danger');
-            return;
+    $emailExists = false;
+    
+    if (USE_DATABASE) {
+        $db = Database::getInstance();
+        $existingUser = $db->queryOne("SELECT id FROM users WHERE email = ?", [$email]);
+        $emailExists = ($existingUser !== false);
+    } else {
+        // Fallback to mock data
+        $users = getMockData('users.json');
+        foreach ($users as $user) {
+            if ($user['email'] === $email) {
+                $emailExists = true;
+                break;
+            }
         }
     }
     
-    // Generate user ID
-    $id = count($users) > 0 ? max(array_column($users, 'id')) + 1 : 1;
+    if ($emailExists) {
+        redirect('../pages/register.php', 'Email already in use', 'danger');
+        return;
+    }
     
     // Hash password
     $passwordHash = password_hash($password, PASSWORD_DEFAULT);
     
     // Create new user
     $newUser = [
-        'id' => $id,
         'name' => $name,
         'email' => $email,
         'phone' => $phone,
@@ -137,11 +149,24 @@ function handleRegister() {
         'created_at' => date('Y-m-d H:i:s')
     ];
     
-    // Add user to data
-    $users[] = $newUser;
+    // Insert user into database or mock data
+    $userId = false;
+    if (USE_DATABASE) {
+        $userId = insertRecord('users', $newUser);
+    } else {
+        // Fallback to mock data
+        $users = getMockData('users.json');
+        $id = count($users) > 0 ? max(array_column($users, 'id')) + 1 : 1;
+        $newUser['id'] = $id;
+        $users[] = $newUser;
+        saveMockData('users.json', $users);
+        $userId = $id;
+    }
     
-    // Save data
-    saveMockData('users.json', $users);
+    if (!$userId) {
+        redirect('../pages/register.php', 'Error creating account. Please try again.', 'danger');
+        return;
+    }
     
     // Send API request to external API
     sendApiRequest('register', $newUser);

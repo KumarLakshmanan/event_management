@@ -7,56 +7,99 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// Get mock data
-$users = getMockData('users.json');
-$packages = getMockData('packages.json');
-$services = getMockData('services.json');
-$bookings = getMockData('bookings.json');
-
-// Count data
-$totalPackages = count($packages);
-$totalServices = count($services);
-$totalBookings = count($bookings);
-$pendingBookings = 0;
-$confirmedBookings = 0;
-
-// Count booking statuses
-foreach ($bookings as $booking) {
-    if ($booking['status'] === 'pending') {
-        $pendingBookings++;
-    } else if ($booking['status'] === 'confirmed') {
-        $confirmedBookings++;
-    }
-}
-
-// Filter bookings for clients to show only their own
-if ($_SESSION['user_role'] === 'client') {
-    $filteredBookings = array_filter($bookings, function($booking) {
-        return $booking['user_id'] == $_SESSION['user_id'];
-    });
-    $totalBookings = count($filteredBookings);
+// Get data from database or mock files
+if (USE_DATABASE) {
+    $db = Database::getInstance();
     
-    // Recount status
+    // Get all data
+    $users = $db->query("SELECT * FROM users");
+    $packages = $db->query("SELECT * FROM packages");
+    $services = $db->query("SELECT * FROM services");
+    
+    // Get bookings based on user role
+    if ($_SESSION['user_role'] === 'client') {
+        $bookings = $db->query("SELECT * FROM bookings WHERE user_id = ?", [$_SESSION['user_id']]);
+        
+        // Count booking statuses
+        $pendingCount = $db->queryOne("SELECT COUNT(*) as count FROM bookings WHERE user_id = ? AND status = 'pending'", [$_SESSION['user_id']]);
+        $confirmedCount = $db->queryOne("SELECT COUNT(*) as count FROM bookings WHERE user_id = ? AND status = 'confirmed'", [$_SESSION['user_id']]);
+        
+        $pendingBookings = $pendingCount['count'];
+        $confirmedBookings = $confirmedCount['count'];
+        
+        // Get recent bookings
+        $recentBookings = $db->query("SELECT * FROM bookings WHERE user_id = ? ORDER BY created_at DESC LIMIT 5", [$_SESSION['user_id']]);
+    } else {
+        $bookings = $db->query("SELECT * FROM bookings");
+        
+        // Count booking statuses
+        $pendingCount = $db->queryOne("SELECT COUNT(*) as count FROM bookings WHERE status = 'pending'");
+        $confirmedCount = $db->queryOne("SELECT COUNT(*) as count FROM bookings WHERE status = 'confirmed'");
+        
+        $pendingBookings = $pendingCount['count'];
+        $confirmedBookings = $confirmedCount['count'];
+        
+        // Get recent bookings
+        $recentBookings = $db->query("SELECT * FROM bookings ORDER BY created_at DESC LIMIT 5");
+    }
+    
+    // Count totals
+    $totalPackages = count($packages);
+    $totalServices = count($services);
+    $totalBookings = count($bookings);
+    
+} else {
+    // Fallback to mock data
+    $users = getMockData('users.json');
+    $packages = getMockData('packages.json');
+    $services = getMockData('services.json');
+    $bookings = getMockData('bookings.json');
+    
+    // Count data
+    $totalPackages = count($packages);
+    $totalServices = count($services);
+    $totalBookings = count($bookings);
     $pendingBookings = 0;
     $confirmedBookings = 0;
-    foreach ($filteredBookings as $booking) {
+    
+    // Count booking statuses
+    foreach ($bookings as $booking) {
         if ($booking['status'] === 'pending') {
             $pendingBookings++;
         } else if ($booking['status'] === 'confirmed') {
             $confirmedBookings++;
         }
     }
-}
-
-// Get recent bookings
-$recentBookings = array_slice($bookings, 0, 5);
-
-// Filter for clients
-if ($_SESSION['user_role'] === 'client') {
-    $recentBookings = array_filter($recentBookings, function($booking) {
-        return $booking['user_id'] == $_SESSION['user_id'];
-    });
-    $recentBookings = array_slice($recentBookings, 0, 5);
+    
+    // Filter bookings for clients to show only their own
+    if ($_SESSION['user_role'] === 'client') {
+        $filteredBookings = array_filter($bookings, function($booking) {
+            return $booking['user_id'] == $_SESSION['user_id'];
+        });
+        $totalBookings = count($filteredBookings);
+        
+        // Recount status
+        $pendingBookings = 0;
+        $confirmedBookings = 0;
+        foreach ($filteredBookings as $booking) {
+            if ($booking['status'] === 'pending') {
+                $pendingBookings++;
+            } else if ($booking['status'] === 'confirmed') {
+                $confirmedBookings++;
+            }
+        }
+    }
+    
+    // Get recent bookings
+    $recentBookings = array_slice($bookings, 0, 5);
+    
+    // Filter for clients
+    if ($_SESSION['user_role'] === 'client') {
+        $recentBookings = array_filter($recentBookings, function($booking) {
+            return $booking['user_id'] == $_SESSION['user_id'];
+        });
+        $recentBookings = array_slice($recentBookings, 0, 5);
+    }
 }
 ?>
 
