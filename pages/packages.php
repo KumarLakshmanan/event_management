@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// Get packages and services data
+// Get packages and services data from database
 if (USE_DATABASE) {
     $db = Database::getInstance();
     
@@ -18,24 +18,26 @@ if (USE_DATABASE) {
     if ($_SESSION['user_role'] === 'client') {
         // For clients: show standard packages (customized=false) OR their own custom packages
         $packages = $db->query("
-            SELECT p.*, 
-                   (SELECT array_agg(ps.service_id) FROM package_services ps WHERE ps.package_id = p.id) as services
-            FROM packages p 
-            WHERE p.customized = false 
-               OR (p.customized = true AND p.created_by = ?)
-            ORDER BY p.name", 
+            SELECT * FROM packages 
+            WHERE customized = false 
+               OR (customized = true AND created_by = ?)
+            ORDER BY name", 
             [$_SESSION['user_id']]
         );
     } else {
         // For admins/managers: show all packages
-        $packages = $db->query("
-            SELECT p.*, 
-                   (SELECT array_agg(ps.service_id) FROM package_services ps WHERE ps.package_id = p.id) as services
-            FROM packages p 
-            ORDER BY p.name"
-        );
+        $packages = $db->query("SELECT * FROM packages ORDER BY name");
     }
     
+    // For each package, get the services
+    foreach ($packages as &$package) {
+        $package_services = $db->query(
+            "SELECT service_id FROM package_services WHERE package_id = ?",
+            [$package['id']]
+        );
+        $package['services'] = array_column($package_services, 'service_id');
+    }
+    unset($package); // break the reference
 } else {
     // Fallback to mock data if database is not available
     $packages = getMockData('packages.json');

@@ -125,6 +125,9 @@ $(document).ready(function() {
         calculateTotalPrice();
     });
     
+    // Initial calculation when page loads
+    calculateTotalPrice();
+    
     // Form validation
     $('#customPackageForm').on('submit', function(e) {
         if (!validateForm()) {
@@ -136,11 +139,18 @@ $(document).ready(function() {
     function calculateTotalPrice() {
         var total = 0;
         $('.service-checkbox:checked').each(function() {
-            total += parseFloat($(this).data('price'));
+            var price = parseFloat($(this).data('price'));
+            if (!isNaN(price)) {
+                total += price;
+            }
         });
         
         $('#totalPrice').text('$' + total.toFixed(2));
         $('#priceInput').val(total);
+        
+        // Debug - log the calculation
+        console.log('Total price calculated: $' + total.toFixed(2));
+        console.log('Number of checked services: ' + $('.service-checkbox:checked').length);
     }
     
     function validateForm() {

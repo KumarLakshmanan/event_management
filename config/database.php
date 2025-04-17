@@ -64,6 +64,13 @@ class Database {
             return false;
         }
     }
+    
+    /**
+     * Alternative name for queryOne for compatibility
+     */
+    public function querySingle($sql, $params = []) {
+        return $this->queryOne($sql, $params);
+    }
 
     /**
      * Execute a query that doesn't return results (INSERT, UPDATE, DELETE)
