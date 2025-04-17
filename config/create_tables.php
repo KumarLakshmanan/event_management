@@ -24,7 +24,7 @@ $tables = [
         can_give_discount BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )",
-    
+
     // Services table
     "CREATE TABLE IF NOT EXISTS services (
         id SERIAL PRIMARY KEY,
@@ -32,7 +32,7 @@ $tables = [
         description TEXT,
         price DECIMAL(10, 2) NOT NULL
     )",
-    
+
     // Packages table
     "CREATE TABLE IF NOT EXISTS packages (
         id SERIAL PRIMARY KEY,
@@ -44,7 +44,7 @@ $tables = [
         created_by INTEGER REFERENCES users(id),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )",
-    
+
     // Package-Service relationship table
     "CREATE TABLE IF NOT EXISTS package_services (
         id SERIAL PRIMARY KEY,
@@ -52,7 +52,7 @@ $tables = [
         service_id INTEGER REFERENCES services(id) ON DELETE CASCADE,
         UNIQUE(package_id, service_id)
     )",
-    
+
     // Bookings table
     "CREATE TABLE IF NOT EXISTS bookings (
         id SERIAL PRIMARY KEY,
@@ -65,7 +65,7 @@ $tables = [
         status VARCHAR(20) DEFAULT 'pending',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )",
-    
+
     // Guests table
     "CREATE TABLE IF NOT EXISTS guests (
         id SERIAL PRIMARY KEY,
@@ -80,20 +80,10 @@ $tables = [
 // Begin transaction
 $connection->beginTransaction();
 
-try {
-    // Create tables
-    foreach ($tables as $sql) {
-        $connection->exec($sql);
-        echo "Table created successfully.\n";
-    }
-    
-    // Commit transaction
-    $connection->commit();
-    echo "All tables created successfully!\n";
-    
-} catch (PDOException $e) {
-    // Rollback transaction on error
-    $connection->rollBack();
-    echo "Error creating tables: " . $e->getMessage() . "\n";
+// Create tables
+foreach ($tables as $sql) {
+    $connection->exec($sql);
+    echo "Table created successfully.\n";
 }
+
 ?>

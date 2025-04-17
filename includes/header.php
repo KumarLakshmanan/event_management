@@ -44,22 +44,22 @@ switch ($currentPage) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $pageTitle; ?></title>
-    
+
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    
+
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
-    
+
     <!-- Select2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
-    
+
     <!-- Datepicker CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
-    
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
@@ -68,7 +68,7 @@ switch ($currentPage) {
     <div class="wrapper">
         <!-- Sidebar -->
         <?php include 'sidebar.php'; ?>
-        
+
         <!-- Main Content -->
         <div class="content">
             <!-- Navbar -->
@@ -77,19 +77,7 @@ switch ($currentPage) {
                 <button id="sidebarToggle" class="btn btn-link">
                     <i class="fa fa-bars"></i>
                 </button>
-                
-                <!-- Navbar Search -->
-                <div class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-                    <div class="input-group">
-                        <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" type="button">
-                                <i class="fas fa-search fa-sm"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
+
                 <!-- Navbar Items -->
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item dropdown no-arrow">
@@ -116,10 +104,10 @@ switch ($currentPage) {
                     </li>
                 </ul>
             </nav>
-            
+
             <!-- Alert Container -->
             <div id="alertContainer"></div>
-            
+
             <!-- Flash Message -->
             <?php if (isset($_SESSION['flash_message']) && isset($_SESSION['flash_type'])): ?>
                 <div id="flashMessage" class="alert alert-<?php echo $_SESSION['flash_type']; ?> alert-dismissible fade show" role="alert">
@@ -130,13 +118,13 @@ switch ($currentPage) {
                 </div>
                 <?php unset($_SESSION['flash_message'], $_SESSION['flash_type']); ?>
             <?php endif; ?>
-            
+
             <!-- Page Content -->
             <div class="container-fluid">
 <?php else: ?>
     <!-- Alert Container -->
     <div id="alertContainer"></div>
-    
+
     <!-- Flash Message -->
     <?php if (isset($_SESSION['flash_message']) && isset($_SESSION['flash_type'])): ?>
         <div id="flashMessage" class="alert alert-<?php echo $_SESSION['flash_type']; ?> alert-dismissible fade show" role="alert">

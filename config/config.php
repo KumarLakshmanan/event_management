@@ -18,26 +18,26 @@ require_once __DIR__ . '/database.php';
 function getData($table, $conditions = null, $orderBy = null) {
     if (USE_DATABASE) {
         $db = Database::getInstance();
-        
+
         $sql = "SELECT * FROM $table";
         $params = [];
-        
+
         if ($conditions) {
             $whereClauses = [];
             foreach ($conditions as $key => $value) {
                 $whereClauses[] = "$key = ?";
                 $params[] = $value;
             }
-            
+
             if (!empty($whereClauses)) {
                 $sql .= " WHERE " . implode(' AND ', $whereClauses);
             }
         }
-        
+
         if ($orderBy) {
             $sql .= " ORDER BY $orderBy";
         }
-        
+
         return $db->query($sql, $params);
     } else {
         // Fallback to mock data for backward compatibility
@@ -61,7 +61,7 @@ function getData($table, $conditions = null, $orderBy = null) {
             default:
                 return [];
         }
-        
+
         return getMockData($file);
     }
 }
@@ -87,14 +87,14 @@ function getRecordById($table, $id) {
 function insertRecord($table, $data) {
     if (USE_DATABASE) {
         $db = Database::getInstance();
-        
+
         $keys = array_keys($data);
         $fields = implode(', ', $keys);
         $placeholders = implode(', ', array_fill(0, count($keys), '?'));
-        
-        $sql = "INSERT INTO $table ($fields) VALUES ($placeholders) RETURNING id";
+
+        $sql = "INSERT INTO $table ($fields) VALUES ($placeholders)";
         $params = array_values($data);
-        
+
         $result = $db->queryOne($sql, $params);
         return $result ? $result['id'] : false;
     } else {
@@ -119,7 +119,7 @@ function insertRecord($table, $data) {
             default:
                 return false;
         }
-        
+
         $records = getMockData($file);
         $id = count($records) > 0 ? max(array_column($records, 'id')) + 1 : 1;
         $data['id'] = $id;
@@ -133,20 +133,20 @@ function insertRecord($table, $data) {
 function updateRecord($table, $id, $data) {
     if (USE_DATABASE) {
         $db = Database::getInstance();
-        
+
         $setClauses = [];
         $params = [];
-        
+
         foreach ($data as $key => $value) {
             $setClauses[] = "$key = ?";
             $params[] = $value;
         }
-        
+
         $setClause = implode(', ', $setClauses);
         $params[] = $id;
-        
+
         $sql = "UPDATE $table SET $setClause WHERE id = ?";
-        
+
         return $db->execute($sql, $params);
     } else {
         // Fallback to mock data for backward compatibility
@@ -170,10 +170,10 @@ function updateRecord($table, $id, $data) {
             default:
                 return false;
         }
-        
+
         $records = getMockData($file);
         $updated = false;
-        
+
         foreach ($records as $index => $record) {
             if ($record['id'] == $id) {
                 foreach ($data as $key => $value) {
@@ -183,12 +183,12 @@ function updateRecord($table, $id, $data) {
                 break;
             }
         }
-        
+
         if ($updated) {
             saveMockData($file, $records);
             return true;
         }
-        
+
         return false;
     }
 }
@@ -220,23 +220,23 @@ function deleteRecord($table, $id) {
             default:
                 return false;
         }
-        
+
         $records = getMockData($file);
         $recordIndex = -1;
-        
+
         foreach ($records as $index => $record) {
             if ($record['id'] == $id) {
                 $recordIndex = $index;
                 break;
             }
         }
-        
+
         if ($recordIndex !== -1) {
             array_splice($records, $recordIndex, 1);
             saveMockData($file, $records);
             return true;
         }
-        
+
         return false;
     }
 }
@@ -263,7 +263,7 @@ function hasRole($role) {
     if (!isset($_SESSION['user_role'])) {
         return false;
     }
-    
+
     if ($role === 'admin') {
         return $_SESSION['user_role'] === 'admin';
     } else if ($role === 'manager') {
@@ -271,7 +271,7 @@ function hasRole($role) {
     } else if ($role === 'client') {
         return $_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager' || $_SESSION['user_role'] === 'client';
     }
-    
+
     return false;
 }
 

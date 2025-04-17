@@ -6,17 +6,16 @@
 class Database {
     private static $instance = null;
     private $connection;
-    
+
     private function __construct() {
-        // Use environment variables directly instead of parsing DATABASE_URL
-        $host = getenv('PGHOST');
-        $port = getenv('PGPORT');
-        $dbname = getenv('PGDATABASE');
-        $user = getenv('PGUSER');
-        $password = getenv('PGPASSWORD');
-        
-        $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
-        
+        $host = "localhost";
+        $port = "3306";
+        $dbname = "eventmanagement";
+        $user = "root";
+        $password = "";
+
+        $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
+
         try {
             $this->connection = new PDO($dsn, $user, $password);
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -25,19 +24,19 @@ class Database {
             exit;
         }
     }
-    
+
     public static function getInstance() {
         if (self::$instance === null) {
             self::$instance = new self();
         }
-        
+
         return self::$instance;
     }
-    
+
     public function getConnection() {
         return $this->connection;
     }
-    
+
     /**
      * Execute a query and return the results as an associative array
      */
@@ -51,7 +50,7 @@ class Database {
             return false;
         }
     }
-    
+
     /**
      * Execute a single row query and return the result as an associative array
      */
@@ -65,42 +64,50 @@ class Database {
             return false;
         }
     }
-    
+
     /**
      * Execute a query that doesn't return results (INSERT, UPDATE, DELETE)
+     * For INSERT queries with RETURNING, use queryOne to get the returned row
      */
     public function execute($sql, $params = []) {
         try {
             $stmt = $this->connection->prepare($sql);
             $stmt->execute($params);
+
+            // If this is a RETURNING query, return the statement for further processing
+            if (stripos($sql, 'RETURNING') !== false) {
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                return $result ? $result : true;
+            }
+
             return true;
         } catch (PDOException $e) {
             echo "Execute Error: " . $e->getMessage();
             return false;
         }
     }
-    
+
     /**
      * Get the last inserted ID
      */
     public function lastInsertId() {
         return $this->connection->lastInsertId();
     }
-    
+
     /**
      * Begin a transaction
      */
     public function beginTransaction() {
         return $this->connection->beginTransaction();
     }
-    
+
     /**
      * Commit a transaction
      */
     public function commit() {
         return $this->connection->commit();
     }
-    
+
     /**
      * Rollback a transaction
      */

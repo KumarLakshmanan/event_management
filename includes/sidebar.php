@@ -5,19 +5,21 @@ $currentFile = basename($_SERVER['PHP_SELF']);
 // Define sidebar items based on user role
 $sidebarItems = [];
 
-// Items for all users (clients, managers, admins)
+// Items for clients
 $sidebarItems['client'] = [
     ['title' => 'Dashboard', 'icon' => 'fa-tachometer-alt', 'link' => 'dashboard.php'],
     ['title' => 'Packages', 'icon' => 'fa-box', 'link' => 'packages.php'],
     ['title' => 'My Bookings', 'icon' => 'fa-calendar-check', 'link' => 'my-bookings.php'],
+    ['title' => 'My Guests', 'icon' => 'fa-users', 'link' => 'my-guests.php'],
 ];
 
-// Additional items for managers and admins
-$sidebarItems['manager'] = array_merge($sidebarItems['client'], [
+// Items for managers and admins (without My Bookings and My Guests)
+$sidebarItems['manager'] = [
+    ['title' => 'Dashboard', 'icon' => 'fa-tachometer-alt', 'link' => 'dashboard.php'],
+    ['title' => 'Packages', 'icon' => 'fa-box', 'link' => 'packages-admin.php'],
     ['title' => 'Services', 'icon' => 'fa-concierge-bell', 'link' => 'services.php'],
     ['title' => 'Bookings', 'icon' => 'fa-calendar', 'link' => 'bookings.php'],
-    ['title' => 'Guests', 'icon' => 'fa-users', 'link' => 'guests.php'],
-]);
+];
 
 // Additional items for admins only
 $sidebarItems['admin'] = array_merge($sidebarItems['manager'], [
