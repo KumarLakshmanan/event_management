@@ -20,9 +20,10 @@ if ($users[0]['count'] > 0) {
 $db->beginTransaction();
 
 try {
-    // Create admin user
-    $db->execute(
-        "INSERT INTO users (name, email, phone, password_hash, address, role, can_give_discount, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+    // Create admin user and get ID
+    $adminId = null;
+    $adminResult = $db->execute(
+        "INSERT INTO users (name, email, phone, password_hash, address, role, can_give_discount, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id",
         [
             'Admin User',
             'admin@example.com',
@@ -30,14 +31,20 @@ try {
             password_hash('admin123', PASSWORD_DEFAULT),
             '123 Admin St, Admin City',
             'admin', 
-            true,
+            'true', // Using string 'true' instead of boolean true
             date('Y-m-d H:i:s')
         ]
     );
     
-    // Create manager user
-    $db->execute(
-        "INSERT INTO users (name, email, phone, password_hash, address, role, can_give_discount, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+    if ($adminResult) {
+        $adminId = $db->queryOne("SELECT lastval() as id");
+        $adminId = $adminId['id'];
+    }
+    
+    // Create manager user and get ID
+    $managerId = null;
+    $managerResult = $db->execute(
+        "INSERT INTO users (name, email, phone, password_hash, address, role, can_give_discount, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id",
         [
             'Manager User',
             'manager@example.com',
@@ -45,14 +52,20 @@ try {
             password_hash('manager123', PASSWORD_DEFAULT),
             '456 Manager Ave, Manager Town',
             'manager', 
-            true,
+            'true', // Using string 'true' instead of boolean true
             date('Y-m-d H:i:s')
         ]
     );
     
-    // Create client user
-    $db->execute(
-        "INSERT INTO users (name, email, phone, password_hash, address, role, can_give_discount, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+    if ($managerResult) {
+        $managerId = $db->queryOne("SELECT lastval() as id");
+        $managerId = $managerId['id'];
+    }
+    
+    // Create client user and get ID
+    $clientId = null;
+    $clientResult = $db->execute(
+        "INSERT INTO users (name, email, phone, password_hash, address, role, can_give_discount, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id",
         [
             'Client User',
             'client@example.com',
@@ -60,10 +73,15 @@ try {
             password_hash('client123', PASSWORD_DEFAULT),
             '789 Client Blvd, Client Village',
             'client', 
-            false,
+            'false', // Using string 'false' instead of boolean false
             date('Y-m-d H:i:s')
         ]
     );
+    
+    if ($clientResult) {
+        $clientId = $db->queryOne("SELECT lastval() as id");
+        $clientId = $clientId['id'];
+    }
     
     // Add services
     $services = [
@@ -82,13 +100,13 @@ try {
         );
     }
     
-    // Add packages
+    // Add packages - using admin ID for created_by
     $packages = [
-        ['Basic Wedding Package', 'https://via.placeholder.com/500x300', 'A simple package for small weddings', 2000.00, false, 1],
-        ['Premium Wedding Package', 'https://via.placeholder.com/500x300', 'Our most popular wedding package with all essential services', 4000.00, false, 1],
-        ['Deluxe Wedding Package', 'https://via.placeholder.com/500x300', 'The ultimate wedding experience with premium services', 6000.00, false, 1],
-        ['Corporate Event Package', 'https://via.placeholder.com/500x300', 'Perfect for business meetings and corporate events', 3000.00, false, 2],
-        ['Birthday Celebration Package', 'https://via.placeholder.com/500x300', 'Make your birthday special with our celebration package', 1500.00, false, 2]
+        ['Basic Wedding Package', 'https://via.placeholder.com/500x300', 'A simple package for small weddings', 2000.00, 'false', $adminId],
+        ['Premium Wedding Package', 'https://via.placeholder.com/500x300', 'Our most popular wedding package with all essential services', 4000.00, 'false', $adminId],
+        ['Deluxe Wedding Package', 'https://via.placeholder.com/500x300', 'The ultimate wedding experience with premium services', 6000.00, 'false', $adminId],
+        ['Corporate Event Package', 'https://via.placeholder.com/500x300', 'Perfect for business meetings and corporate events', 3000.00, 'false', $managerId],
+        ['Birthday Celebration Package', 'https://via.placeholder.com/500x300', 'Make your birthday special with our celebration package', 1500.00, 'false', $managerId]
     ];
     
     foreach ($packages as $package) {
@@ -123,29 +141,36 @@ try {
         );
     }
     
-    // Add bookings
+    // Add bookings using client ID
     $bookings = [
         // Client booking (pending)
-        [3, 1, 'Wedding Venue, New York', '2025-06-15', null, null, 'pending'],
+        [$clientId, 1, 'Wedding Venue, New York', '2025-06-15', null, null, 'pending'],
         
         // Client booking (confirmed)
-        [3, 2, 'Grand Hall, Los Angeles', '2025-07-22', 200.00, 2, 'confirmed'],
+        [$clientId, 2, 'Grand Hall, Los Angeles', '2025-07-22', 200.00, $managerId, 'confirmed'],
         
         // Another client booking (pending)
-        [3, 4, 'Corporate Center, Chicago', '2025-05-10', null, null, 'pending'],
+        [$clientId, 4, 'Corporate Center, Chicago', '2025-05-10', null, null, 'pending'],
         
         // Another client booking (confirmed)
-        [3, 3, 'Luxury Resort, Miami', '2025-08-05', 500.00, 1, 'confirmed'],
+        [$clientId, 3, 'Luxury Resort, Miami', '2025-08-05', 500.00, $adminId, 'confirmed'],
         
         // Another client booking (confirmed)
-        [3, 5, 'Community Center, Dallas', '2025-04-30', null, 2, 'confirmed']
+        [$clientId, 5, 'Community Center, Dallas', '2025-04-30', null, $managerId, 'confirmed']
     ];
     
-    foreach ($bookings as $booking) {
-        $db->execute(
-            "INSERT INTO bookings (user_id, package_id, event_place, event_date, discount, confirmed_by, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+    $bookingIds = [];
+    
+    foreach ($bookings as $index => $booking) {
+        $bookingResult = $db->execute(
+            "INSERT INTO bookings (user_id, package_id, event_place, event_date, discount, confirmed_by, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id",
             [$booking[0], $booking[1], $booking[2], $booking[3], $booking[4], $booking[5], $booking[6], date('Y-m-d H:i:s')]
         );
+        
+        if ($bookingResult) {
+            $bookingId = $db->queryOne("SELECT lastval() as id");
+            $bookingIds[$index + 1] = $bookingId['id']; // +1 to match the 1-based indexing in the guests array
+        }
     }
     
     // Add guests
