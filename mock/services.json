@@ -1,0 +1,62 @@
+[
+    {
+        "id": 1,
+        "name": "Photography",
+        "description": "Professional event photography with digital delivery of high-resolution images.",
+        "price": 500.00
+    },
+    {
+        "id": 2,
+        "name": "Catering",
+        "description": "Full-service catering including appetizers, main course, and desserts for all guests.",
+        "price": 1500.00
+    },
+    {
+        "id": 3,
+        "name": "Venue Decoration",
+        "description": "Custom decoration services including floral arrangements, lighting, and thematic elements.",
+        "price": 800.00
+    },
+    {
+        "id": 4,
+        "name": "DJ Services",
+        "description": "Professional DJ with sound equipment, lights, and music selection for the entire event.",
+        "price": 600.00
+    },
+    {
+        "id": 5,
+        "name": "Videography",
+        "description": "Professional event videography with edited highlight reel and full event coverage.",
+        "price": 700.00
+    },
+    {
+        "id": 6,
+        "name": "Transportation",
+        "description": "Luxury vehicle service for the event, including chauffeur and decorations.",
+        "price": 400.00
+    },
+    {
+        "id": 7,
+        "name": "Live Band",
+        "description": "Professional live music performance for up to 3 hours during the event.",
+        "price": 1200.00
+    },
+    {
+        "id": 8,
+        "name": "Bartending",
+        "description": "Professional bartenders with custom cocktail menu and full bar service.",
+        "price": 500.00
+    },
+    {
+        "id": 9,
+        "name": "Event Planning",
+        "description": "Comprehensive event planning services including timeline, vendor coordination, and on-site management.",
+        "price": 1000.00
+    },
+    {
+        "id": 10,
+        "name": "Photo Booth",
+        "description": "Interactive photo booth with props, digital delivery, and prints for guests.",
+        "price": 350.00
+    }
+]

@@ -1,0 +1,82 @@
+[
+    {
+        "id": 1,
+        "booking_id": 1,
+        "name": "John Smith",
+        "email": "john.smith@example.com",
+        "phone": "123-456-7890",
+        "rsvp_status": "yes"
+    },
+    {
+        "id": 2,
+        "booking_id": 1,
+        "name": "Emily Johnson",
+        "email": "emily.johnson@example.com",
+        "phone": "234-567-8901",
+        "rsvp_status": "yes"
+    },
+    {
+        "id": 3,
+        "booking_id": 1,
+        "name": "Michael Williams",
+        "email": "michael.williams@example.com",
+        "phone": "345-678-9012",
+        "rsvp_status": "no"
+    },
+    {
+        "id": 4,
+        "booking_id": 1,
+        "name": "Jessica Brown",
+        "email": "jessica.brown@example.com",
+        "phone": "456-789-0123",
+        "rsvp_status": "pending"
+    },
+    {
+        "id": 5,
+        "booking_id": 2,
+        "name": "David Miller",
+        "email": "david.miller@example.com",
+        "phone": "567-890-1234",
+        "rsvp_status": "pending"
+    },
+    {
+        "id": 6,
+        "booking_id": 3,
+        "name": "Sarah Davis",
+        "email": "sarah.davis@example.com",
+        "phone": "678-901-2345",
+        "rsvp_status": "yes"
+    },
+    {
+        "id": 7,
+        "booking_id": 3,
+        "name": "James Wilson",
+        "email": "james.wilson@example.com",
+        "phone": "789-012-3456",
+        "rsvp_status": "yes"
+    },
+    {
+        "id": 8,
+        "booking_id": 3,
+        "name": "Lisa Taylor",
+        "email": "lisa.taylor@example.com",
+        "phone": "890-123-4567",
+        "rsvp_status": "no"
+    },
+    {
+        "id": 9,
+        "booking_id": 4,
+        "name": "Robert Anderson",
+        "email": "robert.anderson@example.com",
+        "phone": "901-234-5678",
+        "rsvp_status": "pending"
+    },
+    {
+        "id": 10,
+        "booking_id": 5,
+        "name": "Jennifer Thomas",
+        "email": "jennifer.thomas@example.com",
+        "phone": "012-345-6789",
+        "rsvp_status": "yes"
+    }
+]
