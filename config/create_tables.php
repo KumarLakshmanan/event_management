@@ -73,7 +73,19 @@ $tables = [
         name VARCHAR(100) NOT NULL,
         email VARCHAR(100),
         phone VARCHAR(20),
-        rsvp_status VARCHAR(20) DEFAULT 'pending'
+        rsvp_status VARCHAR(20) DEFAULT 'pending',
+        last_invited_at TIMESTAMP
+    )",
+    
+    // Notifications table
+    "CREATE TABLE IF NOT EXISTS notifications (
+        id SERIAL PRIMARY KEY,
+        type VARCHAR(50) NOT NULL,
+        message TEXT NOT NULL,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        link VARCHAR(255),
+        is_read BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )"
 ];
 

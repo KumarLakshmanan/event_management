@@ -184,8 +184,119 @@ function hasPermission($permission) {
             return $_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager';
         case 'view_dashboard':
             return true; // All logged-in users can view dashboard
+        case 'give_discount':
+            // Only admins and managers with the can_give_discount flag can give discounts
+            if ($_SESSION['user_role'] === 'admin') {
+                return true;
+            }
+            if ($_SESSION['user_role'] === 'manager' && isset($_SESSION['can_give_discount']) && $_SESSION['can_give_discount']) {
+                return true;
+            }
+            return false;
         default:
             return false;
     }
+}
+
+/**
+ * Set flash message in session
+ * 
+ * @param string $message The message to display
+ * @param string $type The message type (success, info, warning, danger)
+ */
+function setFlashMessage($message, $type = 'info') {
+    $_SESSION['flash_message'] = $message;
+    $_SESSION['flash_type'] = $type;
+}
+
+/**
+ * Get count of unread notifications for current user
+ * 
+ * @return int Number of unread notifications
+ */
+function getUnreadNotificationsCount() {
+    if (!isset($_SESSION['user_id'])) {
+        return 0;
+    }
+    
+    $userId = $_SESSION['user_id'];
+    $userRole = $_SESSION['user_role'] ?? '';
+    
+    if (USE_DATABASE) {
+        $db = Database::getInstance();
+        
+        // For admin/manager, count all unread notifications
+        // For client, count only their own unread notifications
+        if ($userRole === 'admin' || $userRole === 'manager') {
+            $result = $db->querySingle("
+                SELECT COUNT(*) as count FROM notifications 
+                WHERE is_read = false
+            ");
+        } else {
+            $result = $db->querySingle("
+                SELECT COUNT(*) as count FROM notifications 
+                WHERE is_read = false AND (user_id = ? OR user_id IS NULL)
+            ", [$userId]);
+        }
+        
+        return $result['count'] ?? 0;
+    } else {
+        // Fallback to mock data
+        $notifications = getMockData('notifications.json');
+        $count = 0;
+        
+        // For admin/manager, count all unread notifications
+        // For client, count only their own unread notifications
+        foreach ($notifications as $notification) {
+            if ($notification['is_read'] === false) {
+                if ($userRole === 'admin' || $userRole === 'manager' || 
+                    $notification['user_id'] == $userId || $notification['user_id'] === null) {
+                    $count++;
+                }
+            }
+        }
+        
+        return $count;
+    }
+}
+
+/**
+ * Calculate total price from package and services
+ * 
+ * @param array $package Package data
+ * @param array $selectedServices Array of selected service IDs
+ * @return float Total price
+ */
+function calculatePackagePrice($package, $selectedServices = []) {
+    // If no services selected or not a customized package, return the package price
+    if (empty($selectedServices) || !isset($package['customized']) || !$package['customized']) {
+        return floatval($package['price']);
+    }
+    
+    // Get services data
+    if (USE_DATABASE) {
+        $db = Database::getInstance();
+        
+        // Get services for the selected IDs
+        $placeholders = implode(', ', array_fill(0, count($selectedServices), '?'));
+        $services = $db->query("
+            SELECT * FROM services 
+            WHERE id IN ($placeholders)
+        ", $selectedServices);
+    } else {
+        // Fallback to mock data
+        $allServices = getMockData('services.json');
+        $services = array_filter($allServices, function($service) use ($selectedServices) {
+            return in_array($service['id'], $selectedServices);
+        });
+    }
+    
+    // Calculate total price
+    $totalPrice = 0;
+    foreach ($services as $service) {
+        $totalPrice += floatval($service['price']);
+    }
+    
+    return $totalPrice;
 }
 ?>

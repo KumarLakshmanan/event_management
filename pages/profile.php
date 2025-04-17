@@ -8,10 +8,10 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Get user data
+$userId = $_SESSION['user_id'];
+
 if (USE_DATABASE) {
     $db = Database::getInstance();
-    $userId = $_SESSION['user_id'];
-    
     $user = $db->querySingle("SELECT * FROM users WHERE id = ?", [$userId]);
 } else {
     // Fallback to mock data
@@ -19,22 +19,18 @@ if (USE_DATABASE) {
     $user = null;
     
     foreach ($users as $u) {
-        if ($u['id'] == $_SESSION['user_id']) {
+        if ($u['id'] == $userId) {
             $user = $u;
             break;
         }
     }
 }
 
-// Set default values if user not found (shouldn't happen but just in case)
+// If user not found, redirect to login
 if (!$user) {
-    $user = [
-        'id' => $_SESSION['user_id'],
-        'name' => '',
-        'email' => '',
-        'phone' => '',
-        'role' => $_SESSION['user_role'],
-    ];
+    setFlashMessage('User not found', 'danger');
+    header("Location: login.php");
+    exit;
 }
 ?>
 
@@ -45,63 +41,54 @@ if (!$user) {
 
 <div class="row">
     <!-- Profile Information -->
-    <div class="col-lg-8">
+    <div class="col-xl-8 col-lg-7">
         <div class="card shadow mb-4">
-            <div class="card-header py-3">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">Profile Information</h6>
             </div>
             <div class="card-body">
                 <form id="profileForm" class="api-form" action="../handlers/profile.php" method="POST" data-redirect="profile.php">
                     <input type="hidden" name="action" value="update_profile">
-                    <input type="hidden" name="id" value="<?php echo $user['id']; ?>">
                     
-                    <div class="form-group row">
-                        <label for="name" class="col-sm-3 col-form-label">Full Name</label>
-                        <div class="col-sm-9">
-                            <input type="text" class="form-control" id="name" name="name" value="<?php echo $user['name']; ?>" required>
-                            <div id="nameFeedback" class="invalid-feedback"></div>
-                        </div>
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="<?php echo $user['name']; ?>" required>
+                        <div id="nameFeedback" class="invalid-feedback"></div>
                     </div>
                     
-                    <div class="form-group row">
-                        <label for="email" class="col-sm-3 col-form-label">Email</label>
-                        <div class="col-sm-9">
-                            <input type="email" class="form-control" id="email" name="email" value="<?php echo $user['email']; ?>" required>
-                            <div id="emailFeedback" class="invalid-feedback"></div>
-                        </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="<?php echo $user['email']; ?>" required>
+                        <div id="emailFeedback" class="invalid-feedback"></div>
                     </div>
                     
-                    <div class="form-group row">
-                        <label for="phone" class="col-sm-3 col-form-label">Phone</label>
-                        <div class="col-sm-9">
-                            <input type="tel" class="form-control" id="phone" name="phone" value="<?php echo $user['phone'] ?? ''; ?>">
-                            <div id="phoneFeedback" class="invalid-feedback"></div>
-                        </div>
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="tel" class="form-control" id="phone" name="phone" value="<?php echo $user['phone'] ?? ''; ?>">
+                        <div id="phoneFeedback" class="invalid-feedback"></div>
                     </div>
                     
-                    <div class="form-group row">
-                        <label for="role" class="col-sm-3 col-form-label">Role</label>
-                        <div class="col-sm-9">
-                            <input type="text" class="form-control-plaintext" id="role" value="<?php echo ucfirst($user['role']); ?>" readonly>
-                        </div>
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <textarea class="form-control" id="address" name="address" rows="3"><?php echo $user['address'] ?? ''; ?></textarea>
+                        <div id="addressFeedback" class="invalid-feedback"></div>
                     </div>
                     
-                    <div class="form-group row">
-                        <div class="col-sm-9 offset-sm-3">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Save Changes
-                            </button>
-                        </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <input type="text" class="form-control-plaintext" value="<?php echo ucfirst($user['role']); ?>" readonly>
                     </div>
+                    
+                    <button type="submit" class="btn btn-primary">Update Profile</button>
                 </form>
             </div>
         </div>
     </div>
     
     <!-- Change Password -->
-    <div class="col-lg-4">
+    <div class="col-xl-4 col-lg-5">
         <div class="card shadow mb-4">
-            <div class="card-header py-3">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">Change Password</h6>
             </div>
             <div class="card-body">
@@ -109,48 +96,52 @@ if (!$user) {
                     <input type="hidden" name="action" value="change_password">
                     
                     <div class="form-group">
-                        <label for="current_password">Current Password</label>
-                        <input type="password" class="form-control" id="current_password" name="current_password" required>
+                        <label for="currentPassword">Current Password</label>
+                        <input type="password" class="form-control" id="currentPassword" name="current_password" required>
                         <div id="currentPasswordFeedback" class="invalid-feedback"></div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="new_password">New Password</label>
-                        <input type="password" class="form-control" id="new_password" name="new_password" required>
+                        <label for="newPassword">New Password</label>
+                        <input type="password" class="form-control" id="newPassword" name="new_password" required>
                         <div id="newPasswordFeedback" class="invalid-feedback"></div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="confirm_password">Confirm New Password</label>
-                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                        <label for="confirmPassword">Confirm New Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirm_password" required>
                         <div id="confirmPasswordFeedback" class="invalid-feedback"></div>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary btn-block">
-                        <i class="fas fa-key"></i> Update Password
-                    </button>
+                    <button type="submit" class="btn btn-primary btn-block">Change Password</button>
                 </form>
+            </div>
+        </div>
+        
+        <!-- Account Information -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Account Information</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Account Created:</strong>
+                    <p><?php echo date('F d, Y', strtotime($user['created_at'])); ?></p>
+                </div>
+                
+                <?php if ($user['role'] === 'manager'): ?>
+                <div class="mb-3">
+                    <strong>Discount Permission:</strong>
+                    <?php if ($user['can_give_discount']): ?>
+                    <p><span class="badge badge-success">Enabled</span></p>
+                    <?php else: ?>
+                    <p><span class="badge badge-danger">Disabled</span></p>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 </div>
-
-<script>
-$(document).ready(function() {
-    // Add custom validation for password form
-    $('#passwordForm').on('submit', function(e) {
-        // Reset feedback
-        $('.invalid-feedback').hide();
-        
-        // Validate password match
-        if ($('#new_password').val() !== $('#confirm_password').val()) {
-            $('#confirmPasswordFeedback').text('Passwords do not match').show();
-            $('#confirm_password').addClass('is-invalid');
-            e.preventDefault();
-            return false;
-        }
-    });
-});
-</script>
 
 <?php require_once '../includes/footer.php'; ?>
