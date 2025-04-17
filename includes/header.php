@@ -80,6 +80,150 @@ switch ($currentPage) {
 
                 <!-- Navbar Items -->
                 <ul class="navbar-nav ml-auto">
+                    <!-- Nav Item - Notifications -->
+                    <li class="nav-item dropdown no-arrow mx-1">
+                        <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-bell fa-fw"></i>
+                            <!-- Counter - Alerts -->
+                            <?php 
+                            $unreadCount = getUnreadNotificationsCount();
+                            if ($unreadCount > 0): 
+                            ?>
+                            <span class="badge badge-danger badge-counter"><?php echo $unreadCount > 9 ? '9+' : $unreadCount; ?></span>
+                            <?php endif; ?>
+                        </a>
+                        <!-- Dropdown - Alerts -->
+                        <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
+                            <h6 class="dropdown-header">
+                                Notifications Center
+                            </h6>
+                            
+                            <?php
+                            // Get recent notifications
+                            $userId = $_SESSION['user_id'] ?? 0;
+                            $userRole = $_SESSION['user_role'] ?? '';
+                            
+                            if (isset($_SESSION['user_id']) && USE_DATABASE) {
+                                $db = Database::getInstance();
+                                
+                                // For admin/manager, show all notifications
+                                // For client, show only their own notifications
+                                if ($userRole === 'admin' || $userRole === 'manager') {
+                                    $notifications = $db->query("
+                                        SELECT * FROM notifications 
+                                        ORDER BY created_at DESC 
+                                        LIMIT 5
+                                    ");
+                                } else {
+                                    $notifications = $db->query("
+                                        SELECT * FROM notifications 
+                                        WHERE user_id = ? OR user_id IS NULL
+                                        ORDER BY created_at DESC 
+                                        LIMIT 5
+                                    ", [$userId]);
+                                }
+                            } else {
+                                // Fallback to mock data
+                                $notifications = [];
+                                if (isset($_SESSION['user_id'])) {
+                                    $allNotifications = getMockData('notifications.json');
+                                    
+                                    // For admin/manager, show all notifications
+                                    // For client, show only their own notifications
+                                    if ($userRole === 'admin' || $userRole === 'manager') {
+                                        $notifications = $allNotifications;
+                                    } else {
+                                        $notifications = array_filter($allNotifications, function($notification) use ($userId) {
+                                            return $notification['user_id'] == $userId || $notification['user_id'] === null;
+                                        });
+                                    }
+                                    
+                                    // Sort by created_at descending
+                                    usort($notifications, function($a, $b) {
+                                        return strtotime($b['created_at']) - strtotime($a['created_at']);
+                                    });
+                                    
+                                    // Limit to 5 notifications
+                                    $notifications = array_slice($notifications, 0, 5);
+                                }
+                            }
+                            
+                            if (empty($notifications)):
+                            ?>
+                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                <div>
+                                    <span class="font-weight-bold">No new notifications</span>
+                                </div>
+                            </a>
+                            <?php else: ?>
+                                <?php foreach ($notifications as $notification): 
+                                    $icon = 'fa-bell';
+                                    $bgClass = 'bg-primary';
+                                    
+                                    switch ($notification['type']) {
+                                        case 'booking_created':
+                                            $icon = 'fa-calendar-plus';
+                                            $bgClass = 'bg-success';
+                                            break;
+                                        case 'booking_confirmed':
+                                            $icon = 'fa-check-circle';
+                                            $bgClass = 'bg-success';
+                                            break;
+                                        case 'booking_cancelled':
+                                            $icon = 'fa-times-circle';
+                                            $bgClass = 'bg-danger';
+                                            break;
+                                        case 'booking_completed':
+                                            $icon = 'fa-calendar-check';
+                                            $bgClass = 'bg-primary';
+                                            break;
+                                        case 'login':
+                                            $icon = 'fa-sign-in-alt';
+                                            $bgClass = 'bg-info';
+                                            break;
+                                        case 'register':
+                                            $icon = 'fa-user-plus';
+                                            $bgClass = 'bg-info';
+                                            break;
+                                        case 'guest_rsvp_accepted':
+                                            $icon = 'fa-user-check';
+                                            $bgClass = 'bg-success';
+                                            break;
+                                        case 'guest_rsvp_declined':
+                                            $icon = 'fa-user-times';
+                                            $bgClass = 'bg-danger';
+                                            break;
+                                        case 'profile_updated':
+                                            $icon = 'fa-user-edit';
+                                            $bgClass = 'bg-info';
+                                            break;
+                                        case 'password_changed':
+                                            $icon = 'fa-key';
+                                            $bgClass = 'bg-warning';
+                                            break;
+                                    }
+                                ?>
+                            <a class="dropdown-item d-flex align-items-center" href="<?php echo $notification['link'] ?? 'notifications.php'; ?>">
+                                <div class="mr-3">
+                                    <div class="icon-circle <?php echo $bgClass; ?>">
+                                        <i class="fas <?php echo $icon; ?> text-white"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="small text-gray-500"><?php echo date('F d, Y', strtotime($notification['created_at'])); ?></div>
+                                    <span class="font-weight-bold"><?php echo $notification['message']; ?></span>
+                                </div>
+                            </a>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                            
+                            <a class="dropdown-item text-center small text-gray-500" href="notifications.php">Show All Notifications</a>
+                        </div>
+                    </li>
+
+                    <div class="topbar-divider d-none d-sm-block"></div>
+
+                    <!-- Nav Item - User Information -->
                     <li class="nav-item dropdown no-arrow">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?php echo $_SESSION['user_name'] ?? 'User'; ?></span>

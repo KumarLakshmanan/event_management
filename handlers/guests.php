@@ -2,10 +2,11 @@
 session_start();
 require_once '../config/config.php';
 require_once '../includes/functions.php';
+require_once '../includes/email.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    respondWithError('Unauthorized', 401);
+    header("Location: ../pages/login.php");
     exit;
 }
 
@@ -22,12 +23,13 @@ switch ($action) {
     case 'delete':
         handleDeleteGuest();
         break;
-    case 'send_invite':
-        handleSendInvite();
+    case 'invite':
+        handleInviteGuest();
         break;
     default:
-        respondWithError('Invalid action specified');
-        break;
+        setFlashMessage('Invalid action specified', 'danger');
+        header("Location: ../pages/my-guests.php");
+        exit;
 }
 
 /**
@@ -39,54 +41,61 @@ function handleCreateGuest() {
     $email = sanitizeInput($_POST['email'] ?? '');
     $phone = sanitizeInput($_POST['phone'] ?? '');
     $bookingId = filter_var($_POST['booking_id'] ?? 0, FILTER_VALIDATE_INT);
-    $isClient = isset($_POST['client']) && $_POST['client'] == 1;
     
-    if (empty($name) || empty($email) || !$bookingId) {
-        respondWithError('All fields are required');
+    // Validate required fields
+    if (empty($name) || !$bookingId) {
+        respondWithError('Name and booking are required');
         return;
     }
     
-    // Verify booking exists and user has permission to add guests
+    // Get user ID
+    $userId = $_SESSION['user_id'];
+    
+    // Verify ownership of booking
     if (USE_DATABASE) {
         $db = Database::getInstance();
         
-        // Get booking
-        $booking = $db->querySingle(
-            "SELECT * FROM bookings WHERE id = ?", 
-            [$bookingId]
-        );
-        
+        // Check if booking exists and belongs to user
+        $booking = $db->querySingle("SELECT * FROM bookings WHERE id = ? AND user_id = ?", [$bookingId, $userId]);
         if (!$booking) {
-            respondWithError('Booking not found');
+            respondWithError('Invalid booking or not authorized');
             return;
         }
         
-        // Check permission based on user role
-        if ($_SESSION['user_role'] === 'client') {
-            // Clients can only add guests to their own bookings
-            if ($booking['user_id'] != $_SESSION['user_id']) {
-                respondWithError('Permission denied', 403);
-                return;
-            }
-        } else if ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'manager') {
-            // Only admins and managers can add guests to any booking
-            respondWithError('Permission denied', 403);
-            return;
-        }
-        
-        // Insert guest
+        // Create guest
         $guestData = [
             'booking_id' => $bookingId,
             'name' => $name,
             'email' => $email,
             'phone' => $phone,
-            'rsvp_status' => 'pending',
-            'created_at' => date('Y-m-d H:i:s')
+            'rsvp_status' => 'pending'
         ];
         
         $guestId = insertRecord('guests', $guestData);
         
         if ($guestId) {
+            // Send invitation email if email provided
+            if (!empty($email)) {
+                $user = $db->querySingle("SELECT * FROM users WHERE id = ?", [$userId]);
+                sendGuestInvitationEmail([
+                    'id' => $guestId,
+                    'name' => $name,
+                    'email' => $email,
+                    'phone' => $phone
+                ], $booking, $user);
+                
+                // Update last invited time
+                $db->execute("UPDATE guests SET last_invited_at = ? WHERE id = ?", [date('Y-m-d H:i:s'), $guestId]);
+                
+                // Add notification
+                addNotification(
+                    'guest_invited',
+                    "You've invited {$name} to your event.",
+                    $userId,
+                    "../pages/my-guests.php"
+                );
+            }
+            
             respondWithSuccess('Guest added successfully', ['id' => $guestId]);
         } else {
             respondWithError('Failed to add guest');
@@ -94,35 +103,23 @@ function handleCreateGuest() {
     } else {
         // Fallback to mock data
         $bookings = getMockData('bookings.json');
-        $guests = getMockData('guests.json');
-        
-        // Find booking
         $bookingFound = false;
+        
+        // Check if booking exists and belongs to user
         foreach ($bookings as $booking) {
-            if ($booking['id'] == $bookingId) {
+            if ($booking['id'] == $bookingId && $booking['user_id'] == $userId) {
                 $bookingFound = true;
-                
-                // Check permission based on user role
-                if ($_SESSION['user_role'] === 'client') {
-                    // Clients can only add guests to their own bookings
-                    if ($booking['user_id'] != $_SESSION['user_id']) {
-                        respondWithError('Permission denied', 403);
-                        return;
-                    }
-                } else if ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'manager') {
-                    // Only admins and managers can add guests to any booking
-                    respondWithError('Permission denied', 403);
-                    return;
-                }
-                
                 break;
             }
         }
         
         if (!$bookingFound) {
-            respondWithError('Booking not found');
+            respondWithError('Invalid booking or not authorized');
             return;
         }
+        
+        // Get guests data
+        $guests = getMockData('guests.json');
         
         // Generate guest ID
         $id = count($guests) > 0 ? max(array_column($guests, 'id')) + 1 : 1;
@@ -135,7 +132,7 @@ function handleCreateGuest() {
             'email' => $email,
             'phone' => $phone,
             'rsvp_status' => 'pending',
-            'created_at' => date('Y-m-d H:i:s')
+            'last_invited_at' => null
         ];
         
         // Add guest to data
@@ -143,6 +140,41 @@ function handleCreateGuest() {
         
         // Save data
         saveMockData('guests.json', $guests);
+        
+        // Send invitation email if email provided
+        if (!empty($email)) {
+            $users = getMockData('users.json');
+            $user = null;
+            
+            foreach ($users as $u) {
+                if ($u['id'] == $userId) {
+                    $user = $u;
+                    break;
+                }
+            }
+            
+            if ($user) {
+                sendGuestInvitationEmail($newGuest, $booking, $user);
+                
+                // Update last invited time
+                foreach ($guests as $index => $guest) {
+                    if ($guest['id'] == $id) {
+                        $guests[$index]['last_invited_at'] = date('Y-m-d H:i:s');
+                        break;
+                    }
+                }
+                
+                saveMockData('guests.json', $guests);
+                
+                // Add notification
+                addNotification(
+                    'guest_invited',
+                    "You've invited {$name} to your event.",
+                    $userId,
+                    "../pages/my-guests.php"
+                );
+            }
+        }
         
         respondWithSuccess('Guest added successfully', ['id' => $id]);
     }
@@ -157,51 +189,30 @@ function handleUpdateGuest() {
     $name = sanitizeInput($_POST['name'] ?? '');
     $email = sanitizeInput($_POST['email'] ?? '');
     $phone = sanitizeInput($_POST['phone'] ?? '');
-    $rsvpStatus = sanitizeInput($_POST['rsvp_status'] ?? 'pending');
-    $bookingId = filter_var($_POST['booking_id'] ?? 0, FILTER_VALIDATE_INT);
-    $isClient = isset($_POST['client']) && $_POST['client'] == 1;
     
-    if (!$id || empty($name) || empty($email) || !$bookingId) {
-        respondWithError('All fields are required');
+    // Validate required fields
+    if (!$id || empty($name)) {
+        respondWithError('ID and name are required');
         return;
     }
+    
+    // Get user ID
+    $userId = $_SESSION['user_id'];
     
     // Update guest in database or mock data
     if (USE_DATABASE) {
         $db = Database::getInstance();
         
-        // Get guest and booking to verify permission
-        $guest = $db->querySingle(
-            "SELECT * FROM guests WHERE id = ?", 
-            [$id]
-        );
+        // Check if guest exists and belongs to user's booking
+        $guestQuery = "
+            SELECT g.* FROM guests g
+            JOIN bookings b ON g.booking_id = b.id
+            WHERE g.id = ? AND b.user_id = ?
+        ";
+        $guest = $db->querySingle($guestQuery, [$id, $userId]);
         
         if (!$guest) {
-            respondWithError('Guest not found');
-            return;
-        }
-        
-        // Verify booking
-        $booking = $db->querySingle(
-            "SELECT * FROM bookings WHERE id = ?", 
-            [$guest['booking_id']]
-        );
-        
-        if (!$booking) {
-            respondWithError('Booking not found');
-            return;
-        }
-        
-        // Check permission based on user role
-        if ($_SESSION['user_role'] === 'client') {
-            // Clients can only update guests for their own bookings
-            if ($booking['user_id'] != $_SESSION['user_id']) {
-                respondWithError('Permission denied', 403);
-                return;
-            }
-        } else if ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'manager') {
-            // Only admins and managers can update guests for any booking
-            respondWithError('Permission denied', 403);
+            respondWithError('Guest not found or not authorized');
             return;
         }
         
@@ -209,8 +220,7 @@ function handleUpdateGuest() {
         $guestData = [
             'name' => $name,
             'email' => $email,
-            'phone' => $phone,
-            'rsvp_status' => $rsvpStatus
+            'phone' => $phone
         ];
         
         $result = updateRecord('guests', $id, $guestData);
@@ -222,49 +232,41 @@ function handleUpdateGuest() {
         }
     } else {
         // Fallback to mock data
-        $bookings = getMockData('bookings.json');
         $guests = getMockData('guests.json');
+        $bookings = getMockData('bookings.json');
         $updated = false;
+        $bookingId = null;
         
         // Find guest
         foreach ($guests as $index => $guest) {
             if ($guest['id'] == $id) {
-                // Get booking to verify permission
-                $bookingFound = false;
-                $booking = null;
-                
-                foreach ($bookings as $b) {
-                    if ($b['id'] == $guest['booking_id']) {
-                        $booking = $b;
-                        $bookingFound = true;
-                        break;
-                    }
+                $bookingId = $guest['booking_id'];
+                break;
+            }
+        }
+        
+        // Check if booking belongs to user
+        $authorized = false;
+        if ($bookingId) {
+            foreach ($bookings as $booking) {
+                if ($booking['id'] == $bookingId && $booking['user_id'] == $userId) {
+                    $authorized = true;
+                    break;
                 }
-                
-                if (!$bookingFound) {
-                    respondWithError('Booking not found');
-                    return;
-                }
-                
-                // Check permission based on user role
-                if ($_SESSION['user_role'] === 'client') {
-                    // Clients can only update guests for their own bookings
-                    if ($booking['user_id'] != $_SESSION['user_id']) {
-                        respondWithError('Permission denied', 403);
-                        return;
-                    }
-                } else if ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'manager') {
-                    // Only admins and managers can update guests for any booking
-                    respondWithError('Permission denied', 403);
-                    return;
-                }
-                
-                // Update guest
+            }
+        }
+        
+        if (!$authorized) {
+            respondWithError('Guest not found or not authorized');
+            return;
+        }
+        
+        // Update guest
+        foreach ($guests as $index => $guest) {
+            if ($guest['id'] == $id) {
                 $guests[$index]['name'] = $name;
                 $guests[$index]['email'] = $email;
                 $guests[$index]['phone'] = $phone;
-                $guests[$index]['rsvp_status'] = $rsvpStatus;
-                
                 $updated = true;
                 break;
             }
@@ -285,116 +287,93 @@ function handleUpdateGuest() {
 function handleDeleteGuest() {
     // Validate input
     $id = filter_var($_GET['id'] ?? 0, FILTER_VALIDATE_INT);
-    $bookingId = filter_var($_GET['booking_id'] ?? 0, FILTER_VALIDATE_INT);
-    $isClient = isset($_GET['client']) && $_GET['client'] == 1;
     
-    if (!$id || !$bookingId) {
-        respondWithError('Invalid guest ID or booking ID');
-        return;
+    if (!$id) {
+        setFlashMessage('Invalid guest ID', 'danger');
+        header("Location: ../pages/my-guests.php");
+        exit;
     }
+    
+    // Get user ID
+    $userId = $_SESSION['user_id'];
     
     // Delete guest from database or mock data
     if (USE_DATABASE) {
         $db = Database::getInstance();
         
-        // Get guest to verify booking
-        $guest = $db->querySingle(
-            "SELECT * FROM guests WHERE id = ?", 
-            [$id]
-        );
+        // Check if guest exists and belongs to user's booking
+        $guestQuery = "
+            SELECT g.* FROM guests g
+            JOIN bookings b ON g.booking_id = b.id
+            WHERE g.id = ? AND (b.user_id = ? OR ? IN (SELECT id FROM users WHERE role IN ('admin', 'manager')))
+        ";
+        $guest = $db->querySingle($guestQuery, [$id, $userId, $userId]);
         
         if (!$guest) {
-            respondWithError('Guest not found');
-            return;
-        }
-        
-        // Verify booking
-        $booking = $db->querySingle(
-            "SELECT * FROM bookings WHERE id = ?", 
-            [$guest['booking_id']]
-        );
-        
-        if (!$booking) {
-            respondWithError('Booking not found');
-            return;
-        }
-        
-        // Check permission based on user role
-        if ($_SESSION['user_role'] === 'client') {
-            // Clients can only delete guests for their own bookings
-            if ($booking['user_id'] != $_SESSION['user_id']) {
-                respondWithError('Permission denied', 403);
-                return;
-            }
-        } else if ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'manager') {
-            // Only admins and managers can delete guests for any booking
-            respondWithError('Permission denied', 403);
-            return;
+            setFlashMessage('Guest not found or not authorized', 'danger');
+            header("Location: ../pages/my-guests.php");
+            exit;
         }
         
         // Delete guest
         $result = $db->execute("DELETE FROM guests WHERE id = ?", [$id]);
         
         if ($result) {
-            // Redirect back to appropriate page
-            $redirectUrl = $isClient ? "../pages/my-guests.php?booking=$bookingId" : "../pages/guests.php?booking=$bookingId";
-            header("Location: $redirectUrl");
-            exit;
+            setFlashMessage('Guest deleted successfully', 'success');
         } else {
-            // Redirect with error
-            $redirectUrl = $isClient ? "../pages/my-guests.php?booking=$bookingId" : "../pages/guests.php?booking=$bookingId";
-            header("Location: $redirectUrl&error=" . urlencode('Failed to delete guest'));
-            exit;
+            setFlashMessage('Failed to delete guest', 'danger');
         }
     } else {
         // Fallback to mock data
-        $bookings = getMockData('bookings.json');
         $guests = getMockData('guests.json');
+        $bookings = getMockData('bookings.json');
+        $users = getMockData('users.json');
         $deleted = false;
-        $guestExists = false;
+        $bookingId = null;
+        $guestName = '';
         
         // Find guest
         foreach ($guests as $index => $guest) {
             if ($guest['id'] == $id) {
-                $guestExists = true;
-                
-                // Get booking to verify permission
-                $bookingFound = false;
-                $booking = null;
-                
-                foreach ($bookings as $b) {
-                    if ($b['id'] == $guest['booking_id']) {
-                        $booking = $b;
-                        $bookingFound = true;
+                $bookingId = $guest['booking_id'];
+                $guestName = $guest['name'];
+                break;
+            }
+        }
+        
+        // Check if user is admin/manager
+        $isAdminOrManager = false;
+        foreach ($users as $user) {
+            if ($user['id'] == $userId && ($user['role'] === 'admin' || $user['role'] === 'manager')) {
+                $isAdminOrManager = true;
+                break;
+            }
+        }
+        
+        // Check if booking belongs to user or user is admin/manager
+        $authorized = false;
+        if ($bookingId) {
+            if ($isAdminOrManager) {
+                $authorized = true;
+            } else {
+                foreach ($bookings as $booking) {
+                    if ($booking['id'] == $bookingId && $booking['user_id'] == $userId) {
+                        $authorized = true;
                         break;
                     }
                 }
-                
-                if (!$bookingFound) {
-                    // Redirect with error
-                    $redirectUrl = $isClient ? "../pages/my-guests.php?booking=$bookingId" : "../pages/guests.php?booking=$bookingId";
-                    header("Location: $redirectUrl&error=" . urlencode('Booking not found'));
-                    exit;
-                }
-                
-                // Check permission based on user role
-                if ($_SESSION['user_role'] === 'client') {
-                    // Clients can only delete guests for their own bookings
-                    if ($booking['user_id'] != $_SESSION['user_id']) {
-                        // Redirect with error
-                        $redirectUrl = $isClient ? "../pages/my-guests.php?booking=$bookingId" : "../pages/guests.php?booking=$bookingId";
-                        header("Location: $redirectUrl&error=" . urlencode('Permission denied'));
-                        exit;
-                    }
-                } else if ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'manager') {
-                    // Only admins and managers can delete guests for any booking
-                    // Redirect with error
-                    $redirectUrl = $isClient ? "../pages/my-guests.php?booking=$bookingId" : "../pages/guests.php?booking=$bookingId";
-                    header("Location: $redirectUrl&error=" . urlencode('Permission denied'));
-                    exit;
-                }
-                
-                // Remove guest
+            }
+        }
+        
+        if (!$authorized) {
+            setFlashMessage('Guest not found or not authorized', 'danger');
+            header("Location: ../pages/my-guests.php");
+            exit;
+        }
+        
+        // Delete guest
+        foreach ($guests as $index => $guest) {
+            if ($guest['id'] == $id) {
                 array_splice($guests, $index, 1);
                 $deleted = true;
                 break;
@@ -403,159 +382,177 @@ function handleDeleteGuest() {
         
         if ($deleted) {
             saveMockData('guests.json', $guests);
+            setFlashMessage('Guest deleted successfully', 'success');
             
-            // Redirect back to appropriate page
-            $redirectUrl = $isClient ? "../pages/my-guests.php?booking=$bookingId" : "../pages/guests.php?booking=$bookingId";
-            header("Location: $redirectUrl");
-            exit;
-        } else if ($guestExists) {
-            // Redirect with error
-            $redirectUrl = $isClient ? "../pages/my-guests.php?booking=$bookingId" : "../pages/guests.php?booking=$bookingId";
-            header("Location: $redirectUrl&error=" . urlencode('Failed to delete guest'));
-            exit;
+            // Add notification
+            if (!empty($guestName)) {
+                addNotification(
+                    'guest_removed',
+                    "Guest {$guestName} has been removed from your event.",
+                    $userId,
+                    "../pages/my-guests.php"
+                );
+            }
         } else {
-            // Redirect with error
-            $redirectUrl = $isClient ? "../pages/my-guests.php?booking=$bookingId" : "../pages/guests.php?booking=$bookingId";
-            header("Location: $redirectUrl&error=" . urlencode('Guest not found'));
-            exit;
+            setFlashMessage('Guest not found', 'danger');
         }
     }
+    
+    header("Location: ../pages/my-guests.php");
+    exit;
 }
 
 /**
- * Handle sending invite to guest
+ * Handle guest invitation (resend)
  */
-function handleSendInvite() {
+function handleInviteGuest() {
     // Validate input
-    $id = filter_var($_POST['id'] ?? 0, FILTER_VALIDATE_INT);
-    $bookingId = filter_var($_POST['booking_id'] ?? 0, FILTER_VALIDATE_INT);
+    $id = filter_var($_GET['id'] ?? 0, FILTER_VALIDATE_INT);
     
-    if (!$id || !$bookingId) {
-        respondWithError('Invalid guest ID or booking ID');
-        return;
+    if (!$id) {
+        setFlashMessage('Invalid guest ID', 'danger');
+        header("Location: ../pages/my-guests.php");
+        exit;
     }
     
-    // Get guest from database or mock data
+    // Get user ID
+    $userId = $_SESSION['user_id'];
+    
+    // Process invitation in database or mock data
     if (USE_DATABASE) {
         $db = Database::getInstance();
         
-        // Get guest
-        $guest = $db->querySingle(
-            "SELECT * FROM guests WHERE id = ?", 
-            [$id]
-        );
+        // Check if guest exists and belongs to user's booking
+        $guestQuery = "
+            SELECT g.* FROM guests g
+            JOIN bookings b ON g.booking_id = b.id
+            WHERE g.id = ? AND b.user_id = ?
+        ";
+        $guest = $db->querySingle($guestQuery, [$id, $userId]);
         
         if (!$guest) {
-            respondWithError('Guest not found');
-            return;
+            setFlashMessage('Guest not found or not authorized', 'danger');
+            header("Location: ../pages/my-guests.php");
+            exit;
         }
         
-        // Verify booking
-        $booking = $db->querySingle(
-            "SELECT b.*, p.name as package_name 
-             FROM bookings b 
-             LEFT JOIN packages p ON b.package_id = p.id
-             WHERE b.id = ?", 
-            [$guest['booking_id']]
-        );
-        
-        if (!$booking) {
-            respondWithError('Booking not found');
-            return;
+        // Check if guest has email
+        if (empty($guest['email'])) {
+            setFlashMessage('Guest does not have an email address', 'warning');
+            header("Location: ../pages/my-guests.php");
+            exit;
         }
         
-        // Check permission based on user role
-        if ($_SESSION['user_role'] === 'client') {
-            // Clients can only send invites for their own bookings
-            if ($booking['user_id'] != $_SESSION['user_id']) {
-                respondWithError('Permission denied', 403);
-                return;
-            }
-        } else if ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'manager') {
-            // Only admins and managers can send invites for any booking
-            respondWithError('Permission denied', 403);
-            return;
+        // Get booking details
+        $booking = $db->querySingle("SELECT * FROM bookings WHERE id = ?", [$guest['booking_id']]);
+        
+        // Get user details
+        $user = $db->querySingle("SELECT * FROM users WHERE id = ?", [$userId]);
+        
+        // Send invitation email
+        $emailSent = sendGuestInvitationEmail($guest, $booking, $user);
+        
+        if ($emailSent) {
+            // Update last invited time
+            $db->execute("UPDATE guests SET last_invited_at = ? WHERE id = ?", [date('Y-m-d H:i:s'), $id]);
+            
+            // Add notification
+            addNotification(
+                'guest_invited',
+                "You've sent an invitation to {$guest['name']}.",
+                $userId,
+                "../pages/my-guests.php"
+            );
+            
+            setFlashMessage('Invitation sent successfully', 'success');
+        } else {
+            setFlashMessage('Failed to send invitation', 'danger');
         }
-        
-        // In a real application, you would send an email here
-        // For the demo, we'll just simulate success
-        
-        // Update guest's last invited timestamp
-        $db->execute(
-            "UPDATE guests SET last_invited_at = ? WHERE id = ?",
-            [date('Y-m-d H:i:s'), $id]
-        );
-        
-        respondWithSuccess('Invitation sent successfully');
     } else {
         // Fallback to mock data
-        $bookings = getMockData('bookings.json');
         $guests = getMockData('guests.json');
-        $packages = getMockData('packages.json');
-        $guestFound = false;
+        $bookings = getMockData('bookings.json');
+        $users = getMockData('users.json');
+        $guestData = null;
+        $bookingData = null;
+        $userData = null;
         
         // Find guest
         foreach ($guests as $index => $guest) {
             if ($guest['id'] == $id) {
-                $guestFound = true;
+                $guestData = $guest;
                 
-                // Get booking
-                $bookingFound = false;
-                $booking = null;
+                // Check if guest has email
+                if (empty($guest['email'])) {
+                    setFlashMessage('Guest does not have an email address', 'warning');
+                    header("Location: ../pages/my-guests.php");
+                    exit;
+                }
                 
-                foreach ($bookings as $b) {
-                    if ($b['id'] == $guest['booking_id']) {
-                        $booking = $b;
-                        $bookingFound = true;
+                // Find booking
+                foreach ($bookings as $booking) {
+                    if ($booking['id'] == $guest['booking_id']) {
+                        $bookingData = $booking;
+                        
+                        // Check if booking belongs to user
+                        if ($booking['user_id'] != $userId) {
+                            setFlashMessage('Not authorized to invite this guest', 'danger');
+                            header("Location: ../pages/my-guests.php");
+                            exit;
+                        }
+                        
+                        // Find user
+                        foreach ($users as $user) {
+                            if ($user['id'] == $userId) {
+                                $userData = $user;
+                                break;
+                            }
+                        }
+                        
                         break;
                     }
                 }
                 
-                if (!$bookingFound) {
-                    respondWithError('Booking not found');
-                    return;
-                }
-                
-                // Check permission based on user role
-                if ($_SESSION['user_role'] === 'client') {
-                    // Clients can only send invites for their own bookings
-                    if ($booking['user_id'] != $_SESSION['user_id']) {
-                        respondWithError('Permission denied', 403);
-                        return;
-                    }
-                } else if ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'manager') {
-                    // Only admins and managers can send invites for any booking
-                    respondWithError('Permission denied', 403);
-                    return;
-                }
-                
-                // Get package name
-                $packageName = 'Unknown Package';
-                foreach ($packages as $p) {
-                    if ($p['id'] == $booking['package_id']) {
-                        $packageName = $p['name'];
-                        break;
-                    }
-                }
-                
-                // In a real application, you would send an email here
-                // For the demo, we'll just simulate success
-                
-                // Update guest's last invited timestamp
-                $guests[$index]['last_invited_at'] = date('Y-m-d H:i:s');
-                
-                // Save updated guests data
-                saveMockData('guests.json', $guests);
-                
-                respondWithSuccess('Invitation sent successfully');
-                return;
+                break;
             }
         }
         
-        if (!$guestFound) {
-            respondWithError('Guest not found');
+        if (!$guestData || !$bookingData || !$userData) {
+            setFlashMessage('Guest, booking, or user data not found', 'danger');
+            header("Location: ../pages/my-guests.php");
+            exit;
+        }
+        
+        // Send invitation email
+        $emailSent = sendGuestInvitationEmail($guestData, $bookingData, $userData);
+        
+        if ($emailSent) {
+            // Update last invited time
+            foreach ($guests as $index => $guest) {
+                if ($guest['id'] == $id) {
+                    $guests[$index]['last_invited_at'] = date('Y-m-d H:i:s');
+                    break;
+                }
+            }
+            
+            saveMockData('guests.json', $guests);
+            
+            // Add notification
+            addNotification(
+                'guest_invited',
+                "You've sent an invitation to {$guestData['name']}.",
+                $userId,
+                "../pages/my-guests.php"
+            );
+            
+            setFlashMessage('Invitation sent successfully', 'success');
+        } else {
+            setFlashMessage('Failed to send invitation', 'danger');
         }
     }
+    
+    header("Location: ../pages/my-guests.php");
+    exit;
 }
 
 /**
