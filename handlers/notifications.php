@@ -1,7 +1,6 @@
 <?php
 session_start();
 require_once '../config/config.php';
-require_once '../includes/functions.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {

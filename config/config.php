@@ -7,12 +7,19 @@ define('API_URL', 'https://api.example.com'); // Replace with your actual API UR
 
 // Session timeout in seconds (30 minutes)
 define('SESSION_TIMEOUT', 1800);
+ini_set('error_reporting', E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/error.log');
 
 // Database settings
 define('USE_DATABASE', true); // Set to true to use database, false to use mock data
 
 // Include database connection class
 require_once __DIR__ . '/database.php';
+require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/email.php';
 
 // Function to read data from database or mock files
 function getData($table, $conditions = null, $orderBy = null) {

@@ -186,6 +186,22 @@ function updateRecord($table, $id, $data) {
     return $db->execute($sql, $values);
 }
 
+// For backward compatibility
+function getMockData($file) {
+    $filePath = MOCK_DIR . $file;
+    if (file_exists($filePath)) {
+        $jsonData = file_get_contents($filePath);
+        return json_decode($jsonData, true);
+    }
+    return [];
+}
+
+// For backward compatibility
+function saveMockData($file, $data) {
+    $filePath = MOCK_DIR . $file;
+    $jsonData = json_encode($data, JSON_PRETTY_PRINT);
+    file_put_contents($filePath, $jsonData);
+}
 /**
  * Sanitize user input to prevent XSS attacks
  * 
@@ -233,21 +249,6 @@ function hashPassword($password) {
  */
 function verifyPassword($password, $hash) {
     return password_verify($password, $hash);
-}
-
-/**
- * Send an email
- * 
- * @param string $to The recipient email address
- * @param string $subject The email subject
- * @param string $message The email message
- * @param array $headers Additional email headers
- * @return bool True on success, false on failure
- */
-function sendEmail($to, $subject, $message, $headers = []) {
-    // In a real application, you would use a proper email library like PHPMailer
-    // For the demo, we'll just simulate success
-    return true;
 }
 
 /**
