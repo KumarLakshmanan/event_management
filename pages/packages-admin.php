@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] === 'client') {
 }
 
 // Get packages and services data from database
-if (USE_DATABASE) {
+
     $db = Database::getInstance();
     
     // Get services for lookup
@@ -26,11 +26,7 @@ if (USE_DATABASE) {
         $package['services'] = array_column($package_services, 'service_id');
     }
     unset($package); // break the reference
-} else {
-    // Fallback to mock data if database is not available
-    $packages = getMockData('packages.json');
-    $services = getMockData('services.json');
-}
+
 
 // Create lookup array for services
 $servicesById = [];

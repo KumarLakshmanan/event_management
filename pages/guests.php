@@ -7,11 +7,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] === 'client') {
     exit;
 }
 
-// Get mock data
-$bookings = getMockData('bookings.json');
-$users = getMockData('users.json');
-$guests = getMockData('guests.json');
-
+// Get services for lookup
+$services = $db->query("SELECT * FROM services");
+$bookings = $db->query("SELECT * FROM bookings");
+$users = $db->query("SELECT * FROM users");
+$guests = $db->query("SELECT * FROM guests");
+$packages = $db->query("SELECT * FROM packages");
 // Create lookup arrays
 $userNames = [];
 foreach ($users as $user) {

@@ -13,80 +13,41 @@ ini_set('display_startup_errors', 1);
 ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/error.log');
 
-// Database settings
-define('USE_DATABASE', true); // Set to true to use database, false to use mock data
-
 // Include database connection class
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/email.php';
 
 // Function to read data from database or mock files
-function getData($table, $conditions = null, $orderBy = null) {
-    if (USE_DATABASE) {
-        $db = Database::getInstance();
+function getData($table, $conditions = null, $orderBy = null)
+{
+    $db = Database::getInstance();
 
-        $sql = "SELECT * FROM $table";
-        $params = [];
+    $sql = "SELECT * FROM $table";
+    $params = [];
 
-        if ($conditions) {
-            $whereClauses = [];
-            foreach ($conditions as $key => $value) {
-                $whereClauses[] = "$key = ?";
-                $params[] = $value;
-            }
-
-            if (!empty($whereClauses)) {
-                $sql .= " WHERE " . implode(' AND ', $whereClauses);
-            }
+    if ($conditions) {
+        $whereClauses = [];
+        foreach ($conditions as $key => $value) {
+            $whereClauses[] = "$key = ?";
+            $params[] = $value;
         }
 
-        if ($orderBy) {
-            $sql .= " ORDER BY $orderBy";
+        if (!empty($whereClauses)) {
+            $sql .= " WHERE " . implode(' AND ', $whereClauses);
         }
-
-        return $db->query($sql, $params);
-    } else {
-        // Fallback to mock data for backward compatibility
-        $file = '';
-        switch ($table) {
-            case 'users':
-                $file = 'users.json';
-                break;
-            case 'services':
-                $file = 'services.json';
-                break;
-            case 'packages':
-                $file = 'packages.json';
-                break;
-            case 'bookings':
-                $file = 'bookings.json';
-                break;
-            case 'guests':
-                $file = 'guests.json';
-                break;
-            default:
-                return [];
-        }
-
-        return getMockData($file);
     }
+
+    if ($orderBy) {
+        $sql .= " ORDER BY $orderBy";
+    }
+
+    return $db->query($sql, $params);
 }
 
 // Function to get a single record by ID
-function getRecordById($table, $id) {
-    if (USE_DATABASE) {
-        $db = Database::getInstance();
-        return $db->queryOne("SELECT * FROM $table WHERE id = ?", [$id]);
-    } else {
-        // Fallback to mock data for backward compatibility
-        $records = getData($table);
-        foreach ($records as $record) {
-            if ($record['id'] == $id) {
-                return $record;
-            }
-        }
-        return null;
-    }
+function getRecordById($table, $id)
+{
+    $db = Database::getInstance();
+    return $db->queryOne("SELECT * FROM $table WHERE id = ?", [$id]);
 }
-?>

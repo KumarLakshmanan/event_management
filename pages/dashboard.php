@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Get data from database or mock files
-if (USE_DATABASE) {
+
     $db = Database::getInstance();
     
     // Get all data
@@ -48,59 +48,7 @@ if (USE_DATABASE) {
     $totalServices = count($services);
     $totalBookings = count($bookings);
     
-} else {
-    // Fallback to mock data
-    $users = getMockData('users.json');
-    $packages = getMockData('packages.json');
-    $services = getMockData('services.json');
-    $bookings = getMockData('bookings.json');
-    
-    // Count data
-    $totalPackages = count($packages);
-    $totalServices = count($services);
-    $totalBookings = count($bookings);
-    $pendingBookings = 0;
-    $confirmedBookings = 0;
-    
-    // Count booking statuses
-    foreach ($bookings as $booking) {
-        if ($booking['status'] === 'pending') {
-            $pendingBookings++;
-        } else if ($booking['status'] === 'confirmed') {
-            $confirmedBookings++;
-        }
-    }
-    
-    // Filter bookings for clients to show only their own
-    if ($_SESSION['user_role'] === 'client') {
-        $filteredBookings = array_filter($bookings, function($booking) {
-            return $booking['user_id'] == $_SESSION['user_id'];
-        });
-        $totalBookings = count($filteredBookings);
-        
-        // Recount status
-        $pendingBookings = 0;
-        $confirmedBookings = 0;
-        foreach ($filteredBookings as $booking) {
-            if ($booking['status'] === 'pending') {
-                $pendingBookings++;
-            } else if ($booking['status'] === 'confirmed') {
-                $confirmedBookings++;
-            }
-        }
-    }
-    
-    // Get recent bookings
-    $recentBookings = array_slice($bookings, 0, 5);
-    
-    // Filter for clients
-    if ($_SESSION['user_role'] === 'client') {
-        $recentBookings = array_filter($recentBookings, function($booking) {
-            return $booking['user_id'] == $_SESSION['user_id'];
-        });
-        $recentBookings = array_slice($recentBookings, 0, 5);
-    }
-}
+
 ?>
 
 <!-- Page Heading -->

@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
 }
 
 // Get users data
-if (USE_DATABASE) {
+
     $db = Database::getInstance();
     
     // Get all users
@@ -19,21 +19,7 @@ if (USE_DATABASE) {
     if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
         $editUser = $db->querySingle("SELECT * FROM users WHERE id = ?", [$_GET['edit']]);
     }
-} else {
-    // Fallback to mock data
-    $users = getMockData('users.json');
-    
-    // Get user for edit if specified
-    $editUser = null;
-    if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
-        foreach ($users as $user) {
-            if ($user['id'] == $_GET['edit']) {
-                $editUser = $user;
-                break;
-            }
-        }
-    }
-}
+
 ?>
 
 <!-- Page Heading -->

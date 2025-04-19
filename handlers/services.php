@@ -39,7 +39,6 @@ switch ($action) {
         echo json_encode(['error' => 'Invalid action']);
         exit;
 }
-
 /**
  * Handle service creation
  */
@@ -62,32 +61,29 @@ function handleCreate() {
         exit;
     }
     
-    // Get services data
-    $services = getMockData('services.json');
+    $db = Database::getInstance();
+
+    // Insert new service into database
+    $result = $db->execute(
+        "INSERT INTO services (name, description, price) VALUES (?, ?, ?)",
+        [$name, $description, $price]
+    );
     
-    // Generate service ID
-    $id = count($services) > 0 ? max(array_column($services, 'id')) + 1 : 1;
-    
-    // Create new service
-    $newService = [
-        'id' => $id,
-        'name' => $name,
-        'description' => $description,
-        'price' => $price
-    ];
-    
-    // Add service to data
-    $services[] = $newService;
-    
-    // Save data
-    saveMockData('services.json', $services);
-    
-    // Send API request to external API
-    apiPost('services', $newService);
-    
-    // Return success response
-    header('Content-Type: application/json');
-    echo json_encode(['success' => true, 'service' => $newService]);
+    if ($result) {
+        $newService = [
+            'id' => $db->lastInsertId(),
+            'name' => $name,
+            'description' => $description,
+            'price' => $price
+        ];
+        
+        // Return success response
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'service' => $newService]);
+    } else {
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Failed to create service']);
+    }
     exit;
 }
 
@@ -114,38 +110,29 @@ function handleUpdate() {
         exit;
     }
     
-    // Get services data
-    $services = getMockData('services.json');
+    $db = Database::getInstance();
+
+    // Update service in database
+    $result = $db->execute(
+        "UPDATE services SET name = ?, description = ?, price = ? WHERE id = ?",
+        [$name, $description, $price, $id]
+    );
     
-    // Find service to update
-    $serviceIndex = -1;
-    foreach ($services as $index => $service) {
-        if ($service['id'] === $id) {
-            $serviceIndex = $index;
-            break;
-        }
-    }
-    
-    if ($serviceIndex === -1) {
+    if ($result) {
+        $updatedService = [
+            'id' => $id,
+            'name' => $name,
+            'description' => $description,
+            'price' => $price
+        ];
+        
+        // Return success response
         header('Content-Type: application/json');
-        echo json_encode(['error' => 'Service not found']);
-        exit;
+        echo json_encode(['success' => true, 'service' => $updatedService]);
+    } else {
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Failed to update service or no changes made']);
     }
-    
-    // Update service
-    $services[$serviceIndex]['name'] = $name;
-    $services[$serviceIndex]['description'] = $description;
-    $services[$serviceIndex]['price'] = $price;
-    
-    // Save data
-    saveMockData('services.json', $services);
-    
-    // Send API request to external API
-    apiPut('services/' . $id, $services[$serviceIndex]);
-    
-    // Return success response
-    header('Content-Type: application/json');
-    echo json_encode(['success' => true, 'service' => $services[$serviceIndex]]);
     exit;
 }
 
@@ -162,36 +149,21 @@ function handleDelete() {
         exit;
     }
     
-    // Get services data
-    $services = getMockData('services.json');
+    $db = Database::getInstance();
+
+    // Delete service from database
+    $result = $db->execute(
+        "DELETE FROM services WHERE id = ?",
+        [$id]
+    );
     
-    // Find service to delete
-    $serviceIndex = -1;
-    foreach ($services as $index => $service) {
-        if ($service['id'] === $id) {
-            $serviceIndex = $index;
-            break;
-        }
-    }
-    
-    if ($serviceIndex === -1) {
+    if ($result) {
+        // Return success response
         header('Content-Type: application/json');
-        echo json_encode(['error' => 'Service not found']);
-        exit;
+        echo json_encode(['success' => true]);
+    } else {
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Failed to delete service or service not found']);
     }
-    
-    // Remove service from data
-    array_splice($services, $serviceIndex, 1);
-    
-    // Save data
-    saveMockData('services.json', $services);
-    
-    // Send API request to external API
-    apiDelete('services/' . $id);
-    
-    // Return success response
-    header('Content-Type: application/json');
-    echo json_encode(['success' => true]);
     exit;
 }
-?>

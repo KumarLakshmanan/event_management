@@ -72,20 +72,11 @@ class Database {
         return $this->queryOne($sql, $params);
     }
 
-    /**
-     * Execute a query that doesn't return results (INSERT, UPDATE, DELETE)
-     * For INSERT queries with RETURNING, use queryOne to get the returned row
-     */
     public function execute($sql, $params = []) {
         try {
             $stmt = $this->connection->prepare($sql);
             $stmt->execute($params);
 
-            // If this is a RETURNING query, return the statement for further processing
-            if (stripos($sql, 'RETURNING') !== false) {
-                $result = $stmt->fetch(PDO::FETCH_ASSOC);
-                return $result ? $result : true;
-            }
 
             return true;
         } catch (PDOException $e) {

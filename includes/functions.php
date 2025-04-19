@@ -42,7 +42,7 @@ function hasRole($role) {
  * @return int|bool The notification ID or false on failure
  */
 function addNotification($type, $message, $userId = null, $link = null, $alertType = NOTIFICATION_INFO) {
-    if (USE_DATABASE) {
+    
         $db = Database::getInstance();
         
         $data = [
@@ -56,32 +56,7 @@ function addNotification($type, $message, $userId = null, $link = null, $alertTy
         ];
         
         return insertRecord('notifications', $data);
-    } else {
-        // Fallback to mock data
-        $notifications = getMockData('notifications.json');
-        
-        // Generate ID
-        $id = count($notifications) > 0 ? max(array_column($notifications, 'id')) + 1 : 1;
-        
-        $newNotification = [
-            'id' => $id,
-            'type' => $type,
-            'message' => $message,
-            'user_id' => $userId,
-            'link' => $link,
-            'alert_type' => $alertType,
-            'is_read' => false,
-            'created_at' => date('Y-m-d H:i:s')
-        ];
-        
-        $notifications[] = $newNotification;
-        
-        if (saveMockData('notifications.json', $notifications)) {
-            return $id;
-        }
-        
-        return false;
-    }
+    
 }
 
 /**
@@ -107,7 +82,7 @@ function canGiveDiscount() {
         }
         
         // If not in session, check from database
-        if (USE_DATABASE) {
+        
             $db = Database::getInstance();
             $user = $db->querySingle("SELECT * FROM users WHERE id = ?", [$_SESSION['user_id']]);
             
@@ -115,16 +90,7 @@ function canGiveDiscount() {
                 $_SESSION['can_give_discount'] = true;
                 return true;
             }
-        } else {
-            // Check from mock data
-            $users = getMockData('users.json');
-            foreach ($users as $user) {
-                if ($user['id'] == $_SESSION['user_id'] && isset($user['can_give_discount']) && $user['can_give_discount']) {
-                    $_SESSION['can_give_discount'] = true;
-                    return true;
-                }
-            }
-        }
+       
     }
     
     return false;
@@ -184,23 +150,6 @@ function updateRecord($table, $id, $data) {
     
     // Execute query
     return $db->execute($sql, $values);
-}
-
-// For backward compatibility
-function getMockData($file) {
-    $filePath = MOCK_DIR . $file;
-    if (file_exists($filePath)) {
-        $jsonData = file_get_contents($filePath);
-        return json_decode($jsonData, true);
-    }
-    return [];
-}
-
-// For backward compatibility
-function saveMockData($file, $data) {
-    $filePath = MOCK_DIR . $file;
-    $jsonData = json_encode($data, JSON_PRETTY_PRINT);
-    file_put_contents($filePath, $jsonData);
 }
 /**
  * Sanitize user input to prevent XSS attacks
@@ -320,7 +269,7 @@ function getUnreadNotificationsCount() {
     $userId = $_SESSION['user_id'];
     $userRole = $_SESSION['user_role'] ?? '';
     
-    if (USE_DATABASE) {
+    
         $db = Database::getInstance();
         
         // For admin/manager, count all unread notifications
@@ -338,24 +287,7 @@ function getUnreadNotificationsCount() {
         }
         
         return $result['count'] ?? 0;
-    } else {
-        // Fallback to mock data
-        $notifications = getMockData('notifications.json');
-        $count = 0;
-        
-        // For admin/manager, count all unread notifications
-        // For client, count only their own unread notifications
-        foreach ($notifications as $notification) {
-            if ($notification['is_read'] === false) {
-                if ($userRole === 'admin' || $userRole === 'manager' || 
-                    $notification['user_id'] == $userId || $notification['user_id'] === null) {
-                    $count++;
-                }
-            }
-        }
-        
-        return $count;
-    }
+    
 }
 
 /**
@@ -372,7 +304,7 @@ function calculatePackagePrice($package, $selectedServices = []) {
     }
     
     // Get services data
-    if (USE_DATABASE) {
+    
         $db = Database::getInstance();
         
         // Get services for the selected IDs
@@ -381,13 +313,7 @@ function calculatePackagePrice($package, $selectedServices = []) {
             SELECT * FROM services 
             WHERE id IN ($placeholders)
         ", $selectedServices);
-    } else {
-        // Fallback to mock data
-        $allServices = getMockData('services.json');
-        $services = array_filter($allServices, function($service) use ($selectedServices) {
-            return in_array($service['id'], $selectedServices);
-        });
-    }
+    
     
     // Calculate total price
     $totalPrice = 0;

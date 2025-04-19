@@ -63,7 +63,7 @@ function handleCreateUser() {
     $hashedPassword = hashPassword($password);
     
     // Create user in database or mock data
-    if (USE_DATABASE) {
+    
         $db = Database::getInstance();
         
         // Check if email is already taken
@@ -100,50 +100,6 @@ function handleCreateUser() {
         } else {
             respondWithError('Failed to create user');
         }
-    } else {
-        // Fallback to mock data
-        $users = getMockData('users.json');
-        
-        // Check if email is already taken
-        foreach ($users as $user) {
-            if ($user['email'] === $email) {
-                respondWithError('Email is already in use');
-                return;
-            }
-        }
-        
-        // Generate user ID
-        $id = count($users) > 0 ? max(array_column($users, 'id')) + 1 : 1;
-        
-        // Create new user
-        $newUser = [
-            'id' => $id,
-            'name' => $name,
-            'email' => $email,
-            'password' => $hashedPassword,
-            'phone' => $phone,
-            'address' => $address,
-            'role' => $role,
-            'can_give_discount' => $canGiveDiscount,
-            'created_at' => date('Y-m-d H:i:s')
-        ];
-        
-        // Add user to data
-        $users[] = $newUser;
-        
-        // Save data
-        saveMockData('users.json', $users);
-        
-        // Add notification
-        addNotification(
-            'register',
-            "New user {$name} ({$role}) has been created by admin.",
-            null, // System notification
-            "../pages/user-management.php?edit={$id}"
-        );
-        
-        respondWithSuccess('User created successfully', ['id' => $id]);
-    }
 }
 
 /**
@@ -172,7 +128,7 @@ function handleUpdateUser() {
     }
     
     // Update user in database or mock data
-    if (USE_DATABASE) {
+    
         $db = Database::getInstance();
         
         // Get current user data
@@ -217,53 +173,6 @@ function handleUpdateUser() {
         } else {
             respondWithError('Failed to update user');
         }
-    } else {
-        // Fallback to mock data
-        $users = getMockData('users.json');
-        $updated = false;
-        
-        // Find user
-        foreach ($users as $index => $user) {
-            if ($user['id'] == $id) {
-                // Check if email is already taken by another user
-                foreach ($users as $u) {
-                    if ($u['id'] != $id && $u['email'] === $email) {
-                        respondWithError('Email is already in use by another account');
-                        return;
-                    }
-                }
-                
-                // Self-edit restrictions: cannot change own role
-                if ($id == $_SESSION['user_id']) {
-                    $role = $user['role']; // Keep original role
-                }
-                
-                // Update user
-                $users[$index]['name'] = $name;
-                $users[$index]['email'] = $email;
-                $users[$index]['phone'] = $phone;
-                $users[$index]['address'] = $address;
-                $users[$index]['role'] = $role;
-                $users[$index]['can_give_discount'] = $canGiveDiscount;
-                
-                // Update session if updating own account
-                if ($id == $_SESSION['user_id']) {
-                    $_SESSION['user_name'] = $name;
-                    $_SESSION['user_email'] = $email;
-                }
-                
-                $updated = true;
-                break;
-            }
-        }
-        
-        if ($updated) {
-            saveMockData('users.json', $users);
-            respondWithSuccess('User updated successfully');
-        } else {
-            respondWithError('User not found');
-        }
-    }
 }
 
 /**
@@ -281,7 +190,7 @@ function handleDeleteUser() {
     }
     
     // Delete user from database or mock data
-    if (USE_DATABASE) {
+    
         $db = Database::getInstance();
         
         // Get user data before deleting
@@ -307,39 +216,7 @@ function handleDeleteUser() {
         } else {
             setFlashMessage('Failed to delete user', 'danger');
         }
-    } else {
-        // Fallback to mock data
-        $users = getMockData('users.json');
-        $deleted = false;
-        $userName = '';
-        $userRole = '';
-        
-        // Find and delete user
-        foreach ($users as $index => $user) {
-            if ($user['id'] == $id) {
-                $userName = $user['name'];
-                $userRole = $user['role'];
-                array_splice($users, $index, 1);
-                $deleted = true;
-                break;
-            }
-        }
-        
-        if ($deleted) {
-            saveMockData('users.json', $users);
-            
-            // Add notification
-            addNotification(
-                'user_deleted',
-                "User {$userName} ({$userRole}) has been deleted by admin.",
-                null // System notification
-            );
-            
-            setFlashMessage('User deleted successfully', 'success');
-        } else {
-            setFlashMessage('User not found', 'danger');
-        }
-    }
+    
     
     header("Location: ../pages/user-management.php");
     exit;

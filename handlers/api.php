@@ -1,4 +1,5 @@
 <?php
+
 /**
  * API Handler - Provides functions to interact with external APIs
  * 
@@ -13,51 +14,62 @@
  * @param array $params Query parameters
  * @return array Response data
  */
-function apiGet($endpoint, $params = []) {
+function apiGet($endpoint, $params = [])
+{
     // Build URL with query parameters
     $url = API_URL . '/' . $endpoint;
     if (!empty($params)) {
         $url .= '?' . http_build_query($params);
     }
-    
+    $db = Database::getInstance();
+
+    // Get services for lookup
+
+
+
     // In a real application, you would make an actual HTTP request
     // For demo purposes, we'll simulate a response
-    
+
     // Simulate API delay
     usleep(rand(100000, 500000)); // 100-500ms delay
-    
+
     // Return simulated response based on endpoint
     switch ($endpoint) {
         case 'packages':
+            $packages = $db->query("SELECT * FROM packages");
             return [
                 'status' => 200,
-                'data' => getMockData('packages.json')
+                'data' => $packages
             ];
-            
+
         case 'services':
+            $services = $db->query("SELECT * FROM services");
             return [
                 'status' => 200,
-                'data' => getMockData('services.json')
+                'data' => $services
             ];
-            
+
         case 'bookings':
+            $bookings = $db->query("SELECT * FROM bookings");
             return [
                 'status' => 200,
-                'data' => getMockData('bookings.json')
+                'data' =>   $bookings
             ];
-            
+
         case 'guests':
+            $guests = $db->query("SELECT * FROM guests");
             return [
                 'status' => 200,
-                'data' => getMockData('guests.json')
+                'data' =>   $guests
             ];
-            
+
         case 'users':
+            $users = $db->query("SELECT * FROM users");
             return [
                 'status' => 200,
-                'data' => getMockData('users.json')
+                'data' =>   $users
             ];
-            
+
         default:
             return [
                 'status' => 404,
@@ -67,91 +79,38 @@ function apiGet($endpoint, $params = []) {
 }
 
 /**
- * Make a POST request to an external API
- *
- * @param string $endpoint The API endpoint
- * @param array $data Request data
- * @return array Response data
- */
-function apiPost($endpoint, $data = []) {
-    // In a real application, you would make an actual HTTP request
-    // For demo purposes, we'll simulate a response
-    
-    // Simulate API delay
-    usleep(rand(100000, 500000)); // 100-500ms delay
-    
-    // Return simulated response
-    return [
-        'status' => 200,
-        'message' => 'Data saved successfully',
-        'data' => $data
-    ];
-}
-
-/**
- * Make a PUT request to an external API
- *
- * @param string $endpoint The API endpoint
- * @param array $data Request data
- * @return array Response data
- */
-function apiPut($endpoint, $data = []) {
-    // In a real application, you would make an actual HTTP request
-    // For demo purposes, we'll simulate a response
-    
-    // Simulate API delay
-    usleep(rand(100000, 500000)); // 100-500ms delay
-    
-    // Return simulated response
-    return [
-        'status' => 200,
-        'message' => 'Data updated successfully',
-        'data' => $data
-    ];
-}
-
-/**
- * Make a DELETE request to an external API
- *
- * @param string $endpoint The API endpoint
- * @param array $params Query parameters
- * @return array Response data
- */
-function apiDelete($endpoint, $params = []) {
-    // Build URL with query parameters
-    $url = API_URL . '/' . $endpoint;
-    if (!empty($params)) {
-        $url .= '?' . http_build_query($params);
-    }
-    
-    // In a real application, you would make an actual HTTP request
-    // For demo purposes, we'll simulate a response
-    
-    // Simulate API delay
-    usleep(rand(100000, 500000)); // 100-500ms delay
-    
-    // Return simulated response
-    return [
-        'status' => 200,
-        'message' => 'Data deleted successfully'
-    ];
-}
-
-/**
  * Send an email invitation to a guest
  *
  * @param array $guest Guest data
  * @param array $booking Booking data
  * @return bool Success status
  */
-function sendInvitation($guest, $booking) {
+function sendInvitation($guest, $booking)
+{
     // In a real application, you would send an actual email
     // For demo purposes, we'll simulate sending an email
+
+    // create an email body
+    $emailBody = "Dear {$guest['name']},\n\n";
+    $emailBody .= "You are invited to the event at {$booking['event_place']} on {$booking['event_date']}.\n";
+    $emailBody .= "Please RSVP by clicking the link below:\n";
+    $emailBody .= "http://example.com/rsvp?booking_id={$booking['id']}&guest_id={$guest['id']}\n\n";
+    $emailBody .= "Best regards,\n";
+    $emailBody .= "Event Management Team";
     
-    // Simulate delay
-    usleep(rand(500000, 1000000)); // 500-1000ms delay
+    // send the email
+    $to = $guest['email'];
+    $subject = "Invitation to Event at {$booking['event_place']}";
+    $headers = "From: test@gmail.com\r\n";
+    $headers .= "Reply-To: {$guest['email']}\r\n";
+    $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+    $headers .= "X-Mailer: PHP/" . phpversion();
+    $headers .= "X-Priority: 3\r\n"; // Normal priority
+    $headers .= "X-MSMail-Priority: Normal\r\n"; // Normal priority
+    $headers .= "X-Mailer: PHP/" . phpversion();
+
+    mail($to, $subject, $emailBody, $headers);
     
     // Return success
     return true;
 }
-?>

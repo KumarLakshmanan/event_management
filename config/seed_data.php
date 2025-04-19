@@ -28,7 +28,7 @@ try {
             'Admin User',
             'admin@example.com',
             '123-456-7890',
-            password_hash('admin123', PASSWORD_DEFAULT),
+            password_hash('Admin123', PASSWORD_DEFAULT),
             '123 Admin St, Admin City',
             'admin', 
             'true', // Using string 'true' instead of boolean true
@@ -48,7 +48,7 @@ try {
             'Manager User',
             'manager@example.com',
             '234-567-8901',
-            password_hash('manager123', PASSWORD_DEFAULT),
+            password_hash('Manager123', PASSWORD_DEFAULT),
             '456 Manager Ave, Manager Town',
             'manager', 
             'true', // Using string 'true' instead of boolean true
@@ -62,23 +62,20 @@ try {
 
     // Create client user and get ID
     $clientId = null;
-    $clientResult = $db->execute(
+    $db->execute(
         "INSERT INTO users (name, email, phone, password_hash, address, role, can_give_discount, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ",
         [
             'Client User',
             'client@example.com',
             '345-678-9012',
-            password_hash('client123', PASSWORD_DEFAULT),
+            password_hash('Client123', PASSWORD_DEFAULT),
             '789 Client Blvd, Client Village',
             'client', 
             'false', // Using string 'false' instead of boolean false
             date('Y-m-d H:i:s')
         ]
     );
-
-    if (is_array($clientResult) && isset($clientResult['id'])) {
-        $clientId = $clientResult['id'];
-    }
+    $clientId = $db->lastInsertId();
 
     // Add services
     $services = [

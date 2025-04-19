@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'client') {
 $userId = $_SESSION['user_id'];
 
 // Get user bookings and guests data
-if (USE_DATABASE) {
+
     $db = Database::getInstance();
     
     // Get user's bookings
@@ -34,24 +34,7 @@ if (USE_DATABASE) {
     } else {
         $guests = [];
     }
-} else {
-    // Fallback to mock data
-    $allBookings = getMockData('bookings.json');
-    $allGuests = getMockData('guests.json');
-    
-    // Filter bookings for current user
-    $bookings = array_filter($allBookings, function($booking) use ($userId) {
-        return $booking['user_id'] == $userId;
-    });
-    
-    // Get booking IDs
-    $bookingIds = array_column($bookings, 'id');
-    
-    // Filter guests for user's bookings
-    $guests = array_filter($allGuests, function($guest) use ($bookingIds) {
-        return in_array($guest['booking_id'], $bookingIds);
-    });
-}
+
 
 // Filter guests for a specific booking if requested
 $bookingId = isset($_GET['booking']) ? intval($_GET['booking']) : null;

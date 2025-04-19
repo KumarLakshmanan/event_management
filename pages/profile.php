@@ -10,21 +10,10 @@ if (!isset($_SESSION['user_id'])) {
 // Get user data
 $userId = $_SESSION['user_id'];
 
-if (USE_DATABASE) {
+
     $db = Database::getInstance();
     $user = $db->querySingle("SELECT * FROM users WHERE id = ?", [$userId]);
-} else {
-    // Fallback to mock data
-    $users = getMockData('users.json');
-    $user = null;
-    
-    foreach ($users as $u) {
-        if ($u['id'] == $userId) {
-            $user = $u;
-            break;
-        }
-    }
-}
+
 
 // If user not found, redirect to login
 if (!$user) {

@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Get user's notifications
-if (USE_DATABASE) {
+
     $db = Database::getInstance();
     $userId = $_SESSION['user_id'];
     $userRole = $_SESSION['user_role'];
@@ -36,39 +36,7 @@ if (USE_DATABASE) {
         SET is_read = true 
         WHERE user_id = ? OR (user_id IS NULL AND ? IN ('admin', 'manager'))
     ", [$userId, $userRole]);
-} else {
-    // Fallback to mock data
-    $allNotifications = getMockData('notifications.json');
-    $userId = $_SESSION['user_id'];
-    $userRole = $_SESSION['user_role'];
-    
-    // For admin/manager, show all notifications
-    // For client, show only their own notifications
-    if ($userRole === 'admin' || $userRole === 'manager') {
-        $notifications = $allNotifications;
-    } else {
-        $notifications = array_filter($allNotifications, function($notification) use ($userId) {
-            return $notification['user_id'] == $userId || $notification['user_id'] === null;
-        });
-    }
-    
-    // Sort by created_at descending
-    usort($notifications, function($a, $b) {
-        return strtotime($b['created_at']) - strtotime($a['created_at']);
-    });
-    
-    // Limit to 50 notifications
-    $notifications = array_slice($notifications, 0, 50);
-    
-    // Mark all as read
-    foreach ($allNotifications as $index => $notification) {
-        if ($notification['user_id'] == $userId || ($notification['user_id'] === null && ($userRole === 'admin' || $userRole === 'manager'))) {
-            $allNotifications[$index]['is_read'] = true;
-        }
-    }
-    
-    saveMockData('notifications.json', $allNotifications);
-}
+
 ?>
 
 <!-- Page Heading -->
