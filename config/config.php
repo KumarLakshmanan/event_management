@@ -1,7 +1,6 @@
 <?php
 // Application configuration
 define('APP_NAME', 'Event Management System');
-define('APP_URL', 'http://' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost:5000'));
 
 // Session timeout in seconds (30 minutes)
 define('SESSION_TIMEOUT', 1800);
