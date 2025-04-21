@@ -1,0 +1,54 @@
+RewriteEngine On
+
+
+<IfModule mod_speling.c>
+    CheckSpelling Off
+</IfModule>
+Options -Indexes
+
+
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+</IfModule>
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+
+
+RewriteRule ^home index.php?pageid=home [NC,QSA,L]
+
+RewriteRule ^register index.php?pageid=register [NC,QSA,L]
+
+RewriteRule ^services index.php?pageid=services [NC,QSA,L]
+RewriteRule ^addservice index.php?pageid=addservice [NC,QSA,L]
+RewriteRule ^editservice index.php?pageid=editservice [NC,QSA,L]
+
+RewriteRule ^packages index.php?pageid=packages [NC,QSA,L]
+RewriteRule ^addpackage index.php?pageid=addpackage [NC,QSA,L]
+RewriteRule ^editpackage index.php?pageid=editpackage [NC,QSA,L]
+
+RewriteRule ^managers index.php?pageid=managers [NC,QSA,L]
+RewriteRule ^addmanager index.php?pageid=addmanager [NC,QSA,L]
+RewriteRule ^editmanager index.php?pageid=editmanager [NC,QSA,L]
+
+RewriteRule ^clients index.php?pageid=clients [NC,QSA,L]
+RewriteRule ^addclient index.php?pageid=addclient [NC,QSA,L]
+RewriteRule ^editclient index.php?pageid=editclient [NC,QSA,L]
+
+RewriteRule ^pick_a_package index.php?pageid=pick_a_package [NC,QSA,L]
+RewriteRule ^addcustompackage index.php?pageid=addcustompackage [NC,QSA,L]
+RewriteRule ^booking index.php?pageid=booking [NC,QSA,L]
+RewriteRule ^editbooking index.php?pageid=editbooking [NC,QSA,L]
+RewriteRule ^clientbooking index.php?pageid=clientbooking [NC,QSA,L]
+RewriteRule ^editallbooking index.php?pageid=editallbooking [NC,QSA,L]
+
+RewriteRule ^delete index.php?pageid=delete [NC,QSA,L]
+RewriteRule ^all index.php?pageid=all [NC,QSA,L]
+RewriteRule ^enquirymessages index.php?pageid=enquirymessages [NC,QSA,L]
+RewriteRule ^serviceman index.php?pageid=serviceman [NC,QSA,L]
+RewriteRule ^logout components/logout.php [NC,QSA,L]
+RewriteRule ^allbooking index.php?pageid=allbooking [NC,QSA,L]
+RewriteRule ^blog/([a-zA-Z0-9-]+) blog-details.php?slug=$1 [NC,QSA,L]
+
+
+ErrorDocument 404 index.php?pageid=404

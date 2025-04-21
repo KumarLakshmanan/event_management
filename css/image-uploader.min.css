@@ -1,0 +1,96 @@
+.image-uploader {
+	min-height: 10rem;
+	border: 1px solid #d9d9d9;
+	position: relative;
+}
+.image-uploader.drag-over {
+	background-color: #d9d9d9;
+}
+.image-uploader input[type="file"] {
+	visibility: hidden;
+	position: absolute;
+	pointer-events: none;
+}
+.image-uploader .upload-text i {
+	display: block;
+	font-size: 3rem;
+	margin-bottom: 0.5rem;
+}
+.image-uploader .upload-text span {
+	display: block;
+}
+.image-uploader.has-files .upload-text {
+	display: none;
+}
+
+.image-uploader .uploaded {
+	padding: 0.5rem;
+	line-height: 0;
+}
+.image-uploader .uploaded .uploaded-image {
+	display: inline-block;
+	width: 20%;
+	padding-bottom: 25%;
+	height: 0;
+	position: relative;
+	background: #f3f3f3;
+	cursor: default;
+	margin: 2.5%;
+}
+.image-uploader .uploaded .uploaded-image .wrapper {
+	position: absolute;
+	height: 95%;
+	width: 95%;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+.image-uploader .uploaded .uploaded-image img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	position: absolute;
+}
+.image-uploader .uploaded .uploaded-image .delete-image {
+	display: block;
+	cursor: pointer;
+	position: absolute;
+	top: 0.5rem;
+	right: 0.5rem;
+	border-radius: 50%;
+	padding: 0.3rem;
+	background-color: rgba(0, 0, 0, 0.5);
+	border: none;
+}
+.image-uploader .uploaded .uploaded-image .move-image {
+	display: block;
+	cursor: pointer;
+	position: absolute;
+	top: 0.5rem;
+	left: 0.5rem;
+	border-radius: 50%;
+	padding: 0.3rem;
+	background-color: rgba(0, 0, 0, 0.5);
+	border: none;
+}
+.image-uploader .upload-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    flex-direction: column;
+}
+.image-uploader .uploaded .uploaded-image .delete-image svg {
+	fill: #fff;
+	font-size: 1.4rem;
+}
+
+@media screen and (max-width: 500px) {
+	.image-uploader .uploaded .uploaded-image {
+		width: 50%;
+		padding-bottom: 50%;
+	}
+}

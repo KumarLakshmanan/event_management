@@ -1,0 +1,99 @@
+@import url("https://fonts.googleapis.com/css?family=Montserrat:400,800");
+
+.loginBox {
+  background: #f6f5f7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  font-family: "Montserrat", sans-serif!important;
+  padding: 150px 0;
+}
+
+.loginBox h3 {
+  font-weight: bold;
+  font-family: "Montserrat", sans-serif!important;
+  margin: 0;
+}
+
+.loginBox h2 {
+  text-align: center;
+}
+
+.loginBox p {
+  font-size: 14px;
+  font-weight: 100;
+  line-height: 20px;
+  letter-spacing: 0.5px;
+  margin: 20px 0 30px;
+}
+
+.loginBox span {
+  font-size: 12px;
+}
+
+.loginBox a {
+  color: #333;
+  font-size: 14px;
+  text-decoration: none;
+  margin: 15px 0;
+}
+
+.loginBox button {
+  border-radius: 50px;
+  border: 1px solid #ff4b2b;
+  background-color: #ff4b2b;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 12px 45px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: transform 80ms ease-in;
+}
+
+.loginBox button:active {
+  transform: scale(0.95);
+}
+
+.loginBox button:focus {
+  outline: none;
+}
+
+.loginBox a {
+  color: #ff4b2b;
+  font-weight: bold;
+}
+
+.loginBox form {
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 5px;
+  height: 100%;
+  text-align: center;
+}
+
+.loginBox input {
+  background-color: #eee;
+  border: none;
+  padding: 12px 15px;
+  margin: 8px 0;
+  width: 100%;
+}
+
+.loginBox .container {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+  position: relative;
+  overflow: hidden;
+  width: 90%;
+  max-width: 400px;
+}
+
+.loginBox .sign-in-container {
+  padding: 15px;
+}
