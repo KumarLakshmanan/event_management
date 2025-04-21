@@ -103,11 +103,11 @@ if (isset($_GET['confirm']) && is_numeric($_GET['confirm'])) {
                             <a href="?confirm=<?php echo $booking['id']; ?>" class="btn btn-success btn-sm">
                                 <i class="fas fa-check"></i> Confirm
                             </a>
-                            <?php else: ?>
-                            <a href="guests.php?booking=<?php echo $booking['id']; ?>" class="btn btn-info btn-sm">
-                                <i class="fas fa-users"></i> Guests
-                            </a>
                             <?php endif; ?>
+                            
+                            <a href="my-bookings.php?view=<?php echo $booking['id']; ?>" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-eye"></i> View
+                            </a>
                         </td>
                     </tr>
                     <?php endforeach; ?>

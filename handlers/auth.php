@@ -16,7 +16,6 @@ switch ($action) {
         handleLogout();
         break;
     default:
-        // Invalid action
         redirect('../pages/login.php', 'Invalid request', 'danger');
         break;
 }
@@ -130,7 +129,7 @@ function handleRegister()
         'created_at' => date('Y-m-d H:i:s')
     ];
 
-    // Insert user into database or mock data
+    // Insert user into database
     $userId = false;
     $userId = insertRecord('users', $newUser);
 
@@ -138,9 +137,6 @@ function handleRegister()
         redirect('../pages/register.php', 'Error creating account. Please try again.', 'danger');
         return;
     }
-
-    // Send API request to external API
-    sendApiRequest('register', $newUser);
 
     // Redirect to login page
     redirect('../pages/login.php', 'Registration successful. Please login.', 'success');
@@ -171,42 +167,4 @@ function redirect($page, $message = null, $type = null)
 
     header("Location: $page");
     exit;
-}
-
-/**
- * Send data to external API
- */
-function sendApiRequest($endpoint, $data)
-{
-    // For demo, we're just simulating API requests
-    // In a real application, you would make actual API calls
-
-    // You could use something like this:
-    /*
-    $apiUrl = API_URL . '/' . $endpoint;
-    
-    $ch = curl_init($apiUrl);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-        'Content-Type: application/json',
-        'Accept: application/json'
-    ));
-    
-    $response = curl_exec($ch);
-    $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    
-    curl_close($ch);
-    
-    return [
-        'status' => $statusCode,
-        'response' => json_decode($response, true)
-    ];
-    */
-
-    // For demo, just return success
-    return [
-        'status' => 200,
-        'response' => ['success' => true]
-    ];
 }

@@ -44,7 +44,7 @@ function handleUpdateProfile()
     // Get user ID
     $userId = $_SESSION['user_id'];
 
-    // Update user in database or mock data
+    // Update user in database
     $db = Database::getInstance();
 
     // Check if email is already taken by another user
@@ -108,7 +108,7 @@ function handleChangePassword()
     // Get user ID
     $userId = $_SESSION['user_id'];
 
-    // Verify current password and update password in database or mock data
+    // Verify current password and update password in database
     $db = Database::getInstance();
 
     // Get current user data

@@ -82,6 +82,7 @@ $tables = [
         id SERIAL PRIMARY KEY,
         type VARCHAR(50) NOT NULL,
         message TEXT NOT NULL,
+        alert_type VARCHAR(20) DEFAULT 'info',
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         link VARCHAR(255),
         is_read BOOLEAN DEFAULT FALSE,

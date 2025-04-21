@@ -41,7 +41,7 @@ function handleDelete()
     $userId = $_SESSION['user_id'];
     $userRole = $_SESSION['user_role'];
 
-    // Delete notification from database or mock data
+    // Delete notification from database
     $db = Database::getInstance();
 
     // Get notification to verify permission
@@ -86,7 +86,7 @@ function handleClearAll()
     $userId = $_SESSION['user_id'];
     $userRole = $_SESSION['user_role'];
 
-    // Clear all notifications from database or mock data
+    // Clear all notifications from database
     $db = Database::getInstance();
 
     // For admin/manager, can clear all notifications
@@ -105,13 +105,4 @@ function handleClearAll()
 
     header("Location: ../pages/notifications.php");
     exit;
-}
-
-/**
- * Set flash message in session
- */
-function setFlashMessage($message, $type)
-{
-    $_SESSION['flash_message'] = $message;
-    $_SESSION['flash_type'] = $type;
 }

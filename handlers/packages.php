@@ -51,7 +51,7 @@ function handleCreatePackage()
         return;
     }
 
-    // Insert package into database or mock data
+    // Insert package into database
     $db = Database::getInstance();
 
     // Begin transaction
@@ -125,7 +125,7 @@ function handleCreateCustomPackage()
         return;
     }
 
-    // Insert custom package into database or mock data
+    // Insert custom package into database
     $db = Database::getInstance();
 
     // Begin transaction
@@ -191,7 +191,7 @@ function handleUpdatePackage()
         return;
     }
 
-    // Update package in database or mock data
+    // Update package in database
     $db = Database::getInstance();
 
     // Begin transaction
@@ -261,7 +261,7 @@ function handleDeletePackage()
         return;
     }
 
-    // Delete package from database or mock data
+    // Delete package from database
     $db = Database::getInstance();
 
     // Begin transaction

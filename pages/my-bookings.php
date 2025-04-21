@@ -16,7 +16,11 @@ $packages = $db->query("SELECT * FROM packages");
 
 // Filter bookings for current user
 $userBookings = array_filter($bookings, function ($booking) {
-    return $booking['user_id'] == $_SESSION['user_id'];
+    if ($_SESSION['user_role'] === 'client') {
+        return $booking['user_id'] == $_SESSION['user_id'];
+    } else {
+        return true; // Admin/Manager can see all bookings
+    }
 });
 
 // Create lookup array for packages
@@ -48,9 +52,11 @@ if ($viewBooking) {
 <!-- Page Heading -->
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">My Bookings</h1>
-    <a href="packages.php" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-        <i class="fas fa-plus fa-sm text-white-50"></i> Book New Event
-    </a>
+    <?php if ($_SESSION['user_role'] === 'client'): ?>
+        <a href="packages.php" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Book New Event
+        </a>
+    <?php endif; ?>
 </div>
 
 <?php if ($viewBooking): ?>
@@ -58,9 +64,11 @@ if ($viewBooking) {
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
             <h6 class="m-0 font-weight-bold text-primary">Booking Details</h6>
-            <a href="my-bookings.php" class="btn btn-sm btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to All Bookings
-            </a>
+            <?php if ($_SESSION['user_role'] === 'client'): ?>
+                <a href="my-bookings.php" class="btn btn-sm btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to All Bookings
+                </a>
+            <?php endif; ?>
         </div>
         <div class="card-body">
             <div class="row">
@@ -150,9 +158,11 @@ if ($viewBooking) {
                 <div class="mt-4">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5>Guest Management</h5>
-                        <button class="btn btn-primary" data-toggle="modal" data-target="#addGuestModal">
-                            <i class="fas fa-user-plus"></i> Add Guest
-                        </button>
+                        <?php if ($_SESSION['user_role'] === 'client'): ?>
+                            <button class="btn btn-primary" data-toggle="modal" data-target="#addGuestModal">
+                                <i class="fas fa-user-plus"></i> Add Guest
+                            </button>
+                        <?php endif; ?>
                     </div>
 
                     <div class="table-responsive">
@@ -183,15 +193,6 @@ if ($viewBooking) {
                                                 <?php endif; ?>
                                             </td>
                                             <td>
-                                                <button class="btn btn-sm btn-info edit-guest"
-                                                    data-id="<?php echo $guest['id']; ?>"
-                                                    data-name="<?php echo htmlspecialchars($guest['name']); ?>"
-                                                    data-email="<?php echo htmlspecialchars($guest['email']); ?>"
-                                                    data-phone="<?php echo htmlspecialchars($guest['phone']); ?>"
-                                                    data-toggle="modal"
-                                                    data-target="#editGuestModal">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
                                                 <a href="../handlers/guests.php?action=delete&id=<?php echo $guest['id']; ?>&booking_id=<?php echo $viewBooking['id']; ?>" class="btn btn-sm btn-danger btn-delete">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
@@ -260,65 +261,8 @@ if ($viewBooking) {
         </div>
     </div>
 
-    <!-- Edit Guest Modal -->
-    <div class="modal fade" id="editGuestModal" tabindex="-1" role="dialog" aria-labelledby="editGuestModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editGuestModalLabel">Edit Guest</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="editGuestForm" class="api-form" action="../handlers/guests.php" method="POST" data-redirect="my-bookings.php?view=<?php echo $viewBooking['id']; ?>">
-                        <input type="hidden" name="action" value="update">
-                        <input type="hidden" name="id" id="edit_guest_id">
-                        <input type="hidden" name="booking_id" value="<?php echo $viewBooking['id']; ?>">
-
-                        <div class="form-group">
-                            <label for="edit_name">Name</label>
-                            <input type="text" class="form-control" id="edit_name" name="name" required>
-                            <div id="edit_nameFeedback" class="invalid-feedback"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="edit_email">Email</label>
-                            <input type="email" class="form-control" id="edit_email" name="email" required>
-                            <div id="edit_emailFeedback" class="invalid-feedback"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="edit_phone">Phone</label>
-                            <input type="tel" class="form-control" id="edit_phone" name="phone">
-                            <div id="edit_phoneFeedback" class="invalid-feedback"></div>
-                        </div>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Update Guest</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
         $(document).ready(function() {
-            // Handle edit guest button
-            $('.edit-guest').on('click', function() {
-                var id = $(this).data('id');
-                var name = $(this).data('name');
-                var email = $(this).data('email');
-                var phone = $(this).data('phone');
-
-                $('#edit_guest_id').val(id);
-                $('#edit_name').val(name);
-                $('#edit_email').val(email);
-                $('#edit_phone').val(phone);
-            });
-
             // Handle send invite button
             $('.send-invite').on('click', function() {
                 var id = $(this).data('id');

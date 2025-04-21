@@ -132,14 +132,14 @@ switch ($currentPage) {
                                     // For client, show only their own notifications
                                     if ($userRole === 'admin' || $userRole === 'manager') {
                                         $notifications = $db->query("
-                                        SELECT * FROM notifications 
+                                        SELECT * FROM notifications WHERE user_id IS NULL
                                         ORDER BY created_at DESC 
                                         LIMIT 5
                                     ");
                                     } else {
                                         $notifications = $db->query("
                                         SELECT * FROM notifications 
-                                        WHERE user_id = ? OR user_id IS NULL
+                                        WHERE user_id = ?
                                         ORDER BY created_at DESC 
                                         LIMIT 5
                                     ", [$userId]);

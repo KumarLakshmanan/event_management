@@ -99,10 +99,6 @@ $(document).ready(function() {
             }
         });
         
-        // For demo: Redirect without waiting for API response
-        setTimeout(function() {
-            window.location.href = redirectUrl;
-        }, 1000);
     });
 
     // Handle delete buttons
@@ -138,10 +134,6 @@ $(document).ready(function() {
             }
         });
         
-        // For demo: Redirect without waiting for API response
-        setTimeout(function() {
-            window.location.href = redirectUrl;
-        }, 1000);
     });
 
     // Handle RSVP buttons
@@ -179,10 +171,6 @@ $(document).ready(function() {
             }
         });
         
-        // For demo: Redirect without waiting for API response
-        setTimeout(function() {
-            window.location.href = redirectUrl;
-        }, 1000);
     });
 
     // Function to show loading spinner

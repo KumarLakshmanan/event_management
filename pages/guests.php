@@ -39,16 +39,6 @@ if ($bookingId) {
     $filteredGuests = $guests;
 }
 
-// Get guest for edit if specified
-$editGuest = null;
-if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
-    foreach ($guests as $guest) {
-        if ($guest['id'] == $_GET['edit']) {
-            $editGuest = $guest;
-            break;
-        }
-    }
-}
 ?>
 
 <!-- Page Heading -->
@@ -188,9 +178,6 @@ if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
                             </td>
                             <td>
                                 <?php if ($currentBooking): ?>
-                                <a href="?booking=<?php echo $bookingId; ?>&edit=<?php echo $guest['id']; ?>" class="btn btn-info btn-sm">
-                                    <i class="fas fa-edit"></i>
-                                </a>
                                 <a href="../handlers/guests.php?action=delete&id=<?php echo $guest['id']; ?>&booking_id=<?php echo $bookingId; ?>" class="btn btn-danger btn-sm btn-delete">
                                     <i class="fas fa-trash"></i>
                                 </a>
@@ -263,66 +250,6 @@ if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
     </div>
 </div>
 
-<!-- Edit Guest Modal -->
-<?php if ($editGuest): ?>
-<div class="modal fade" id="editGuestModal" tabindex="-1" role="dialog" aria-labelledby="editGuestModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editGuestModalLabel">Edit Guest</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="editGuestForm" class="api-form" action="../handlers/guests.php" method="POST" data-redirect="guests.php?booking=<?php echo $bookingId; ?>">
-                    <input type="hidden" name="action" value="update">
-                    <input type="hidden" name="id" value="<?php echo $editGuest['id']; ?>">
-                    <input type="hidden" name="booking_id" value="<?php echo $bookingId; ?>">
-                    
-                    <div class="form-group">
-                        <label for="edit_name">Name</label>
-                        <input type="text" class="form-control" id="edit_name" name="name" value="<?php echo $editGuest['name']; ?>" required>
-                        <div id="edit_nameFeedback" class="invalid-feedback"></div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="edit_email">Email</label>
-                        <input type="email" class="form-control" id="edit_email" name="email" value="<?php echo $editGuest['email']; ?>" required>
-                        <div id="edit_emailFeedback" class="invalid-feedback"></div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="edit_phone">Phone</label>
-                        <input type="tel" class="form-control" id="edit_phone" name="phone" value="<?php echo $editGuest['phone']; ?>">
-                        <div id="edit_phoneFeedback" class="invalid-feedback"></div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="edit_rsvp_status">RSVP Status</label>
-                        <select class="form-control" id="edit_rsvp_status" name="rsvp_status">
-                            <option value="pending" <?php echo $editGuest['rsvp_status'] === 'pending' ? 'selected' : ''; ?>>Pending</option>
-                            <option value="yes" <?php echo $editGuest['rsvp_status'] === 'yes' ? 'selected' : ''; ?>>Attending</option>
-                            <option value="no" <?php echo $editGuest['rsvp_status'] === 'no' ? 'selected' : ''; ?>>Not Attending</option>
-                        </select>
-                    </div>
-                    
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Update Guest</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-$(document).ready(function() {
-    $('#editGuestModal').modal('show');
-});
-</script>
-<?php endif; ?>
 
 <script>
 $(document).ready(function() {

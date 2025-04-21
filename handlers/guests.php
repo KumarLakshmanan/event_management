@@ -24,6 +24,9 @@ switch ($action) {
     case 'invite':
         handleInviteGuest();
         break;
+    case 'send_invite':
+        handleInviteGuest();
+        break;
     default:
         setFlashMessage('Invalid action specified', 'danger');
         header("Location: ../pages/my-guests.php");
@@ -120,7 +123,7 @@ function handleUpdateGuest()
     // Get user ID
     $userId = $_SESSION['user_id'];
 
-    // Update guest in database or mock data
+    // Update guest in database
     $db = Database::getInstance();
 
     // Check if guest exists and belongs to user's booking
@@ -169,7 +172,7 @@ function handleDeleteGuest()
     // Get user ID
     $userId = $_SESSION['user_id'];
 
-    // Delete guest from database or mock data
+    // Delete guest from database
     $db = Database::getInstance();
 
     // Check if guest exists and belongs to user's booking
@@ -204,8 +207,7 @@ function handleDeleteGuest()
  */
 function handleInviteGuest()
 {
-    // Validate input
-    $id = filter_var($_GET['id'] ?? 0, FILTER_VALIDATE_INT);
+    $id = filter_var($_REQUEST['id'] ?? 0, FILTER_VALIDATE_INT);
 
     if (!$id) {
         setFlashMessage('Invalid guest ID', 'danger');
@@ -216,7 +218,7 @@ function handleInviteGuest()
     // Get user ID
     $userId = $_SESSION['user_id'];
 
-    // Process invitation in database or mock data
+    // Process invitation in database
     $db = Database::getInstance();
 
     // Check if guest exists and belongs to user's booking

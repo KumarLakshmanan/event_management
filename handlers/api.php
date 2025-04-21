@@ -17,10 +17,6 @@
 function apiGet($endpoint, $params = [])
 {
     // Build URL with query parameters
-    $url = API_URL . '/' . $endpoint;
-    if (!empty($params)) {
-        $url .= '?' . http_build_query($params);
-    }
     $db = Database::getInstance();
 
     // Get services for lookup

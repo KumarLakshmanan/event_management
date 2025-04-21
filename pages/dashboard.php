@@ -59,6 +59,7 @@ if (!isset($_SESSION['user_id'])) {
 <!-- Content Row -->
 <div class="row">
     <!-- Total Packages Card -->
+    <?php if ($_SESSION['user_role'] !== 'client'): ?>
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card border-left-primary shadow h-100 py-2">
             <div class="card-body">
@@ -75,6 +76,7 @@ if (!isset($_SESSION['user_id'])) {
             </div>
         </div>
     </div>
+    <?php endif; ?>
 
     <!-- Total Services Card -->
     <?php if ($_SESSION['user_role'] !== 'client'): ?>

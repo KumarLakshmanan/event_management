@@ -265,29 +265,27 @@ function getUnreadNotificationsCount() {
     if (!isset($_SESSION['user_id'])) {
         return 0;
     }
-    
+
     $userId = $_SESSION['user_id'];
     $userRole = $_SESSION['user_role'] ?? '';
-    
-    
-        $db = Database::getInstance();
-        
-        // For admin/manager, count all unread notifications
-        // For client, count only their own unread notifications
-        if ($userRole === 'admin' || $userRole === 'manager') {
-            $result = $db->querySingle("
-                SELECT COUNT(*) as count FROM notifications 
-                WHERE is_read = false
-            ");
-        } else {
-            $result = $db->querySingle("
-                SELECT COUNT(*) as count FROM notifications 
-                WHERE is_read = false AND (user_id = ? OR user_id IS NULL)
-            ", [$userId]);
-        }
-        
-        return $result['count'] ?? 0;
-    
+
+    $db = Database::getInstance();
+
+    // For admin/manager, count all unread notifications
+    // For client, count only their own unread notifications
+    if ($userRole === 'admin' || $userRole === 'manager') {
+        $result = $db->querySingle("
+            SELECT COUNT(*) as count FROM notifications 
+            WHERE is_read = false AND user_id IS NULL
+        ");
+    } else {
+        $result = $db->querySingle("
+            SELECT COUNT(*) as count FROM notifications 
+            WHERE is_read = false AND user_id = ?
+        ", [$userId]);
+    }
+
+    return $result['count'] ?? 0;
 }
 
 /**
