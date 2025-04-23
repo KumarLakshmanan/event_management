@@ -34,7 +34,7 @@ if (isset($_GET['bookingid'])) {
             <div class="col-md-6"><label class="form-label fw-bold">Services Included</label><div class="form-control-plaintext"><?= htmlspecialchars($property['service_name']) ?></div></div>
         </div>
         <div class="row mb-3">
-            <div class="col-md-6"><label class="form-label fw-bold">Price</label><div class="form-control-plaintext">₹<?= number_format($property['price'], 2) ?></div></div>
+            <div class="col-md-6"><label class="form-label fw-bold">Price</label><div class="form-control-plaintext">£<?= number_format($property['price'], 2) ?></div></div>
             <div class="col-md-6"><label class="form-label fw-bold">Image</label><br>
                 <?php if (!empty($property['image_url'])): ?>
                     <img src="<?= $baseUrl ?>uploads/images/<?= $property['image_url'] ?>" class="img-thumbnail" style="max-width: 200px;">
@@ -56,7 +56,7 @@ if (isset($_GET['bookingid'])) {
                 <div class="col-md-6">
                     <label class="form-label fw-bold">Total (After Discount)</label>
                     <div class="form-control-plaintext" id="total_price_display">
-                    ₹<?= number_format($property['price'] - $property['discount_amount'], 2) ?>
+                    £<?= number_format($property['price'] - $property['discount_amount'], 2) ?>
                     </div>
                 </div>
             </div>
@@ -128,7 +128,7 @@ $(document).ready(function() {
         let originalPrice = <?= $property['price'] ?>;
         let discount = parseFloat($(this).val()) || 0;
         let total = originalPrice - discount;
-        $('#total_price_display').text('₹' + total.toFixed(2));
+        $('#total_price_display').text('£' + total.toFixed(2));
     });
     $("#saveButton").click(function(event) {
         event.preventDefault();
@@ -219,7 +219,7 @@ $(document).ready(function() {
                             <td>${g.guest_name}</td>
                             <td>${g.guest_contact}</td>
                             <td>${g.guest_email}</td>
-                            <td>${g.rsvp_status}</td>
+                            <td>${g.rsvp_status == "2" ? '<span class="badge bg-success">Attending</span>' : g.rsvp_status == "1" ? '<span class="badge bg-danger">Not Attending</span>' : '<span class="badge bg-warning">Pending</span>'}</td>
                         </tr>`;
                     });
                 } else {

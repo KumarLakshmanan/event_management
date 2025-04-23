@@ -48,7 +48,7 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <?php echo $value['service_name']; ?>
                                 </td>
                                 <td>
-                                    <?php echo $value['price']; ?>
+                                £ <?php echo $value['price']; ?>
                                 </td>
                                 <td>
                                     <?php echo $value['description']; ?>

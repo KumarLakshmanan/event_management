@@ -40,7 +40,7 @@ if (isset($_GET["pageid"])) {
         <div class="page-wrapper mt-5">
             <div class="container-fluid">
                 <?php
-                if($_SESSION['role']!='client'){ 
+                if ($_SESSION['role'] != 'client') {
                     if ($pageId == "services") {
                         include "dashboard/services.php";
                     } elseif ($pageId == "editservice") {
@@ -53,38 +53,41 @@ if (isset($_GET["pageid"])) {
                         include "dashboard/packages/edit.php";
                     } elseif ($pageId == "addpackage") {
                         include "dashboard/packages/add.php";
-                    }  elseif ($pageId == "managers") {
+                    } elseif ($pageId == "managers") {
                         include "dashboard/managers.php";
                     } elseif ($pageId == "editmanager") {
                         include "dashboard/manager/edit.php";
                     } elseif ($pageId == "addmanager") {
                         include "dashboard/manager/add.php";
-                    }elseif ($pageId == "clients") {
+                    } elseif ($pageId == "clients") {
                         include "dashboard/clients.php";
                     } elseif ($pageId == "editclient") {
                         include "dashboard/client/edit.php";
                     } elseif ($pageId == "addclient") {
                         include "dashboard/client/add.php";
-                    }elseif ($pageId == "clientbooking") {
+                    } elseif ($pageId == "clientbooking") {
                         include "dashboard/clientbooking.php";
-                    }elseif ($pageId == "editallbooking") {
+                    } elseif ($pageId == "editallbooking") {
                         include "dashboard/editallbooking.php";
-                    } else {                   
+                    } else {
                         include "dashboard/services.php";
                     }
-                }else{
+                } else {
                     if ($pageId == "addcustompackage") {
                         include "dashboard/createcustompackage.php";
                     } elseif ($pageId == "booking") {
                         include "dashboard/booking.php";
-                    }elseif ($pageId == "editbooking") {
+                    } elseif ($pageId == "editbooking") {
                         include "dashboard/editbooking.php";
-                    }else{
+                    } elseif ($pageId == "rsvp_attend") {
+                        include "rsvp_attend.php";
+                    } elseif ($pageId == "rsvp_notattend") {
+                        include "rsvp_notattend.php";
+                    } else {
                         include "dashboard/pick_a_package.php";
                     }
-                    
                 }
-                
+
                 ?>
             </div>
             <footer class="footer text-center"> Created by <a href="#">IWD</a></footer>

@@ -323,7 +323,7 @@
                                 </div>
                                 
                                 <div class="field">
-                                    <a href="./" class="btn btn-outline-primary w-100">Back to Login</a>
+                                    <a href="./" class="btn btn-outline-primary w-100">Back to Home</a>
                                 </div>
                             </form>
 

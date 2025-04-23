@@ -13,8 +13,8 @@ LEFT JOIN package p ON p.id = b.package_id
 LEFT JOIN package_services ps ON p.id = ps.package_id
 LEFT JOIN service s ON ps.service_id = s.id
 where b.user_id = :user_id
-GROUP BY p.id
-ORDER BY p.id DESC;
+GROUP BY b.id
+ORDER BY b.id DESC;
 ";
 $stmt = $pdoConn->prepare($sql);
 $stmt->execute(['user_id' => $_SESSION['id']]);
@@ -65,7 +65,7 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <td><?= htmlspecialchars($booking['service_name']) ?></td>
                             <td><?= htmlspecialchars($booking['event_date']) ?></td>
                             <td><?= htmlspecialchars($booking['event_place']) ?></td>
-                            <td>₹<?= number_format($booking['price'], 2) ?></td>
+                            <td>£<?= number_format($booking['price'], 2) ?></td>
                             <td>
                                 <?php
                                     $status = strtolower($booking['status']);

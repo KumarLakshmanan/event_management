@@ -3,7 +3,7 @@
 $csrfToken = md5(uniqid(rand(), TRUE));
 if (isset($_GET['clientid'])) {
     $clientid = $_GET['clientid'];
-    $sql = "SELECT * FROM admins WHERE id = :id";
+    $sql = "SELECT * FROM users WHERE id = :id";
     $stmt = $pdoConn->prepare($sql);
     $stmt->bindParam(':id', $clientid);
     $stmt->execute();

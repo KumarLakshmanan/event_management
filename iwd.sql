@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 21, 2025 at 01:41 PM
+-- Generation Time: Apr 23, 2025 at 12:16 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -20,43 +20,6 @@ SET time_zone = "+00:00";
 --
 -- Database: `iwd`
 --
-
--- --------------------------------------------------------
-
---
--- Table structure for table `admins`
---
-
-CREATE TABLE `admins` (
-  `id` int(11) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `fullname` varchar(50) NOT NULL,
-  `password` varchar(100) NOT NULL,
-  `role` varchar(50) NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `phone` varchar(255) NOT NULL,
-  `profile` varchar(255) NOT NULL,
-  `discount_permission` int(1) NOT NULL DEFAULT 0,
-  `address` text NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-
---
--- Dumping data for table `admins`
---
-
-INSERT INTO `admins` (`id`, `email`, `fullname`, `password`, `role`, `created_at`, `updated_at`, `phone`, `profile`, `discount_permission`, `address`) VALUES
-(1, 'admin@iwd.com', 'IWD', 'admin123', 'admin', '2022-10-16 02:02:58', '2025-04-21 14:03:44', '6382775774', '', 1, ''),
-(2, 'user@iwd.com', 'User IWD', 'user123', 'client', '2022-10-16 02:02:58', '2025-04-19 12:49:05', '9361458213', '', 0, ''),
-(3, 'manager@iwd.com', 'manager', 'manager123', 'manager', '2025-04-18 17:31:49', '2025-04-21 14:03:39', '9865321470', '', 1, ''),
-(4, 'testmanager@gmail.com', 'test manager', 'manager123', 'manager', '2025-04-18 17:46:39', '2025-04-19 13:33:01', '9632587410', '', 0, ''),
-(5, 'client@gmail.com', 'client', 'client123', 'client', '2025-04-18 17:47:23', '2025-04-18 17:47:23', '9874563210', '', 0, ''),
-(6, 'testclient@gmail.com', 'test client1', 'client123', 'client', '2025-04-18 17:48:58', '2025-04-19 12:37:04', '8794561230', '', 0, 'test 123'),
-(7, 'manager3@iwd.com', 'manager 3', 'manager123', 'manager', '2025-04-19 13:33:29', '2025-04-19 13:33:42', '7896541230', '', 0, '3333333'),
-(8, 'testu@iwd.com', '', '123456', 'client', '2025-04-21 17:04:52', '2025-04-21 17:04:52', '9874563210', '', 0, 'ddd'),
-(9, 'testu1@iwd.com', 'test u1', '123456', 'client', '2025-04-21 17:06:17', '2025-04-21 17:06:17', '9874563210', '', 0, 'ddd'),
-(10, 'testu2@iwd.com', 'test u2', '123456', 'client', '2025-04-21 17:07:11', '2025-04-21 17:07:11', '9874563210', '', 0, 'eee'),
-(11, 'testu3@iwd.com', 'test u3', '123456', 'client', '2025-04-21 17:08:47', '2025-04-21 17:08:47', '9632587410', '', 0, 'www');
 
 -- --------------------------------------------------------
 
@@ -85,7 +48,8 @@ INSERT INTO `bookings` (`id`, `package_id`, `event_date`, `event_place`, `user_i
 (1, 8, '2025-04-19', 'dgl', 2, 'pending', 'custom', 0.00, '2025-04-19 11:33:40', '2025-04-19 11:35:49'),
 (2, 6, '2025-04-20', 'vdr', 2, 'confirmed', 'package', 100.00, '2025-04-19 11:36:24', '2025-04-21 10:51:42'),
 (3, 5, '2025-04-23', 'ddd', 2, 'pending', 'package', 0.00, '2025-04-21 10:56:13', '2025-04-21 10:56:13'),
-(4, 4, '2025-04-24', 'aaaa', 11, 'pending', 'package', 0.00, '2025-04-21 11:39:20', '2025-04-21 11:39:20');
+(4, 4, '2025-04-24', 'aaaa', 11, 'pending', 'package', 0.00, '2025-04-21 11:39:20', '2025-04-21 11:39:20'),
+(5, 3, '2025-04-25', 'near bus stop', 2, 'pending', 'package', 0.00, '2025-04-23 10:12:42', '2025-04-23 10:12:42');
 
 -- --------------------------------------------------------
 
@@ -99,7 +63,7 @@ CREATE TABLE `guests` (
   `guest_name` varchar(100) DEFAULT NULL,
   `guest_contact` varchar(50) DEFAULT NULL,
   `guest_email` varchar(50) DEFAULT NULL,
-  `rsvp_status` text NOT NULL DEFAULT 'no',
+  `rsvp_status` int(1) NOT NULL DEFAULT 0 COMMENT '0-pending,1-not attending,2-attending',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -108,9 +72,11 @@ CREATE TABLE `guests` (
 --
 
 INSERT INTO `guests` (`id`, `booking_id`, `guest_name`, `guest_contact`, `guest_email`, `rsvp_status`, `created_at`) VALUES
-(3, 2, 'tttt', '567567567567', 'ttt@hh.com', '', '2025-04-21 07:38:05'),
-(4, 2, 'sssss', '87878787878', 'sss@dfgdf.com', '', '2025-04-21 07:43:56'),
-(5, 3, 'laxu', '9874563210', 'laxu@gg.com', '', '2025-04-21 10:56:43');
+(1, 5, 'sekar', '7896541230', 'dhanasekarancse08@gmail.com', 1, '2025-04-23 10:13:47'),
+(3, 2, 'tttt', '567567567567', 'ttt@hh.com', 2, '2025-04-21 07:38:05'),
+(4, 2, 'sssss', '87878787878', 'sss@dfgdf.com', 0, '2025-04-21 07:43:56'),
+(5, 3, 'laxu', '9874563210', 'laxu@gg.com', 0, '2025-04-21 10:56:43'),
+(6, 2, 'test kumae', '7896541230', 'test@iwd.com', 1, '2025-04-23 08:39:21');
 
 -- --------------------------------------------------------
 
@@ -286,7 +252,15 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `AuthId`, `AuthKey`, `created_at`, `AuthUsername`, `ip_addr`) VALUES
-(111, '2', 'd9304ecea41a10796df409520d6ec60f', '2025-04-21 11:41:46', 'user@iwd.com', '::1'),
+(133, '1', '06f31dc33ca710273bd54a942305824a', '2025-04-23 12:39:21', 'admin@iwd.com', '::1'),
+(132, '11', 'c7f9ce9289eff1df4f2be601b05225de', '2025-04-23 12:38:55', 'testu3@iwd.com', '::1'),
+(131, '1', '7f3738e16bb267f2f59c78602f13a7d0', '2025-04-23 12:37:08', 'admin@iwd.com', '::1'),
+(130, '1', '2318ac79033343d32d63bf735a625693', '2025-04-23 12:36:04', 'admin@iwd.com', '::1'),
+(128, '1', 'bc02ae557b1f58d66854a7b694075396', '2025-04-23 12:30:59', 'admin@iwd.com', '::1'),
+(129, '1', '6754f30762f4f2007dca6ee965c7d0df', '2025-04-23 12:33:56', 'admin@iwd.com', '::1'),
+(125, '11', 'bc0b8fa28374725d72139e6d547700d3', '2025-04-23 12:10:30', 'testu3@iwd.com', '::1'),
+(126, '11', '165f0518aad16b60886cb390041b8a37', '2025-04-23 12:28:29', 'testu3@iwd.com', '::1'),
+(127, '1', 'b65a3d62e4f7d13c808bd17ea5e83500', '2025-04-23 12:28:43', 'admin@iwd.com', '::1'),
 (124, '11', '6013e2b47409162bdd4f1aa696e7424d', '2025-04-21 17:10:27', 'testu3@iwd.com', '::1'),
 (121, '1', '565a032e34289b0927fa9095b86168a8', '2025-04-21 16:26:54', 'admin@iwd.com', '::1'),
 (123, '11', '5f3e38c85ff12fcd02b7a45226277517', '2025-04-21 17:09:05', 'testu3@iwd.com', '::1'),
@@ -300,7 +274,7 @@ INSERT INTO `sessions` (`id`, `AuthId`, `AuthKey`, `created_at`, `AuthUsername`,
 (113, '1', 'e4d24c941f14b856884f617821366e49', '2025-04-21 16:14:31', 'admin@iwd.com', '::1'),
 (114, '2', 'f701d2627e1f94cb0f311c17f5d17f4c', '2025-04-21 16:15:10', 'user@iwd.com', '::1'),
 (122, '1', 'd2aae96effef8b3521bc1891b67e27f3', '2025-04-21 16:51:09', 'admin@iwd.com', '::1'),
-(110, '2', 'f9ff42f448c3b18936ec9080c2692f13', '2025-04-19 16:48:18', 'user@iwd.com', '::1');
+(134, '2', '05693be56baa117fe494bd7fd2879747', '2025-04-23 13:46:26', 'user@iwd.com', '::1');
 
 -- --------------------------------------------------------
 
@@ -393,48 +367,43 @@ INSERT INTO `settings` (`id`, `name`, `value`, `created_at`, `updated_at`) VALUE
 
 CREATE TABLE `users` (
   `id` int(11) NOT NULL,
-  `email` varchar(255) NOT NULL DEFAULT '',
-  `fullname` varchar(50) NOT NULL DEFAULT '',
-  `created_at` datetime NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `fullname` varchar(50) NOT NULL,
+  `password` varchar(100) NOT NULL,
+  `role` varchar(50) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `phone` varchar(255) NOT NULL,
-  `type` int(10) NOT NULL DEFAULT 0 COMMENT '0-user,1-service man',
-  `service_type` text DEFAULT NULL,
-  `service_desc` text DEFAULT NULL,
-  `gender` varchar(255) DEFAULT '',
-  `address` text DEFAULT NULL,
-  `govt_emp` text NOT NULL DEFAULT '0' COMMENT '0-non govt ,1-govt',
-  `govt_rollno` varchar(255) NOT NULL DEFAULT '',
-  `year_of_exp` text NOT NULL DEFAULT '0',
-  `password` text NOT NULL,
-  `profile_picture` text NOT NULL
+  `profile` varchar(255) NOT NULL,
+  `discount_permission` int(1) NOT NULL DEFAULT 0,
+  `address` text NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `email`, `fullname`, `created_at`, `updated_at`, `phone`, `type`, `service_type`, `service_desc`, `gender`, `address`, `govt_emp`, `govt_rollno`, `year_of_exp`, `password`, `profile_picture`) VALUES
-(1, 'aaa@aa.com', 'aaaaaa', '2024-12-25 09:51:02', '2024-12-25 14:22:10', '78978978987', 0, '', '', '', '', '0', '', '0', 'aaa123', ''),
-(2, 'bbb@bb.com', 'bbb', '2024-12-25 09:51:02', '2024-12-27 13:58:23', '8765756767', 1, 'test12', '', 'male', '', '0', '1234509', '0', 'bbb123', ''),
-(3, 'admin@user.com', 'user1', '0000-00-00 00:00:00', '2024-12-26 14:32:11', '9898989898', 0, NULL, NULL, 'Male', 'dgl', '0', '', '0', '1234567', ''),
-(4, 'admin@service.com', 'service1', '0000-00-00 00:00:00', '2024-12-27 13:56:49', '9696969696', 1, 'service1', 'test', 'Male', 'dgl1', '0', '123567889', '5', '1234567', ''),
-(5, 'dddd@ddd.com', 'dddd', '0000-00-00 00:00:00', '2024-12-27 13:56:48', '9632587410', 1, 'test12', 'ddd', 'Male', 'ddd', '1', '13243234', '5', '1234567', ''),
-(6, 'ssss@sss.com', 'ssss', '0000-00-00 00:00:00', '2024-12-27 13:56:52', '9333587410', 1, 'test12', 'sss', 'Male', 'sss', '1', '963258', '3', '1234567', ''),
-(7, 'serv@sss.com', 'sertvv', '0000-00-00 00:00:00', '2024-12-27 14:16:43', '9632587410', 1, 'service1', 'sdsd', 'Male', 'sdad', '1', '321456', '3', '1234567', ''),
-(8, 'eb@ee.com', 'eb1', '0000-00-00 00:00:00', '2024-12-30 16:27:42', '9887676636', 1, 'service2', 'sdfsdf', 'Male', 'dsfsdf', '1', '3432423', '4', '1234567', 'uploads/1.jpg'),
-(9, 'ccc@ccc.com', 'ccc', '0000-00-00 00:00:00', '2024-12-31 12:52:27', '9585999922', 1, 'service2', 'ssss', 'Female', 'sss', '0', '', '5', '123456', 'uploads/user-img.jpg');
+INSERT INTO `users` (`id`, `email`, `fullname`, `password`, `role`, `created_at`, `updated_at`, `phone`, `profile`, `discount_permission`, `address`) VALUES
+(1, 'admin@iwd.com', 'IWD', 'admin123', 'admin', '2022-10-16 02:02:58', '2025-04-21 14:03:44', '6382775774', '', 1, ''),
+(2, 'user@iwd.com', 'User IWD', 'user123', 'client', '2022-10-16 02:02:58', '2025-04-19 12:49:05', '9361458213', '', 0, ''),
+(3, 'manager@iwd.com', 'manager', 'manager123', 'manager', '2025-04-18 17:31:49', '2025-04-21 14:03:39', '9865321470', '', 1, ''),
+(4, 'testmanager@gmail.com', 'test manager', 'manager123', 'manager', '2025-04-18 17:46:39', '2025-04-19 13:33:01', '9632587410', '', 0, ''),
+(5, 'client@gmail.com', 'client', 'client123', 'client', '2025-04-18 17:47:23', '2025-04-18 17:47:23', '9874563210', '', 0, ''),
+(6, 'testclient@gmail.com', 'test client1', 'client123', 'client', '2025-04-18 17:48:58', '2025-04-19 12:37:04', '8794561230', '', 0, 'test 123'),
+(7, 'manager3@iwd.com', 'manager 3', 'manager123', 'manager', '2025-04-19 13:33:29', '2025-04-19 13:33:42', '7896541230', '', 0, '3333333'),
+(8, 'testu@iwd.com', '', '123456', 'client', '2025-04-21 17:04:52', '2025-04-21 17:04:52', '9874563210', '', 0, 'ddd'),
+(9, 'testu1@iwd.com', 'test u1', '123456', 'client', '2025-04-21 17:06:17', '2025-04-21 17:06:17', '9874563210', '', 0, 'ddd'),
+(10, 'testu2@iwd.com', 'test u2', '123456', 'client', '2025-04-21 17:07:11', '2025-04-21 17:07:11', '9874563210', '', 0, 'eee'),
+(11, 'testu3@iwd.com', 'test u3', '123456', 'client', '2025-04-21 17:08:47', '2025-04-21 17:08:47', '9632587410', '', 0, 'www'),
+(12, 'testmail@iwd.com', 'test mail', '123456', 'client', '2025-04-23 12:48:13', '2025-04-23 12:48:13', '9632587410', '', 0, 'dddd'),
+(13, 'testdhana@iwd.com', 'test dhana', '123456', 'client', '2025-04-23 13:18:39', '2025-04-23 13:18:39', '9874563210', '', 0, 'dgl'),
+(14, 'testdhana1@iwd.com', 'test dhana', '123456', 'client', '2025-04-23 13:19:22', '2025-04-23 13:19:22', '9874563210', '', 0, 'dgl'),
+(15, 'lakshu@iwd.com', 'laksh', '123456', 'client', '2025-04-23 13:21:17', '2025-04-23 13:21:17', '9632014587', '', 0, 'ddd'),
+(16, 'lakshu1@iwd.com', 'laksh', '123456', 'client', '2025-04-23 13:36:05', '2025-04-23 13:36:05', '9632014587', '', 0, 'ddd');
 
 --
 -- Indexes for dumped tables
 --
-
---
--- Indexes for table `admins`
---
-ALTER TABLE `admins`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- Indexes for table `bookings`
@@ -488,29 +457,24 @@ ALTER TABLE `settings`
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT for table `admins`
---
-ALTER TABLE `admins`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
-
---
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `guests`
 --
 ALTER TABLE `guests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `package`
@@ -540,7 +504,7 @@ ALTER TABLE `service`
 -- AUTO_INCREMENT for table `sessions`
 --
 ALTER TABLE `sessions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=125;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=135;
 
 --
 -- AUTO_INCREMENT for table `settings`
@@ -552,7 +516,7 @@ ALTER TABLE `settings`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

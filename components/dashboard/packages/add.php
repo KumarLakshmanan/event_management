@@ -30,7 +30,7 @@
 
             <div class="col-md-6">
                 <div class="form-group">
-                    <label for="price">Price</label>
+                    <label for="price">Price (£)</label>
                     <input type="text" class="form-control" id="price" readonly placeholder="Enter Price">
                 </div>
             </div>

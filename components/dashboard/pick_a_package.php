@@ -69,7 +69,7 @@
                                         <?= htmlspecialchars($package['service_name']) ?>
                                     </p>
                                 <?php endif; ?>
-                                <p class="mt-auto mb-2"><strong>Price:</strong> ₹<?= htmlspecialchars($package['price']) ?></p>
+                                <p class="mt-auto mb-2"><strong>Price:</strong> £<?= htmlspecialchars($package['price']) ?></p>
                                 <a href="#" 
                                 class="btn btn-outline-primary w-100 select-package-btn" 
                                 data-bs-toggle="modal" 

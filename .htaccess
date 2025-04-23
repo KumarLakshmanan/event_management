@@ -19,6 +19,9 @@ RewriteRule ^home index.php?pageid=home [NC,QSA,L]
 
 RewriteRule ^register index.php?pageid=register [NC,QSA,L]
 
+RewriteRule ^rsvp_attend index.php?pageid=rsvp_attend [NC,QSA,L]
+RewriteRule ^rsvp_notattend index.php?pageid=rsvp_notattend [NC,QSA,L]
+
 RewriteRule ^services index.php?pageid=services [NC,QSA,L]
 RewriteRule ^addservice index.php?pageid=addservice [NC,QSA,L]
 RewriteRule ^editservice index.php?pageid=editservice [NC,QSA,L]

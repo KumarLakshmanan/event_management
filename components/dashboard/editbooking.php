@@ -34,7 +34,7 @@ if (isset($_GET['bookingid'])) {
             <div class="col-md-6"><label class="form-label fw-bold">Services Included</label><div class="form-control-plaintext"><?= htmlspecialchars($property['service_name']) ?></div></div>
         </div>
         <div class="row mb-3">
-            <div class="col-md-6"><label class="form-label fw-bold">Price</label><div class="form-control-plaintext">₹<?= number_format($property['price'], 2) ?></div></div>
+            <div class="col-md-6"><label class="form-label fw-bold">Price</label><div class="form-control-plaintext">£<?= number_format($property['price'], 2) ?></div></div>
             <div class="col-md-6"><label class="form-label fw-bold">Image</label><br>
                 <?php if (!empty($property['image_url'])): ?>
                     <img src="<?= $baseUrl ?>uploads/images/<?= $property['image_url'] ?>" class="img-thumbnail" style="max-width: 200px;">
@@ -103,13 +103,13 @@ if (isset($_GET['bookingid'])) {
                     <label class="form-label">Contact</label>
                     <input type="text" id="guest_contact" name="guest_contact" class="form-control" required>
                 </div>
-                <div class="mb-3">
+                <!-- <div class="mb-3">
                     <label class="form-label">Status</label>
                     <select name="rsvp_status" class="form-control" id="rsvp_status">
                         <option value="yes">Yes</option>                        
                         <option value="no" >No</option>
                     </select>
-                </div>
+                </div> -->
             </div>
             <div class="modal-footer">
                 <button type="submit" id="saveButton" class="btn btn-success">Save Guest</button>
@@ -137,7 +137,7 @@ $(document).ready(function() {
                 formData.append("guest_name", $("#guest_name").val());
                 formData.append("guest_email", $("#guest_email").val());
                 formData.append("guest_contact", $("#guest_contact").val());
-                formData.append("rsvp_status", $("#rsvp_status").val());
+                // formData.append("rsvp_status", $("#rsvp_status").val());
                 formData.append("booking_id", <?= $bookingid ?>);
                 $(".preloader").show();
                 $.ajax({
@@ -206,13 +206,14 @@ $(document).ready(function() {
         },
         success: function(response) {
             if (response.error.code === '#200') {
-                let table = '<table class="table table-bordered"><thead><tr><th>Guest Name</th><th>Contact</th><th>Email</th></tr></thead><tbody>';
+                let table = '<table class="table table-bordered"><thead><tr><th>Guest Name</th><th>Contact</th><th>Email</th><th>RSVP Status</th></tr></thead><tbody>';
                 if (response.data.length > 0) {
                     response.data.forEach(g => {
                         table += `<tr>
                             <td>${g.guest_name}</td>
                             <td>${g.guest_contact}</td>
                             <td>${g.guest_email}</td>
+                            <td>${g.rsvp_status == "2" ? '<span class="badge bg-success">Attending</span>' : g.rsvp_status == "1" ? '<span class="badge bg-danger">Not Attending</span>' : '<span class="badge bg-warning">Pending</span>'}</td>
                         </tr>`;
                     });
                 } else {

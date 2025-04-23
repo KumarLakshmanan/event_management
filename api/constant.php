@@ -8,7 +8,9 @@ $assetVersion = "1.0.0";
 global $webAddress;
 $websiteAddress = "http://localhost/iwd/";
 $baseDirectory = "D:\\xampp\\htdocs\\iwd\\";
-$serverKey = 'AAAAC_FcUL8:APA91bECMrLMS7qT_OuCJPNhMbDlnmVu89FbVer1qrxDgrNaa392i1YBOekvWdnYN9NI6B86G59zt_gJxLarVbQ_nucu3fdFcxFpT8eIpQDRKKfdbF1So8DeVladgchZ3xwwpmjGfAmj';
+
+$mailUserName = 'kumar.lakshmanan.projects@gmail.com';
+$mailPassword   = 'vgwjdkoiirxcvhds';
 
 $getErrorCode =  array("code" => "#101", "description" => "Get request not allowed.");
 $postErrorCode =  array("code" => "#102", "description" => "Post request not allowed.");

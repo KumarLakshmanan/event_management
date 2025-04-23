@@ -21,6 +21,10 @@ if (isset($_SESSION['id']) ) {
     // include("components/login.php");
     if (isset($_GET['pageid']) && $_GET['pageid'] == 'register') {
         include("components/register.php");
+    } else if (isset($_GET['pageid']) && $_GET['pageid'] == 'rsvp_attend') {
+        include("components/rsvp_attend.php");
+    } else if (isset($_GET['pageid']) && $_GET['pageid'] == 'rsvp_notattend') {
+        include("components/rsvp_notattend.php");
     } else {
         include("components/login.php");
     }

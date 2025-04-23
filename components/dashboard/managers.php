@@ -1,5 +1,5 @@
 <?php
-$sql = "SELECT * FROM admins where role='manager' ORDER BY id DESC";
+$sql = "SELECT * FROM users where role='manager' ORDER BY id DESC";
 $stmt = $pdoConn->prepare($sql);
 $stmt->execute();
 $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
