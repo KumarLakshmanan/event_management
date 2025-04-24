@@ -2,15 +2,11 @@
 // Application configuration
 define('APP_NAME', 'Event Management System');
 
-// $mailUserName = 'kumar.lakshmanan.projects@gmail.com';
-// $mailPassword   = 'vgwjdkoiirxcvhds';
 define('MAIL_USERNAME',  'kumar.lakshmanan.projects@gmail.com');
 define('MAIL_PASSWORD',  'vgwjdkoiirxcvhds');
 
-// $websiteAddress = "http://localhost/iwd/";
 define('WEBSITE_ADDRESS', 'http://localhost/eventmanagement/');
 
-// Session timeout in seconds (30 minutes)
 define('SESSION_TIMEOUT', 1800);
 
 error_reporting(E_ALL & ~E_NOTICE);
