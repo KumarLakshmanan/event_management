@@ -6,7 +6,6 @@ header('Access-Control-Allow-Origin: *');
 ini_set('log_errors', true);
 ini_set('error_log', './php-error.log');
 require_once "./config.php";
-require_once __DIR__ . '/config.php';
 
 require '../PHPMailer/src/PHPMailer.php';
 require '../PHPMailer/src/SMTP.php';
