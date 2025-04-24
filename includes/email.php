@@ -47,109 +47,96 @@ function sendEmail($to_email, $to_name, $subject, $message)
     return true;
 }
 
-/**
- * Send a booking confirmation email
- */
+
 function sendBookingConfirmationEmail($booking, $user, $package)
 {
-    $subject = 'Booking Confirmation - ' . APP_NAME;
+    $subject = 'Your Booking is Confirmed - ' . APP_NAME;
 
     $message = '
     <html>
-    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f9f9f9; margin: 0; padding: 0;">
-        <div style="max-width: 600px; margin: 20px auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-            <div style="background-color: #007bff; color: white; padding: 20px; text-align: center;">
-                <h1>Booking Confirmation</h1>
+    <body style="margin:0; padding:0; background-color:#f5f7fa; font-family:Segoe UI, sans-serif;">
+        <div style="max-width:600px; margin:30px auto; background-color:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+            <div style="background-color:#004aad; color:#ffffff; padding:25px 30px; text-align:center;">
+                <h2 style="margin:0; font-size:24px;">🎉 Booking Confirmed</h2>
             </div>
-            <div style="padding: 20px;">
-                <p>Dear ' . $user['name'] . ',</p>
-                <p>Your booking has been confirmed. Here are the details:</p>
-                <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-                    <tr>
-                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd; background-color: #f2f2f2;">Booking ID</th>
-                        <td style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">#' . $booking['id'] . '</td>
-                    </tr>
-                    <tr>
-                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd; background-color: #f2f2f2;">Package</th>
-                        <td style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">' . $package['name'] . '</td>
-                    </tr>
-                    <tr>
-                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd; background-color: #f2f2f2;">Event Date</th>
-                        <td style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">' . date('F d, Y', strtotime($booking['event_date'])) . '</td>
-                    </tr>
-                    <tr>
-                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd; background-color: #f2f2f2;">Event Place</th>
-                        <td style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">' . $booking['event_place'] . '</td>
-                    </tr>
-                    <tr>
-                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd; background-color: #f2f2f2;">Status</th>
-                        <td style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">' . ucfirst($booking['status']) . '</td>
-                    </tr>
-                    <tr>
-                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd; background-color: #f2f2f2;">Total Price</th>
-                        <td style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">$' . number_format($booking['total_price'] ?? $package['price'], 2) . '</td>
-                    </tr>
+            <div style="padding:30px;">
+                <p style="font-size:16px; margin:0 0 15px;">Hello <strong>' . $user['name'] . '</strong>,</p>
+                <p style="font-size:15px; color:#555;">Your booking has been confirmed. Here’s what you need to know:</p>
+                <table style="width:100%; margin-top:20px; border-collapse:collapse;">
+                    <tbody>';
+
+    $details = [
+        'Booking ID' => '#' . $booking['id'],
+        'Package' => $package['name'],
+        'Event Date' => date('F d, Y', strtotime($booking['event_date'])),
+        'Event Location' => $booking['event_place'],
+        'Status' => ucfirst($booking['status']),
+        'Total Price' => '£' . number_format($booking['total_price'] ?? $package['price'], 2)
+    ];
+
+    foreach ($details as $label => $value) {
+        $message .= '
+                        <tr>
+                            <td style="padding:10px 8px; border-bottom:1px solid #eee; font-weight:600; color:#333;">' . $label . '</td>
+                            <td style="padding:10px 8px; border-bottom:1px solid #eee; text-align:right; color:#444;">' . $value . '</td>
+                        </tr>';
+    }
+
+    $message .= '
+                    </tbody>
                 </table>
-                <p>Thank you for choosing our services. If you have any questions, please contact us.</p>
+                <p style="font-size:14px; margin-top:25px; color:#666;">Thank you for choosing <strong>' . APP_NAME . '</strong>. If you have any questions, feel free to reach out to our support team.</p>
             </div>
-            <div style="font-size: 12px; text-align: center; margin-top: 20px; color: #666; padding: 10px; background-color: #f1f1f1;">
-                <p>This is an automated email. Please do not reply to this message.</p>
-                <p>&copy; ' . date('Y') . ' ' . APP_NAME . '. All rights reserved.</p>
+            <div style="text-align:center; font-size:12px; padding:15px; background:#f0f0f0; color:#777;">
+                <p>This is an automated message. Please do not reply.</p>
+                <p>&copy; ' . date('Y') . ' ' . APP_NAME . '</p>
             </div>
         </div>
     </body>
-    </html>
-    ';
+    </html>';
 
     return sendEmail($user['email'], $user['name'], $subject, $message);
 }
+
 function sendGuestInvitationEmail($guest, $booking, $user)
 {
     $to_email = $guest['email'];
     $to_name = $guest['name'];
-    $subject = 'Event Invitation - ' . APP_NAME;
+    $subject = 'You Are Invited to an Event - ' . APP_NAME;
 
-    // Build message
     $message = '
     <html>
-    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f9f9f9; margin: 0; padding: 0;">
-        <div style="max-width: 600px; margin: 20px auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-            <div style="background-color: #007bff; color: white; padding: 20px; text-align: center;">
-                <h1>You\'re Invited!</h1>
+    <body style="margin:0; padding:0; background-color:#f6f8fc; font-family:Segoe UI, sans-serif;">
+        <div style="max-width:600px; margin:30px auto; background-color:#ffffff; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08); overflow:hidden;">
+            <div style="background-color:#8e24aa; color:#fff; text-align:center; padding:30px 20px;">
+                <h2 style="margin:0; font-size:22px;">🎊 Youre Invited!</h2>
             </div>
-            <div style="padding: 20px;">
-                <p>Dear ' . $guest['name'] . ',</p>
-                <p>' . $user['name'] . ' has invited you to an event. Here are the details:</p>
-                
-                <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <div style="padding:25px;">
+                <p style="font-size:16px;">Hi <strong>' . $guest['name'] . '</strong>,</p>
+                <p style="font-size:15px; color:#444;">You are invited to a special event hosted by <strong>' . $user['name'] . '</strong>! Here are the details:</p>
+                <table style="width:100%; margin-top:20px; border-collapse:collapse;">
                     <tr>
-                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd; background-color: #f2f2f2;">Event Date</th>
-                        <td style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">' . date('F d, Y', strtotime($booking['event_date'])) . '</td>
+                        <td style="padding:10px; font-weight:600; color:#333;">📅 Date</td>
+                        <td style="padding:10px; text-align:right; color:#555;">' . date('F d, Y', strtotime($booking['event_date'])) . '</td>
                     </tr>
                     <tr>
-                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd; background-color: #f2f2f2;">Event Place</th>
-                        <td style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">' . $booking['event_place'] . '</td>
+                        <td style="padding:10px; font-weight:600; color:#333;">📍 Location</td>
+                        <td style="padding:10px; text-align:right; color:#555;">' . $booking['event_place'] . '</td>
                     </tr>
                 </table>
-                
-                <p>Please let us know if you can attend:</p>
-                
-                <p style="text-align: center; margin: 30px 0;">
-                    <a href="' . WEBSITE_ADDRESS . 'rsvp.php?status=1&booking_id=' . $booking['id'] . '&guest_id=' . $guest['id'] . '" style="display: inline-block; padding: 10px 20px; color: white; text-decoration: none; border-radius: 5px; background-color: #28a745; margin: 10px 5px;">Yes, I\'ll Attend</a>
-                    <a href="' . WEBSITE_ADDRESS . 'rsvp.php?status=2&booking_id=' . $booking['id'] . '&guest_id=' . $guest['id'] . '" style="display: inline-block; padding: 10px 20px; color: white; text-decoration: none; border-radius: 5px; background-color: #dc3545; margin: 10px 5px;">No, I Can\'t Attend</a>
-                </p>
-                
-                <p>We hope to see you there!</p>
+                <div style="text-align:center; margin:30px 0;">
+                    <a href="' . WEBSITE_ADDRESS . 'rsvp.php?status=1&booking_id=' . $booking['id'] . '&guest_id=' . $guest['id'] . '" style="background-color:#43a047; color:#fff; padding:12px 25px; text-decoration:none; border-radius:6px; margin:0 5px;">Accept</a>
+                    <a href="' . WEBSITE_ADDRESS . 'rsvp.php?status=2&booking_id=' . $booking['id'] . '&guest_id=' . $guest['id'] . '" style="background-color:#e53935; color:#fff; padding:12px 25px; text-decoration:none; border-radius:6px; margin:0 5px;">Decline</a>
+                </div>
+                <p style="text-align:center; font-size:14px; color:#666;">We hope to see you there!</p>
             </div>
-            <div style="font-size: 12px; text-align: center; margin-top: 20px; color: #666; padding: 10px; background-color: #f1f1f1;">
-                <p>This is an automated email. Please do not reply to this message.</p>
-                <p>&copy; ' . date('Y') . ' ' . APP_NAME . '. All rights reserved.</p>
+            <div style="text-align:center; font-size:12px; padding:15px; background:#f0f0f0; color:#777;">
+                <p>This invitation was sent automatically by our system.</p>
+                <p>&copy; ' . date('Y') . ' ' . APP_NAME . '</p>
             </div>
         </div>
     </body>
-    </html>
-    ';
+    </html>';
 
-    // Send email
     return sendEmail($to_email, $to_name, $subject, $message);
 }

@@ -92,7 +92,7 @@ if (isset($_GET['confirm']) && is_numeric($_GET['confirm'])) {
                         <td>
                             <?php 
                             if ($booking['discount']) {
-                                echo '$' . number_format($booking['discount'], 2);
+                                echo '£' . number_format($booking['discount'], 2);
                             } else {
                                 echo '-';
                             }

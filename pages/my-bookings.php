@@ -106,7 +106,7 @@ if ($viewBooking) {
                             <td>
                                 <?php
                                 if ($viewBooking['discount']) {
-                                    echo '$' . number_format($viewBooking['discount'], 2);
+                                    echo '£' . number_format($viewBooking['discount'], 2);
                                 } else {
                                     echo 'N/A';
                                 }
@@ -138,7 +138,7 @@ if ($viewBooking) {
                                 <td>
                                     <?php
                                     $finalPrice = $package['price'] - ($viewBooking['discount'] ?? 0);
-                                    echo '$' . number_format($finalPrice, 2);
+                                    echo '£' . number_format($finalPrice, 2);
                                     ?>
                                 </td>
                             </tr>
@@ -369,7 +369,7 @@ if ($viewBooking) {
                                     <td>
                                         <?php
                                         if ($booking['discount']) {
-                                            echo '$' . number_format($booking['discount'], 2);
+                                            echo '£' . number_format($booking['discount'], 2);
                                         } else {
                                             echo '-';
                                         }

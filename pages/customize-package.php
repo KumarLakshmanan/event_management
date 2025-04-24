@@ -141,12 +141,8 @@ $services = $db->query("SELECT * FROM services ORDER BY name");
                 }
             });
 
-            $('#totalPrice').text('$' + total.toFixed(2));
+            $('#totalPrice').text('£' + total.toFixed(2));
             $('#priceInput').val(total);
-
-            // Debug - log the calculation
-            console.log('Total price calculated: $' + total.toFixed(2));
-            console.log('Number of checked services: ' + $('.service-checkbox:checked').length);
         }
 
         function validateForm() {
