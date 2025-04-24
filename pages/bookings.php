@@ -151,7 +151,7 @@ if (isset($_GET['confirm']) && is_numeric($_GET['confirm'])) {
                         <label for="discount">Apply Discount (Optional)</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">£</span>
                             </div>
                             <input type="number" class="form-control" id="discount" name="discount" step="0.01" min="0">
                         </div>

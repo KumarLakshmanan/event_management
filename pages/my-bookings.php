@@ -131,7 +131,7 @@ if ($viewBooking) {
                             </tr>
                             <tr>
                                 <th>Price:</th>
-                                <td>$<?php echo number_format($package['price'], 2); ?></td>
+                                <td>£<?php echo number_format($package['price'], 2); ?></td>
                             </tr>
                             <tr>
                                 <th>Final Price:</th>
@@ -169,17 +169,21 @@ if ($viewBooking) {
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
+                                    <th>ID</th>
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Phone</th>
                                     <th>RSVP Status</th>
-                                    <th>Actions</th>
+                                    <?php if ($_SESSION['user_role'] === 'client'): ?>
+                                        <th>Actions</th>
+                                    <?php endif; ?>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php if (!empty($bookingGuests)): ?>
                                     <?php foreach ($bookingGuests as $guest): ?>
                                         <tr>
+                                            <td><?php echo $guest['id']; ?></td>
                                             <td><?php echo $guest['name']; ?></td>
                                             <td><?php echo $guest['email']; ?></td>
                                             <td><?php echo $guest['phone']; ?></td>
@@ -192,17 +196,19 @@ if ($viewBooking) {
                                                     <span class="badge badge-warning">Pending</span>
                                                 <?php endif; ?>
                                             </td>
-                                            <td>
-                                                <a href="../handlers/guests.php?action=delete&id=<?php echo $guest['id']; ?>&booking_id=<?php echo $viewBooking['id']; ?>" class="btn btn-sm btn-danger btn-delete">
-                                                    <i class="fas fa-trash"></i>
-                                                </a>
-                                                <button class="btn btn-sm btn-primary send-invite"
-                                                    data-id="<?php echo $guest['id']; ?>"
-                                                    data-name="<?php echo htmlspecialchars($guest['name']); ?>"
-                                                    data-email="<?php echo htmlspecialchars($guest['email']); ?>">
-                                                    <i class="fas fa-envelope"></i> Send Invite
-                                                </button>
-                                            </td>
+                                            <?php if ($_SESSION['user_role'] === 'client'): ?>
+                                                <td>
+                                                    <a href="../handlers/guests.php?action=delete&id=<?php echo $guest['id']; ?>&booking_id=<?php echo $viewBooking['id']; ?>" class="btn btn-sm btn-danger btn-delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                    <button class="btn btn-sm btn-primary send-invite"
+                                                        data-id="<?php echo $guest['id']; ?>"
+                                                        data-name="<?php echo htmlspecialchars($guest['name']); ?>"
+                                                        data-email="<?php echo htmlspecialchars($guest['email']); ?>">
+                                                        <i class="fas fa-envelope"></i> Send Invite
+                                                    </button>
+                                                </td>
+                                            <?php endif; ?>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php else: ?>

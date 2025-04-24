@@ -262,9 +262,10 @@ function handleInviteGuest()
             $userId,
             "../pages/my-guests.php"
         );
-
+        echo json_encode(['success' => true, 'message' => 'Invitation sent successfully']);
         setFlashMessage('Invitation sent successfully', 'success');
     } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to send invitation']);
         setFlashMessage('Failed to send invitation', 'danger');
     }
 

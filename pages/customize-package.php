@@ -75,7 +75,7 @@ $services = $db->query("SELECT * FROM services ORDER BY name");
                                     </td>
                                     <td><?php echo $service['name']; ?></td>
                                     <td><?php echo $service['description']; ?></td>
-                                    <td>$<?php echo number_format($service['price'], 2); ?></td>
+                                    <td>£<?php echo number_format($service['price'], 2); ?></td>
                                 </tr>
                             <?php endforeach; ?>
 

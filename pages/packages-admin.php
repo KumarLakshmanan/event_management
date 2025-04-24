@@ -79,7 +79,7 @@ if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
                         <tr>
                             <td><?php echo $package['id']; ?></td>
                             <td><?php echo $package['name']; ?></td>
-                            <td>$<?php echo number_format($package['price'], 2); ?></td>
+                            <td>£<?php echo number_format($package['price'], 2); ?></td>
                             <td>
                                 <?php
                                 if (isset($package['services']) && is_array($package['services'])) {
@@ -156,7 +156,7 @@ if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
                         <label for="price">Price</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">£</span>
                             </div>
                             <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" value="<?php echo $editPackage ? $editPackage['price'] : ''; ?>" required>
                         </div>
@@ -188,7 +188,7 @@ if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
                         <select class="form-control select2" id="services" name="services[]" multiple="multiple">
                             <?php foreach ($services as $service): ?>
                             <option value="<?php echo $service['id']; ?>" <?php echo ($editPackage && in_array($service['id'], $editPackage['services'])) ? 'selected' : ''; ?>>
-                                <?php echo $service['name']; ?> - $<?php echo number_format($service['price'], 2); ?>
+                                <?php echo $service['name']; ?> - £<?php echo number_format($service['price'], 2); ?>
                             </option>
                             <?php endforeach; ?>
                         </select>

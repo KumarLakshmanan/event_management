@@ -2,13 +2,25 @@
 // Application configuration
 define('APP_NAME', 'Event Management System');
 
+// $mailUserName = 'kumar.lakshmanan.projects@gmail.com';
+// $mailPassword   = 'vgwjdkoiirxcvhds';
+define('MAIL_USERNAME',  'kumar.lakshmanan.projects@gmail.com');
+define('MAIL_PASSWORD',  'vgwjdkoiirxcvhds');
+
+// $websiteAddress = "http://localhost/iwd/";
+define('WEBSITE_ADDRESS', 'http://localhost/eventmanagement/');
+
 // Session timeout in seconds (30 minutes)
 define('SESSION_TIMEOUT', 1800);
-ini_set('error_reporting', E_ALL);
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/error.log');
+
+error_reporting(E_ALL & ~E_NOTICE);
+error_reporting(E_ERROR | E_WARNING | E_PARSE);
+@ini_set("display_startup_errors", "1");
+@ini_set('display_errors', 'On');
+@ini_set('error_reporting', 1);
+@ini_set('error_reporting', E_ALL);
+ini_set('log_errors', true);
+ini_set('error_log', './php-error.log');
 
 // Include database connection class
 require_once __DIR__ . '/database.php';

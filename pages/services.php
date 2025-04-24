@@ -58,7 +58,7 @@ if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
                         <td><?php echo $service['id']; ?></td>
                         <td><?php echo $service['name']; ?></td>
                         <td><?php echo $service['description']; ?></td>
-                        <td>$<?php echo number_format($service['price'], 2); ?></td>
+                        <td>£<?php echo number_format($service['price'], 2); ?></td>
                         <td>
                             <a href="?edit=<?php echo $service['id']; ?>" class="btn btn-info btn-sm">
                                 <i class="fas fa-edit"></i> Edit
@@ -108,7 +108,7 @@ if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
                         <label for="price">Price</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">£</span>
                             </div>
                             <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" value="<?php echo $editService ? $editService['price'] : ''; ?>" required>
                         </div>
