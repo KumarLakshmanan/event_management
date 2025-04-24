@@ -53,7 +53,7 @@
                     <div class="col-md-3 mb-4">
                         <div class="card h-100 shadow-lg border-0 rounded-4 overflow-hidden">
                             <?php if (!empty($package['image_url'])): ?>
-                                <img src="<?= $baseUrl ?>uploads/images/<?= $package['image_url'] ?>" class="card-img-top" alt="<?= htmlspecialchars($package['package_name']) ?>" style="height: 180px; object-fit: cover;">
+                                <img src="<?= $adminBaseUrl ?>uploads/images/<?= $package['image_url'] ?>" class="card-img-top" alt="<?= htmlspecialchars($package['package_name']) ?>" style="height: 180px; object-fit: cover;">
                             <?php else: ?>
                                 <img src="assets/images/no-image.jpg" class="card-img-top" alt="No Image" style="height: 180px; object-fit: cover;">
                             <?php endif; ?>
@@ -127,7 +127,7 @@
 
 <script>
     let _xUserData = {
-        "baseURL": "<?= $baseUrl ?>",
+        "baseURL": "<?= $adminBaseUrl ?>",
         "auth": "<?= $_SESSION['token'] ?>",
     };
     $("#saveButton").click(function(event) {

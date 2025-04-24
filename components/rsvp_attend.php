@@ -5,8 +5,8 @@
     <title>IWD: Guest</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <script src="<?php echo $baseUrl ?>js/jquery.min.js"></script>
-    <script src="<?php echo $baseUrl ?>js/sweetalert.js"></script>
+    <script src="<?php echo $adminBaseUrl ?>js/jquery.min.js"></script>
+    <script src="<?php echo $adminBaseUrl ?>js/sweetalert.js"></script>
     <link rel="stylesheet" type="text/css" href="style.css">
     <style>
         body {
@@ -36,7 +36,7 @@
         <h2>Thanks for responding!</h2>
         <p>Your RSVP has been recorded successfully.</p>
     </div>
-    <form id="rsvpForm" method="POST" action="<?php echo $baseUrl ?>rsvp_attend">
+    <form id="rsvpForm" method="POST" action="<?php echo $adminBaseUrl ?>rsvp_attend">
         <!-- No visible inputs needed -->
         <input type="hidden" name="booking_id" id="booking_id" value="<?= htmlspecialchars($_REQUEST['booking_id']) ?>">
         <input type="hidden" name="guest_id" id="guest_id" value="<?= htmlspecialchars($_REQUEST['guest_id']) ?>">

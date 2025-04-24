@@ -72,7 +72,7 @@
 
 <script>
     let _xUserData = {
-        "baseURL": "<?= $baseUrl ?>",
+        "baseURL": "<?= $adminBaseUrl ?>",
         "auth": "<?= $_SESSION['token'] ?>",
     };
     $('#serviceType').select2({

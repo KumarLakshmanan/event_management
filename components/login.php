@@ -4,8 +4,8 @@
 <head>
     <meta charset="utf-8">
     <title>IWD: Admin</title>
-    <script src="<?php echo $baseUrl ?>js/jquery.min.js"></script>
-    <script src="<?php echo $baseUrl ?>js/sweetalert.js"></script>
+    <script src="<?php echo $adminBaseUrl ?>js/jquery.min.js"></script>
+    <script src="<?php echo $adminBaseUrl ?>js/sweetalert.js"></script>
     <link rel="stylesheet" type="text/css" href="style.css">
     <style>
         * {
@@ -251,7 +251,7 @@
                     success: function (data) {
                         if (data.error.code == '#200') {
                             swal("Success", "Login Success", "success").then(() => {
-                                window.location.href = '<?= $baseUrl ?>';
+                                window.location.href = '<?= $adminBaseUrl ?>';
                             });
                         } else {
                             swal("Error", data.error.description, "error");

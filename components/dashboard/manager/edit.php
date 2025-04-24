@@ -65,7 +65,7 @@ if (isset($_GET['managerid'])) {
     <script src="<?= $adminBaseUrl ?>js/image-uploader.min.js"></script>
     <script>
         let _xUserData = {
-            "baseURL": "<?= $baseUrl ?>",
+            "baseURL": "<?= $adminBaseUrl ?>",
             "auth": "<?= $_SESSION['token'] ?>",
         };
         if ($(".texteditor-content").length > 0) {

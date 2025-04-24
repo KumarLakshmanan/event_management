@@ -81,7 +81,7 @@ LEFT JOIN service s ON ps.service_id = s.id WHERE p.id = :id";
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         let _xUserData = {
-            "baseURL": "<?= $baseUrl ?>",
+            "baseURL": "<?= $adminBaseUrl ?>",
             "auth": "<?= $_SESSION['token'] ?>",            
             ".input-images-1": "<?= $propertyEdit['image_url'] ?>",
         };

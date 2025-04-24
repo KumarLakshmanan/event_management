@@ -71,7 +71,7 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </td>
                                 <td>
                                     <?php if ($value['image_url'] != '') { ?>
-                                        <img src="<?= $baseUrl ?>uploads/images/<?= $value['image_url'] ?>" alt="Image" width="50" height="50">
+                                        <img src="<?= $adminBaseUrl ?>uploads/images/<?= $value['image_url'] ?>" alt="Image" width="50" height="50">
                                     <?php } else { ?>
                                         -
                                     <?php } ?>

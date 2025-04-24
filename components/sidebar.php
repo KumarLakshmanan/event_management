@@ -2,7 +2,7 @@
 <header class="topbar" data-navbarbg="skin5" style="position:fixed;width: 100%">
     <nav class="navbar top-navbar navbar-expand-md navbar-dark">
         <div class="navbar-header" data-logobg="skin6">
-            <a class="navbar-brand" href="<?= $baseUrl ?>" target="_blank">
+            <a class="navbar-brand" href="<?= $adminBaseUrl ?>" target="_blank">
                 <!-- <b class="logo-icon">
                     <img src="<?= $adminBaseUrl ?>img/icon-black.png" alt="homepage" style="height: 40px;">
                 </b> -->

@@ -5,7 +5,8 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 ini_set('log_errors', true);
 ini_set('error_log', './php-error.log');
-include("./config.php");
+require_once "./config.php";
+require_once __DIR__ . '/config.php';
 
 require '../PHPMailer/src/PHPMailer.php';
 require '../PHPMailer/src/SMTP.php';
@@ -449,12 +450,12 @@ if (isset($_REQUEST["mode"])) {
         $stmt->bindParam(":guest_name", $name);
         $stmt->bindParam(":guest_contact", $contact);
         $stmt->bindParam(":guest_email", $guest_email);
-        // $stmt->bindParam(":rsvp_status", $rsvp_status);
+
         $stmt->execute();
         $guest_id = $conn->lastInsertId();
 
-        $basueurl_rsvp_attend = $baseUrl . "rsvp_attend.php?booking_id=" . $booking_id . "&guest_id=" . $guest_id;
-        $basueurl_rsvp_not_attend = $baseUrl . "rsvp_notattend.php?booking_id=" . $booking_id . "&guest_id=" . $guest_id;
+        $basueurl_rsvp_attend = $adminBaseUrl . "rsvp_attend.php?booking_id=" . $booking_id . "&guest_id=" . $guest_id;
+        $basueurl_rsvp_not_attend = $adminBaseUrl . "rsvp_notattend.php?booking_id=" . $booking_id . "&guest_id=" . $guest_id;
 
         $mailnew->isSMTP();
         $mailnew->Host       = 'smtp.gmail.com';
@@ -464,8 +465,7 @@ if (isset($_REQUEST["mode"])) {
         $mailnew->SMTPSecure = 'tls';
         $mailnew->Port       = 587;
 
-        // Sender and Recipient
-        $mailnew->setFrom('kumar.lakshmanan.projects@gmail.com', 'IWD');
+        $mailnew->setFrom($mailUsername, $webName);
         $mailnew->addAddress($guest_email, $name);
 
         // Email Content
@@ -511,7 +511,7 @@ if (isset($_REQUEST["mode"])) {
                                     </div>
                                 </body>
                                 </html>';
-        $mailnew->AltBody = 'IWD.';
+        $mailnew->AltBody = $webName;
 
         $mailnew->send();
 

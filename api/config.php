@@ -2,7 +2,7 @@
 if (!isset($_SESSION)) {
     session_start();
 }
-include("constant.php");
+require_once __DIR__ . '/constant.php';
 date_default_timezone_set('Asia/Kolkata');
 error_reporting(E_ALL & ~E_NOTICE);
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
@@ -10,21 +10,14 @@ error_reporting(E_ERROR | E_WARNING | E_PARSE);
 @ini_set('display_errors', 'On');
 @ini_set('error_reporting', 1);
 @ini_set('error_reporting', E_ALL);
+
 class Connection
 {
     private $db;
     public function __construct()
     {
-        if ($_SERVER['HTTP_HOST'] == 'localhost') {
-            $db_name = "iwd";
-            $db_user = "root";
-            $db_pass = "";
-        } else {
-            $db_name = "u707479837_iwd";
-            $db_user = "u707479837_iwd";
-            $db_pass = "Test@2003";
-        }
-        $this->db = new PDO('mysql:host=localhost;dbname=' . $db_name, $db_user, $db_pass);
+        global $dbHost, $dbName, $dbUsername, $dbPassword;
+        $this->db = new PDO('mysql:host=' . $dbHost . ';dbname=' . $dbName, $dbUsername, $dbPassword);
         $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
         $this->db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);

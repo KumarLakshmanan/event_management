@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <title>IWD: Register</title>
-    <script src="<?php echo $baseUrl ?>js/jquery.min.js"></script>
-    <script src="<?php echo $baseUrl ?>js/sweetalert.js"></script>
+    <script src="<?php echo $adminBaseUrl ?>js/jquery.min.js"></script>
+    <script src="<?php echo $adminBaseUrl ?>js/sweetalert.js"></script>
     <link rel="stylesheet" type="text/css" href="style.css">
     <style>
         * {

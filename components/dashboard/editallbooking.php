@@ -37,7 +37,7 @@ if (isset($_GET['bookingid'])) {
             <div class="col-md-6"><label class="form-label fw-bold">Price</label><div class="form-control-plaintext">£<?= number_format($property['price'], 2) ?></div></div>
             <div class="col-md-6"><label class="form-label fw-bold">Image</label><br>
                 <?php if (!empty($property['image_url'])): ?>
-                    <img src="<?= $baseUrl ?>uploads/images/<?= $property['image_url'] ?>" class="img-thumbnail" style="max-width: 200px;">
+                    <img src="<?= $adminBaseUrl ?>uploads/images/<?= $property['image_url'] ?>" class="img-thumbnail" style="max-width: 200px;">
                 <?php else: ?>
                     <p class="text-muted">No image available</p>
                 <?php endif; ?>

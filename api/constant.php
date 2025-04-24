@@ -1,16 +1,17 @@
 <?php
 // https://dev.codingfrontend.in/
 $apiUrl  = "http://localhost/iwd/api/v1.php";
-$baseUrl  = "http://localhost/iwd/";
 $adminBaseUrl  = "http://localhost/iwd/";
 $webAddress = "http://localhost/iwd/";
-$assetVersion = "1.0.0";
-global $webAddress;
-$websiteAddress = "http://localhost/iwd/";
 $baseDirectory = "D:\\xampp\\htdocs\\iwd\\";
 
-$mailUserName = 'kumar.lakshmanan.projects@gmail.com';
+$mailUsername = 'kumar.lakshmanan.projects@gmail.com';
 $mailPassword   = 'vgwjdkoiirxcvhds';
+
+$dbHost = "localhost";
+$dbUsername = "root";
+$dbPassword = "";
+$dbName = "iwd";
 
 $getErrorCode =  array("code" => "#101", "description" => "Get request not allowed.");
 $postErrorCode =  array("code" => "#102", "description" => "Post request not allowed.");

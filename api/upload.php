@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (in_array($fileActualExt, $extensions)) {
             if ($fileSize < 1024 * 1024 * 100) {
                 if (move_uploaded_file($fileTmpName, $fileDestination)) {
-                    $json["data"] = array("id" => $fileNameNew, "image_url" => $baseUrl . "uploads/images/" . $fileNameNew, "type" => $fileExt, "size" => $fileSize);
+                    $json["data"] = array("id" => $fileNameNew, "image_url" => $adminBaseUrl . "uploads/images/" . $fileNameNew, "type" => $fileExt, "size" => $fileSize);
                 } else {
                     $json["error"] = array("code" => "#500", "description" => "Error uploading file.");
                 }
