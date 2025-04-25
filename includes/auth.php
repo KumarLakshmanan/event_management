@@ -130,7 +130,13 @@ function hasPermission($permission) {
             return in_array($role, [ROLE_CLIENT, ROLE_ADMIN, ROLE_MANAGER]);
         
         case 'apply_discount':
-            return in_array($role, [ROLE_ADMIN, ROLE_MANAGER]);
+            // Check if the user has the discount permission (admin or manager with the can_apply_discount flag)
+            if (!isset($_SESSION['user']['can_apply_discount'])) {
+                return false;
+            }
+            
+            // Admin or manager with explicit permission
+            return in_array($role, [ROLE_ADMIN, ROLE_MANAGER]) && (int)$_SESSION['user']['can_apply_discount'] === 1;
         
         default:
             return false;
