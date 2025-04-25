@@ -107,16 +107,49 @@ try {
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )');
     
-    // Insert an admin user (password: admin123)
-    $hashedPassword = password_hash('admin123', PASSWORD_DEFAULT);
-    $stmt = $db->prepare('INSERT OR IGNORE INTO users (name, email, password, role) VALUES (?, ?, ?, ?)');
-    $stmt->execute(['Admin User', 'admin@example.com', $hashedPassword, 'administrator']);
+    // Insert default users (password: password123)
+    $hashedPassword = password_hash('password123', PASSWORD_DEFAULT);
+    
+    // Admin user
+    $stmt = $db->prepare('INSERT OR IGNORE INTO users (name, email, password, role, can_apply_discount) VALUES (?, ?, ?, ?, ?)');
+    $stmt->execute(['Admin User', 'admin@example.com', $hashedPassword, 'administrator', 1]);
+    
+    // Manager user with discount permission
+    $stmt->execute(['Manager User', 'manager@example.com', $hashedPassword, 'manager', 1]);
+    
+    // Manager without discount permission
+    $stmt->execute(['Manager No Discount', 'manager2@example.com', $hashedPassword, 'manager', 0]);
+    
+    // Client user
+    $stmt->execute(['Client User', 'client@example.com', $hashedPassword, 'client', 0]);
+    
+    // Insert sample packages
+    $packageStmt = $db->prepare('INSERT OR IGNORE INTO packages (name, description, price, image_path) VALUES (?, ?, ?, ?)');
+    $packageStmt->execute(['Basic Wedding', 'Essential wedding services including photographer, basic decoration, and music.', 999.99, 'default_package.jpg']);
+    $packageStmt->execute(['Premium Wedding', 'Premium wedding package with professional photography, videography, gourmet catering, and elegant decorations.', 2499.99, 'default_package.jpg']);
+    $packageStmt->execute(['Birthday Party', 'Fun-filled birthday party package with decorations, entertainment, and catering.', 399.99, 'default_package.jpg']);
+    $packageStmt->execute(['Corporate Event', 'Professional corporate event solution with A/V equipment, catering, and venue decoration.', 1499.99, 'default_package.jpg']);
+    
+    // Insert sample services
+    $serviceStmt = $db->prepare('INSERT OR IGNORE INTO services (name, description, price) VALUES (?, ?, ?)');
+    $serviceStmt->execute(['Photography', 'Professional event photography service (4 hours)', 349.99]);
+    $serviceStmt->execute(['Videography', 'HD video recording and editing of your event', 449.99]);
+    $serviceStmt->execute(['Catering', 'Gourmet food service for up to 50 guests', 799.99]);
+    $serviceStmt->execute(['Decoration', 'Elegant venue decoration including flowers and lighting', 299.99]);
+    $serviceStmt->execute(['DJ Services', 'Professional DJ with sound system for 5 hours', 349.99]);
+    $serviceStmt->execute(['Live Band', 'Professional live music band for your event', 899.99]);
+    $serviceStmt->execute(['Venue Rental', 'Exclusive venue rental for your event', 999.99]);
     
     echo "<h2>Database setup completed successfully!</h2>";
-    echo "<p>An admin user has been created with:</p>";
-    echo "<p>Email: admin@example.com</p>";
-    echo "<p>Password: admin123</p>";
-    echo "<p><a href='index.php'>Go to homepage</a></p>";
+    echo "<p>The following users have been created (all with password: password123):</p>";
+    echo "<ul>";
+    echo "<li><strong>Admin:</strong> admin@example.com</li>";
+    echo "<li><strong>Manager with discount:</strong> manager@example.com</li>";
+    echo "<li><strong>Manager without discount:</strong> manager2@example.com</li>";
+    echo "<li><strong>Client:</strong> client@example.com</li>";
+    echo "</ul>";
+    echo "<p>Sample packages and services have also been created.</p>";
+    echo "<p><a href='index.php' class='btn btn-primary'>Go to homepage</a></p>";
     
 } catch(PDOException $e) {
     die("Database setup error: " . $e->getMessage());
