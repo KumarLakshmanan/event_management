@@ -40,6 +40,9 @@ switch ($action) {
         $stmt = $db->query("SELECT * FROM products ORDER BY name");
         $allServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
+        // Set page title
+        $pageTitle = 'Create Customized Package';
+        
         // Process form submission for creating a customized package
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = sanitizeInput($_POST['name'] ?? 'Customized Package');
