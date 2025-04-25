@@ -24,7 +24,7 @@ require_once INCLUDES_PATH . 'functions.php';
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css">
     
     <?php if (isset($extraStyles)): ?>
         <?= $extraStyles ?>
@@ -49,7 +49,7 @@ require_once INCLUDES_PATH . 'functions.php';
                 <!-- Navbar -->
                 <nav class="navbar navbar-expand-lg navbar-light bg-light">
                     <div class="container-fluid">
-                        <a class="navbar-brand d-md-none" href="/"><?= APP_NAME ?></a>
+                        <a class="navbar-brand d-md-none" href="<?= BASE_URL ?>"><?= APP_NAME ?></a>
                         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                             <span class="navbar-toggler-icon"></span>
                         </button>
@@ -57,7 +57,7 @@ require_once INCLUDES_PATH . 'functions.php';
                             <ul class="navbar-nav me-auto">
                                 <?php if (!isLoggedIn()): ?>
                                     <li class="nav-item">
-                                        <a class="nav-link" href="/index.php">Home</a>
+                                        <a class="nav-link" href="<?= BASE_URL ?>index.php">Home</a>
                                     </li>
                                 <?php endif; ?>
                             </ul>
@@ -65,7 +65,7 @@ require_once INCLUDES_PATH . 'functions.php';
                                 <?php if (isLoggedIn()): ?>
                                     <!-- Notifications -->
                                     <li class="nav-item">
-                                        <a class="nav-link position-relative" href="/dashboard/notifications.php">
+                                        <a class="nav-link position-relative" href="<?= BASE_URL ?>dashboard/notifications.php">
                                             <i class="fas fa-bell"></i>
                                             <?php 
                                             $notificationsCount = getUnreadNotificationsCount();
@@ -85,18 +85,18 @@ require_once INCLUDES_PATH . 'functions.php';
                                             <i class="fas fa-user-circle me-1"></i><?= $_SESSION['user_name'] ?>
                                         </a>
                                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                            <li><a class="dropdown-item" href="/dashboard/profile.php">My Profile</a></li>
-                                            <li><a class="dropdown-item" href="/dashboard/notifications.php">Notifications</a></li>
+                                            <li><a class="dropdown-item" href="<?= BASE_URL ?>dashboard/profile.php">My Profile</a></li>
+                                            <li><a class="dropdown-item" href="<?= BASE_URL ?>dashboard/notifications.php">Notifications</a></li>
                                             <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item" href="/auth/logout.php">Logout</a></li>
+                                            <li><a class="dropdown-item" href="<?= BASE_URL ?>auth/logout.php">Logout</a></li>
                                         </ul>
                                     </li>
                                 <?php else: ?>
                                     <li class="nav-item">
-                                        <a class="nav-link" href="/auth/login.php">Login</a>
+                                        <a class="nav-link" href="<?= BASE_URL ?>auth/login.php">Login</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" href="/auth/register.php">Register</a>
+                                        <a class="nav-link" href="<?= BASE_URL ?>auth/register.php">Register</a>
                                     </li>
                                 <?php endif; ?>
                             </ul>

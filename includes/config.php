@@ -21,6 +21,9 @@ define('DB_PATH', BASE_PATH . 'database.sqlite');
 define('APP_NAME', 'Event Planning Platform');
 define('APP_VERSION', '1.0.0');
 
+// Base URL for application
+define('BASE_URL', 'http://' . $_SERVER['HTTP_HOST'] . '/event_v4/');
+
 // Session configuration
 session_start();
 

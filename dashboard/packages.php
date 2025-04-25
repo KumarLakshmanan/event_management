@@ -446,6 +446,9 @@ if ($action == 'customize') {
     $pageTitle = 'Package Management';
 }
 
+// Initialize extraScripts variable
+$extraScripts = '';
+
 // Include extra scripts for forms
 if ($action == 'create' || $action == 'edit' || $action == 'customize') {
     // Add the dynamic price calculation script for customize view
@@ -459,7 +462,8 @@ if ($action == 'create' || $action == 'edit' || $action == 'customize') {
         </script>
         ';
     }
-    $extraScripts = '
+    
+    $extraScripts .= '
         <script>
             document.addEventListener("DOMContentLoaded", function() {
                 // Price input formatting
