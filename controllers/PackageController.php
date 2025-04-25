@@ -23,7 +23,7 @@ class PackageController {
      * @param array $data Form data
      * @return int|false Package ID or false on failure
      */
-    public function create($data) {
+    public function create($data, $userId = null) {
         // Validate required fields
         if (empty($data['name']) || !isset($data['price']) || $data['price'] < 0) {
             return false;
@@ -43,7 +43,8 @@ class PackageController {
             $data['name'],
             $description,
             $data['price'],
-            $imagePath
+            $imagePath,
+            $userId
         );
         
         // Add services if provided
@@ -137,13 +138,13 @@ class PackageController {
      * @param int $perPage Items per page
      * @return array Packages and pagination info
      */
-    public function getAllPackages($page = 1, $perPage = 10) {
+    public function getAllPackages($page = 1, $perPage = 10, $userId = null) {
         // Calculate offset
         $page = max(1, $page);
         $offset = ($page - 1) * $perPage;
         
         // Get packages
-        $packages = $this->packageModel->getAll($perPage, $offset);
+        $packages = $this->packageModel->getAll($perPage, $offset, 'id', 'ASC', $userId);
         
         // Count total packages
         $total = $this->packageModel->countAll();

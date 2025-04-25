@@ -30,11 +30,11 @@ include_once 'templates/header.php';
         <p class="lead my-4">From intimate gatherings to grand celebrations, we make your events memorable.</p>
         <div class="mt-4">
             <?php if (isLoggedIn()): ?>
-                <a href="<?php echo APP_URL; ?>/dashboard/packages.php" class="btn btn-primary btn-lg me-2">Browse Packages</a>
-                <a href="<?php echo APP_URL; ?>/dashboard/index.php" class="btn btn-outline-light btn-lg">My Dashboard</a>
+                <a href="<?php echo APP_URL; ?>dashboard/packages.php" class="btn btn-primary btn-lg me-2">Browse Packages</a>
+                <a href="<?php echo APP_URL; ?>dashboard/index.php" class="btn btn-outline-light btn-lg">My Dashboard</a>
             <?php else: ?>
-                <a href="<?php echo APP_URL; ?>/auth/register.php" class="btn btn-primary btn-lg me-2">Get Started</a>
-                <a href="<?php echo APP_URL; ?>/auth/login.php" class="btn btn-outline-light btn-lg">Login</a>
+                <a href="<?php echo APP_URL; ?>auth/register.php" class="btn btn-primary btn-lg me-2">Get Started</a>
+                <a href="<?php echo APP_URL; ?>auth/login.php" class="btn btn-outline-light btn-lg">Login</a>
             <?php endif; ?>
         </div>
     </div>
@@ -104,14 +104,14 @@ include_once 'templates/header.php';
                     <div class="col-md-4">
                         <div class="card package-card">
                             <div class="package-image" 
-                                 style="background-image: url('<?php echo !empty($package['image_path']) ? APP_URL . '/uploads/' . $package['image_path'] : 'https://source.unsplash.com/random/600x400/?event'; ?>');">
+                                 style="background-image: url('<?php echo !empty($package['image_path']) ? APP_URL . 'uploads/' . $package['image_path'] : 'https://source.unsplash.com/random/600x400/?event'; ?>');">
                             </div>
                             <div class="card-body">
                                 <h5 class="card-title"><?php echo htmlspecialchars($package['name']); ?></h5>
                                 <p class="card-text"><?php echo htmlspecialchars(substr($package['description'], 0, 100) . '...'); ?></p>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span class="fs-5 fw-bold text-primary"><?php echo formatPrice($package['price']); ?></span>
-                                    <a href="<?php echo APP_URL; ?>/dashboard/packages.php?id=<?php echo $package['id']; ?>" class="btn btn-outline-primary">View Details</a>
+                                    <a href="<?php echo APP_URL; ?>dashboard/packages.php?id=<?php echo $package['id']; ?>" class="btn btn-outline-primary">View Details</a>
                                 </div>
                             </div>
                         </div>
@@ -121,7 +121,7 @@ include_once 'templates/header.php';
         </div>
         
         <div class="text-center mt-4">
-            <a href="<?php echo APP_URL; ?>/dashboard/packages.php" class="btn btn-primary">View All Packages</a>
+            <a href="<?php echo APP_URL; ?>dashboard/packages.php" class="btn btn-primary">View All Packages</a>
         </div>
     </div>
 </div>
@@ -214,10 +214,10 @@ include_once 'templates/header.php';
         <h2>Ready to Plan Your Event?</h2>
         <p class="lead mb-4">Get started today and make your next event unforgettable.</p>
         <?php if (isLoggedIn()): ?>
-            <a href="<?php echo APP_URL; ?>/dashboard/packages.php" class="btn btn-light btn-lg">Browse Packages</a>
+            <a href="<?php echo APP_URL; ?>dashboard/packages.php" class="btn btn-light btn-lg">Browse Packages</a>
         <?php else: ?>
-            <a href="<?php echo APP_URL; ?>/auth/register.php" class="btn btn-light btn-lg me-2">Create Account</a>
-            <a href="<?php echo APP_URL; ?>/auth/login.php" class="btn btn-outline-light btn-lg">Login</a>
+            <a href="<?php echo APP_URL; ?>auth/register.php" class="btn btn-light btn-lg me-2">Create Account</a>
+            <a href="<?php echo APP_URL; ?>auth/login.php" class="btn btn-outline-light btn-lg">Login</a>
         <?php endif; ?>
     </div>
 </div>
@@ -234,12 +234,12 @@ include_once 'templates/header.php';
                 <h5>Quick Links</h5>
                 <ul class="list-unstyled">
                     <li><a href="<?php echo APP_URL; ?>">Home</a></li>
-                    <li><a href="<?php echo APP_URL; ?>/dashboard/packages.php">Packages</a></li>
+                    <li><a href="<?php echo APP_URL; ?>dashboard/packages.php">Packages</a></li>
                     <?php if (isLoggedIn()): ?>
-                        <li><a href="<?php echo APP_URL; ?>/dashboard/index.php">Dashboard</a></li>
+                        <li><a href="<?php echo APP_URL; ?>dashboard/index.php">Dashboard</a></li>
                     <?php else: ?>
-                        <li><a href="<?php echo APP_URL; ?>/auth/login.php">Login</a></li>
-                        <li><a href="<?php echo APP_URL; ?>/auth/register.php">Register</a></li>
+                        <li><a href="<?php echo APP_URL; ?>auth/login.php">Login</a></li>
+                        <li><a href="<?php echo APP_URL; ?>auth/register.php">Register</a></li>
                     <?php endif; ?>
                 </ul>
             </div>

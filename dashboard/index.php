@@ -130,10 +130,10 @@ include_once __DIR__ . '/../templates/header.php';
                 <div class="card stats-card warning">
                     <div class="card-body">
                         <h6 class="card-title text-muted mb-3">Quick Actions</h6>
-                        <a href="<?php echo APP_URL; ?>/dashboard/packages.php" class="btn btn-sm btn-primary mb-2">
+                        <a href="<?php echo APP_URL; ?>dashboard/packages.php" class="btn btn-sm btn-primary mb-2">
                             <i class="fas fa-box me-1"></i> Browse Packages
                         </a>
-                        <a href="<?php echo APP_URL; ?>/dashboard/bookings.php" class="btn btn-sm btn-outline-primary">
+                        <a href="<?php echo APP_URL; ?>dashboard/bookings.php" class="btn btn-sm btn-outline-primary">
                             <i class="fas fa-list me-1"></i> View My Bookings
                         </a>
                     </div>
@@ -213,7 +213,7 @@ include_once __DIR__ . '/../templates/header.php';
                         <?php if (empty($clientBookings)): ?>
                             <div class="p-4 text-center">
                                 <p>You haven't made any bookings yet.</p>
-                                <a href="<?php echo APP_URL; ?>/dashboard/packages.php" class="btn btn-primary">Browse Packages</a>
+                                <a href="<?php echo APP_URL; ?>dashboard/packages.php" class="btn btn-primary">Browse Packages</a>
                             </div>
                         <?php else: ?>
                             <div class="table-responsive">
@@ -237,7 +237,7 @@ include_once __DIR__ . '/../templates/header.php';
                                                 <td><?php echo formatPrice($booking['total_price'] - $booking['discount_applied']); ?></td>
                                                 <td><?php echo getStatusBadge($booking['status']); ?></td>
                                                 <td>
-                                                    <a href="<?php echo APP_URL; ?>/dashboard/bookings.php?id=<?php echo $booking['id']; ?>" class="btn btn-sm btn-primary">
+                                                    <a href="<?php echo APP_URL; ?>dashboard/bookings.php?id=<?php echo $booking['id']; ?>" class="btn btn-sm btn-primary">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                 </td>
@@ -249,7 +249,7 @@ include_once __DIR__ . '/../templates/header.php';
                         <?php endif; ?>
                     </div>
                     <div class="card-footer bg-light">
-                        <a href="<?php echo APP_URL; ?>/dashboard/bookings.php" class="btn btn-sm btn-outline-secondary">View All Bookings</a>
+                        <a href="<?php echo APP_URL; ?>dashboard/bookings.php" class="btn btn-sm btn-outline-secondary">View All Bookings</a>
                     </div>
                 </div>
             <?php else: ?>
@@ -287,7 +287,7 @@ include_once __DIR__ . '/../templates/header.php';
                                                 <td><?php echo formatPrice($booking['total_price'] - $booking['discount_applied']); ?></td>
                                                 <td><?php echo getStatusBadge($booking['status']); ?></td>
                                                 <td>
-                                                    <a href="<?php echo APP_URL; ?>/dashboard/bookings.php?id=<?php echo $booking['id']; ?>" class="btn btn-sm btn-primary">
+                                                    <a href="<?php echo APP_URL; ?>dashboard/bookings.php?id=<?php echo $booking['id']; ?>" class="btn btn-sm btn-primary">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                 </td>
@@ -299,7 +299,7 @@ include_once __DIR__ . '/../templates/header.php';
                         <?php endif; ?>
                     </div>
                     <div class="card-footer bg-light">
-                        <a href="<?php echo APP_URL; ?>/dashboard/bookings.php" class="btn btn-sm btn-outline-secondary">View All Bookings</a>
+                        <a href="<?php echo APP_URL; ?>dashboard/bookings.php" class="btn btn-sm btn-outline-secondary">View All Bookings</a>
                     </div>
                 </div>
             <?php endif; ?>
@@ -337,11 +337,6 @@ include_once __DIR__ . '/../templates/header.php';
                             </li>
                         </ul>
                     </div>
-                    <div class="card-footer bg-light">
-                        <a href="<?php echo APP_URL; ?>/dashboard/users.php" class="btn btn-sm btn-outline-secondary">
-                            Manage Users
-                        </a>
-                    </div>
                 </div>
             <?php elseif ($user['role'] === ROLE_MANAGER): ?>
                 <!-- Manager Quick Links -->
@@ -351,13 +346,13 @@ include_once __DIR__ . '/../templates/header.php';
                     </div>
                     <div class="card-body">
                         <div class="d-grid gap-2">
-                            <a href="<?php echo APP_URL; ?>/dashboard/packages.php?action=create" class="btn btn-primary">
+                            <a href="<?php echo APP_URL; ?>dashboard/packages.php?action=create" class="btn btn-primary">
                                 <i class="fas fa-plus-circle me-1"></i> Create New Package
                             </a>
-                            <a href="<?php echo APP_URL; ?>/dashboard/services.php?action=create" class="btn btn-outline-primary">
+                            <a href="<?php echo APP_URL; ?>dashboard/services.php?action=create" class="btn btn-outline-primary">
                                 <i class="fas fa-plus-circle me-1"></i> Add New Service
                             </a>
-                            <a href="<?php echo APP_URL; ?>/dashboard/bookings.php?status=pending" class="btn btn-outline-warning">
+                            <a href="<?php echo APP_URL; ?>dashboard/bookings.php?status=pending" class="btn btn-outline-warning">
                                 <i class="fas fa-clock me-1"></i> Review Pending Bookings
                             </a>
                         </div>
@@ -390,13 +385,13 @@ include_once __DIR__ . '/../templates/header.php';
                     </div>
                     <div class="card-body">
                         <div class="d-grid gap-2">
-                            <a href="<?php echo APP_URL; ?>/dashboard/packages.php" class="btn btn-primary">
+                            <a href="<?php echo APP_URL; ?>dashboard/packages.php" class="btn btn-primary">
                                 <i class="fas fa-search me-1"></i> Browse Event Packages
                             </a>
-                            <a href="<?php echo APP_URL; ?>/dashboard/bookings.php?action=create" class="btn btn-outline-primary">
+                            <a href="<?php echo APP_URL; ?>dashboard/bookings.php?action=create" class="btn btn-outline-primary">
                                 <i class="fas fa-calendar-plus me-1"></i> Book New Event
                             </a>
-                            <a href="<?php echo APP_URL; ?>/dashboard/guests.php" class="btn btn-outline-secondary">
+                            <a href="<?php echo APP_URL; ?>dashboard/guests.php" class="btn btn-outline-secondary">
                                 <i class="fas fa-users me-1"></i> Manage Guest Lists
                             </a>
                         </div>
@@ -434,7 +429,7 @@ include_once __DIR__ . '/../templates/header.php';
                                             <?php echo htmlspecialchars($booking['event_location']); ?>
                                         </p>
                                         <small class="text-muted">
-                                            <a href="<?php echo APP_URL; ?>/dashboard/bookings.php?id=<?php echo $booking['id']; ?>">
+                                            <a href="<?php echo APP_URL; ?>dashboard/bookings.php?id=<?php echo $booking['id']; ?>">
                                                 View Details
                                             </a>
                                         </small>

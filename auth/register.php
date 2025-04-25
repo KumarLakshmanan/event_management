@@ -11,7 +11,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // If user is already logged in, redirect to dashboard
 if (isLoggedIn()) {
-    header('Location: ' . APP_URL . '/dashboard/index.php');
+    header('Location: ' . APP_URL . 'dashboard/index.php');
     exit;
 }
 
@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             setFlashMessage('Account created successfully! You can now log in.', 'success');
             
             // Redirect to login page
-            header('Location: ' . APP_URL . '/auth/login.php');
+            header('Location: ' . APP_URL . 'auth/login.php');
             exit;
         } else {
             // Registration failed, likely due to email already in use
@@ -140,7 +140,7 @@ include_once __DIR__ . '/../templates/header.php';
                 <hr class="my-4">
                 
                 <div class="text-center">
-                    <p>Already have an account? <a href="<?php echo APP_URL; ?>/auth/login.php">Login here</a></p>
+                    <p>Already have an account? <a href="<?php echo APP_URL; ?>auth/login.php">Login here</a></p>
                 </div>
             </div>
         </div>

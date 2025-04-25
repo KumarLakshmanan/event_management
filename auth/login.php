@@ -11,7 +11,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // If user is already logged in, redirect to dashboard
 if (isLoggedIn()) {
-    header('Location: ' . APP_URL . '/dashboard/index.php');
+    header('Location: ' . APP_URL . 'dashboard/index.php');
     exit;
 }
 
@@ -109,18 +109,7 @@ include_once __DIR__ . '/../templates/header.php';
                 <hr class="my-4">
                 
                 <div class="text-center">
-                    <p>Don't have an account? <a href="<?php echo APP_URL; ?>/auth/register.php">Register here</a></p>
-                </div>
-            </div>
-            
-            <!-- Demo Credentials (for development only) -->
-            <div class="card mt-4">
-                <div class="card-body">
-                    <h5 class="card-title">Demo Accounts</h5>
-                    <p class="card-text">Use these credentials to test different roles:</p>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><strong>Admin:</strong> admin@example.com / admin123</li>
-                    </ul>
+                    <p>Don't have an account? <a href="<?php echo APP_URL; ?>auth/register.php">Register here</a></p>
                 </div>
             </div>
         </div>

@@ -43,7 +43,7 @@ if (isLoggedIn()) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="<?php echo APP_URL; ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo APP_URL; ?>assets/css/style.css">
     
     <style>
         /* Discount styles */
@@ -99,7 +99,7 @@ if (isLoggedIn()) {
                                     <a class="nav-link <?php echo $_SERVER['PHP_SELF'] == '/index.php' ? 'active' : ''; ?>" href="<?php echo APP_URL; ?>">Home</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link <?php echo $_SERVER['PHP_SELF'] == '/dashboard/packages.php' ? 'active' : ''; ?>" href="<?php echo APP_URL; ?>/dashboard/packages.php">Packages</a>
+                                    <a class="nav-link <?php echo $_SERVER['PHP_SELF'] == '/dashboard/packages.php' ? 'active' : ''; ?>" href="<?php echo APP_URL; ?>dashboard/packages.php">Packages</a>
                                 </li>
                             </ul>
                             <ul class="navbar-nav">
@@ -116,7 +116,7 @@ if (isLoggedIn()) {
                                         <li>
                                             <div class="d-flex justify-content-between align-items-center px-3 py-2 bg-light">
                                                 <h6 class="mb-0">Notifications</h6>
-                                                <a href="<?php echo APP_URL; ?>/dashboard/notifications.php" class="text-decoration-none">View All</a>
+                                                <a href="<?php echo APP_URL; ?>dashboard/notifications.php" class="text-decoration-none">View All</a>
                                             </div>
                                         </li>
                                         <li><hr class="dropdown-divider"></li>
@@ -125,7 +125,7 @@ if (isLoggedIn()) {
                                         <?php else: ?>
                                             <?php foreach ($recentNotifications as $notification): ?>
                                                 <li>
-                                                    <a class="dropdown-item d-flex align-items-center" href="<?php echo APP_URL; ?>/dashboard/notifications.php">
+                                                    <a class="dropdown-item d-flex align-items-center" href="<?php echo APP_URL; ?>dashboard/notifications.php">
                                                         <div class="flex-shrink-0 me-2">
                                                             <div class="notification-icon bg-<?php echo $notificationController->getTypeColor($notification['type']); ?>" style="width: 30px; height: 30px;">
                                                                 <i class="<?php echo $notificationController->getTypeIcon($notification['type']); ?> fa-sm"></i>
@@ -147,17 +147,17 @@ if (isLoggedIn()) {
                                         <i class="fas fa-user-circle me-1"></i> <?php echo htmlspecialchars($_SESSION['user']['name']); ?>
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                        <li><a class="dropdown-item" href="<?php echo APP_URL; ?>/dashboard/index.php">Dashboard</a></li>
+                                        <li><a class="dropdown-item" href="<?php echo APP_URL; ?>dashboard/index.php">Dashboard</a></li>
                                         <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" href="<?php echo APP_URL; ?>/auth/logout.php">Logout</a></li>
+                                        <li><a class="dropdown-item" href="<?php echo APP_URL; ?>auth/logout.php">Logout</a></li>
                                     </ul>
                                 </li>
                                 <?php else: ?>
                                 <li class="nav-item">
-                                    <a class="nav-link <?php echo $_SERVER['PHP_SELF'] == '/auth/login.php' ? 'active' : ''; ?>" href="<?php echo APP_URL; ?>/auth/login.php">Login</a>
+                                    <a class="nav-link <?php echo $_SERVER['PHP_SELF'] == '/auth/login.php' ? 'active' : ''; ?>" href="<?php echo APP_URL; ?>auth/login.php">Login</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link <?php echo $_SERVER['PHP_SELF'] == '/auth/register.php' ? 'active' : ''; ?>" href="<?php echo APP_URL; ?>/auth/register.php">Register</a>
+                                    <a class="nav-link <?php echo $_SERVER['PHP_SELF'] == '/auth/register.php' ? 'active' : ''; ?>" href="<?php echo APP_URL; ?>auth/register.php">Register</a>
                                 </li>
                                 <?php endif; ?>
                             </ul>

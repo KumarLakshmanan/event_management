@@ -21,7 +21,7 @@ class Package {
      * @param string $imagePath Path to package image
      * @return int|false Package ID or false on failure
      */
-    public function create($name, $description, $price, $imagePath = null) {
+    public function create($name, $description, $price, $imagePath = null, $userId = null) {
         // Validate inputs
         if (empty($name) || !is_numeric($price) || $price < 0) {
             return false;
@@ -32,7 +32,8 @@ class Package {
             'name' => $name,
             'description' => $description,
             'price' => $price,
-            'image_path' => $imagePath
+            'image_path' => $imagePath,
+            'user_id' => $userId,
         ];
         
         // Insert package
@@ -99,7 +100,7 @@ class Package {
      * @param string $orderDir Order direction
      * @return array Packages
      */
-    public function getAll($limit = 100, $offset = 0, $orderBy = 'id', $orderDir = 'ASC') {
+    public function getAll($limit = 100, $offset = 0, $orderBy = 'id', $orderDir = 'ASC', $userId = null) {
         // Validate order by field
         $allowedOrderByFields = ['id', 'name', 'price', 'created_at', 'updated_at'];
         if (!in_array($orderBy, $allowedOrderByFields)) {
@@ -109,6 +110,19 @@ class Package {
         // Validate order direction
         $orderDir = strtoupper($orderDir) === 'DESC' ? 'DESC' : 'ASC';
         
+        if ($userId) {
+            return $this->db->fetchAll(
+                "SELECT * FROM packages 
+                 WHERE user_id = :user_id OR user_id IS NULL
+                 ORDER BY $orderBy $orderDir 
+                 LIMIT :limit OFFSET :offset",
+                [
+                    ':user_id' => $userId,
+                    ':limit' => $limit,
+                    ':offset' => $offset
+                ]
+            );
+        }
         return $this->db->fetchAll(
             "SELECT * FROM packages 
              ORDER BY $orderBy $orderDir 

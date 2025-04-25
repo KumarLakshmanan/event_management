@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             setFlashMessage('Failed to mark notification as read.', 'danger');
         }
-        header('Location: ' . APP_URL . '/dashboard/notifications.php');
+        header('Location: ' . APP_URL . 'dashboard/notifications.php');
         exit;
     }
     
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             setFlashMessage('Failed to mark all notifications as read.', 'danger');
         }
-        header('Location: ' . APP_URL . '/dashboard/notifications.php');
+        header('Location: ' . APP_URL . 'dashboard/notifications.php');
         exit;
     }
 }
@@ -109,11 +109,11 @@ include_once __DIR__ . '/../templates/header.php';
             <?php endif; ?>
             
             <?php if ($unreadOnly): ?>
-                <a href="<?php echo APP_URL; ?>/dashboard/notifications.php" class="btn btn-outline-primary">
+                <a href="<?php echo APP_URL; ?>dashboard/notifications.php" class="btn btn-outline-primary">
                     <i class="fas fa-list me-1"></i>Show All
                 </a>
             <?php else: ?>
-                <a href="<?php echo APP_URL; ?>/dashboard/notifications.php?unread=1" class="btn btn-outline-primary">
+                <a href="<?php echo APP_URL; ?>dashboard/notifications.php?unread=1" class="btn btn-outline-primary">
                     <i class="fas fa-bell me-1"></i>Show Unread
                 </a>
             <?php endif; ?>

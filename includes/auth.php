@@ -148,7 +148,7 @@ function hasPermission($permission) {
  */
 function requireLogin() {
     if (!isLoggedIn()) {
-        header('Location: ' . APP_URL . '/auth/login.php?redirect=' . urlencode($_SERVER['REQUEST_URI']));
+        header('Location: ' . APP_URL . 'auth/login.php?redirect=' . urlencode($_SERVER['REQUEST_URI']));
         exit;
     }
 }
@@ -162,7 +162,7 @@ function requireRole($roles) {
     requireLogin();
     
     if (!hasRole($roles)) {
-        header('Location: ' . APP_URL . '/dashboard/index.php?error=insufficient_permissions');
+        header('Location: ' . APP_URL . 'dashboard/index.php?error=insufficient_permissions');
         exit;
     }
 }
@@ -176,7 +176,7 @@ function requirePermission($permission) {
     requireLogin();
     
     if (!hasPermission($permission)) {
-        header('Location: ' . APP_URL . '/dashboard/index.php?error=insufficient_permissions');
+        header('Location: ' . APP_URL . 'dashboard/index.php?error=insufficient_permissions');
         exit;
     }
 }

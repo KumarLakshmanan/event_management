@@ -11,7 +11,7 @@ requireLogin();
 // Check if user has permission to manage services
 if (!hasPermission('manage_services')) {
     setFlashMessage('You do not have permission to manage services.', 'danger');
-    header('Location: ' . APP_URL . '/dashboard/index.php');
+    header('Location: ' . APP_URL . 'dashboard/index.php');
     exit;
 }
 
@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = $serviceController->update($_POST['service_id'], $data);
             if ($result) {
                 setFlashMessage('Service updated successfully!', 'success');
-                header('Location: ' . APP_URL . '/dashboard/services.php');
+                header('Location: ' . APP_URL . 'dashboard/services.php');
                 exit;
             } else {
                 $errors[] = 'Failed to update service.';
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $newServiceId = $serviceController->create($data);
             if ($newServiceId) {
                 setFlashMessage('Service created successfully!', 'success');
-                header('Location: ' . APP_URL . '/dashboard/services.php');
+                header('Location: ' . APP_URL . 'dashboard/services.php');
                 exit;
             } else {
                 $errors[] = 'Failed to create service.';
@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $result = $serviceController->delete($_POST['service_id']);
         if ($result) {
             setFlashMessage('Service deleted successfully!', 'success');
-            header('Location: ' . APP_URL . '/dashboard/services.php');
+            header('Location: ' . APP_URL . 'dashboard/services.php');
             exit;
         } else {
             $errors[] = 'Failed to delete service. It may be in use by one or more packages.';
@@ -92,7 +92,7 @@ if ($action === 'create') {
     $service = $serviceController->getService($serviceId);
     if (!$service) {
         setFlashMessage('Service not found.', 'danger');
-        header('Location: ' . APP_URL . '/dashboard/services.php');
+        header('Location: ' . APP_URL . 'dashboard/services.php');
         exit;
     }
     $pageTitle = 'Edit Service';
@@ -102,7 +102,7 @@ if ($action === 'create') {
     $service = $serviceController->getService($serviceId);
     if (!$service) {
         setFlashMessage('Service not found.', 'danger');
-        header('Location: ' . APP_URL . '/dashboard/services.php');
+        header('Location: ' . APP_URL . 'dashboard/services.php');
         exit;
     }
     $packages = $serviceController->getPackagesWithService($serviceId);
@@ -113,7 +113,7 @@ if ($action === 'create') {
     $service = $serviceController->getService($serviceId);
     if (!$service) {
         setFlashMessage('Service not found.', 'danger');
-        header('Location: ' . APP_URL . '/dashboard/services.php');
+        header('Location: ' . APP_URL . 'dashboard/services.php');
         exit;
     }
     $packages = $serviceController->getPackagesWithService($serviceId);
@@ -142,11 +142,11 @@ include_once __DIR__ . '/../templates/header.php';
         <h1 class="h3"><?php echo $pageTitle; ?></h1>
         
         <?php if ($template === 'list'): ?>
-            <a href="<?php echo APP_URL; ?>/dashboard/services.php?action=create" class="btn btn-primary">
+            <a href="<?php echo APP_URL; ?>dashboard/services.php?action=create" class="btn btn-primary">
                 <i class="fas fa-plus-circle me-2"></i>Create New Service
             </a>
         <?php elseif ($template !== 'list'): ?>
-            <a href="<?php echo APP_URL; ?>/dashboard/services.php" class="btn btn-secondary">
+            <a href="<?php echo APP_URL; ?>dashboard/services.php" class="btn btn-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Back to Services
             </a>
         <?php endif; ?>
@@ -185,7 +185,7 @@ include_once __DIR__ . '/../templates/header.php';
                 <?php if (empty($services)): ?>
                     <div class="p-4 text-center">
                         <p>No services found. Create some services to get started.</p>
-                        <a href="<?php echo APP_URL; ?>/dashboard/services.php?action=create" class="btn btn-primary">
+                        <a href="<?php echo APP_URL; ?>dashboard/services.php?action=create" class="btn btn-primary">
                             <i class="fas fa-plus-circle me-1"></i>Create New Service
                         </a>
                     </div>
@@ -217,13 +217,13 @@ include_once __DIR__ . '/../templates/header.php';
                                         <td><?php echo formatDate($svc['created_at'], 'M j, Y'); ?></td>
                                         <td>
                                             <div class="btn-group btn-group-sm">
-                                                <a href="<?php echo APP_URL; ?>/dashboard/services.php?id=<?php echo $svc['id']; ?>" class="btn btn-outline-primary">
+                                                <a href="<?php echo APP_URL; ?>dashboard/services.php?id=<?php echo $svc['id']; ?>" class="btn btn-outline-primary">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
-                                                <a href="<?php echo APP_URL; ?>/dashboard/services.php?action=edit&id=<?php echo $svc['id']; ?>" class="btn btn-outline-secondary">
+                                                <a href="<?php echo APP_URL; ?>dashboard/services.php?action=edit&id=<?php echo $svc['id']; ?>" class="btn btn-outline-secondary">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <a href="<?php echo APP_URL; ?>/dashboard/services.php?action=delete&id=<?php echo $svc['id']; ?>" class="btn btn-outline-danger">
+                                                <a href="<?php echo APP_URL; ?>dashboard/services.php?action=delete&id=<?php echo $svc['id']; ?>" class="btn btn-outline-danger">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </a>
                                             </div>
@@ -258,10 +258,10 @@ include_once __DIR__ . '/../templates/header.php';
                             <p><?php echo htmlspecialchars($service['description']); ?></p>
                         </div>
                         <div class="d-flex justify-content-between">
-                            <a href="<?php echo APP_URL; ?>/dashboard/services.php?action=edit&id=<?php echo $service['id']; ?>" class="btn btn-primary">
+                            <a href="<?php echo APP_URL; ?>dashboard/services.php?action=edit&id=<?php echo $service['id']; ?>" class="btn btn-primary">
                                 <i class="fas fa-edit me-1"></i>Edit Service
                             </a>
-                            <a href="<?php echo APP_URL; ?>/dashboard/services.php?action=delete&id=<?php echo $service['id']; ?>" class="btn btn-outline-danger">
+                            <a href="<?php echo APP_URL; ?>dashboard/services.php?action=delete&id=<?php echo $service['id']; ?>" class="btn btn-outline-danger">
                                 <i class="fas fa-trash-alt me-1"></i>Delete Service
                             </a>
                         </div>
@@ -288,7 +288,7 @@ include_once __DIR__ . '/../templates/header.php';
                                 <?php foreach ($packages as $package): ?>
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <div>
-                                            <a href="<?php echo APP_URL; ?>/dashboard/packages.php?id=<?php echo $package['id']; ?>">
+                                            <a href="<?php echo APP_URL; ?>dashboard/packages.php?id=<?php echo $package['id']; ?>">
                                                 <?php echo htmlspecialchars($package['name']); ?>
                                             </a>
                                         </div>
@@ -321,7 +321,7 @@ include_once __DIR__ . '/../templates/header.php';
                         <div class="col-md-6">
                             <label for="price" class="form-label">Price</label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">£</span>
                                 <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" 
                                        value="<?php echo isset($service['price']) ? $service['price'] : '0.00'; ?>" required>
                             </div>
@@ -334,7 +334,7 @@ include_once __DIR__ . '/../templates/header.php';
                     </div>
                     
                     <div class="d-flex justify-content-between">
-                        <a href="<?php echo APP_URL; ?>/dashboard/services.php" class="btn btn-outline-secondary">Cancel</a>
+                        <a href="<?php echo APP_URL; ?>dashboard/services.php" class="btn btn-outline-secondary">Cancel</a>
                         <button type="submit" name="save_service" class="btn btn-primary">
                             <?php echo empty($service) ? 'Create Service' : 'Update Service'; ?>
                         </button>
@@ -379,7 +379,7 @@ include_once __DIR__ . '/../templates/header.php';
                     <input type="hidden" name="service_id" value="<?php echo $service['id']; ?>">
                     
                     <div class="d-flex justify-content-between">
-                        <a href="<?php echo APP_URL; ?>/dashboard/services.php" class="btn btn-outline-secondary">Cancel</a>
+                        <a href="<?php echo APP_URL; ?>dashboard/services.php" class="btn btn-outline-secondary">Cancel</a>
                         <button type="submit" name="delete_service" class="btn btn-danger" <?php echo !empty($packages) ? 'disabled' : ''; ?>>
                             <i class="fas fa-trash-alt me-1"></i>Confirm Delete
                         </button>

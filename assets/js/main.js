@@ -47,18 +47,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Handle booking status updates
-    var bookingStatusSelects = document.querySelectorAll('.booking-status-select');
-    if (bookingStatusSelects.length > 0) {
-        bookingStatusSelects.forEach(function(select) {
-            select.addEventListener('change', function() {
-                var bookingId = this.getAttribute('data-booking-id');
-                var status = this.value;
-                updateBookingStatus(bookingId, status);
-            });
-        });
-    }
-    
     // Handle discount application
     var discountForm = document.getElementById('discount-form');
     if (discountForm) {
@@ -131,7 +119,7 @@ function updateSelectedServices() {
         
         var li = document.createElement('li');
         li.className = 'list-group-item d-flex justify-content-between align-items-center';
-        li.innerHTML = serviceName + ' <span class="badge bg-primary rounded-pill">$' + servicePrice + '</span>';
+        li.innerHTML = serviceName + ' <span class="badge bg-primary rounded-pill">£' + servicePrice + '</span>';
         selectedServicesList.appendChild(li);
     });
     
@@ -180,11 +168,11 @@ function updateBookingStatus(bookingId, status) {
     // Create form data
     var formData = new FormData();
     formData.append('action', 'update_status');
+    formData.append('update_status', 'update_status');
     formData.append('booking_id', bookingId);
     formData.append('status', status);
-    
     // Send AJAX request
-    fetch('bookingController.php', {
+    fetch('bookings.php', {
         method: 'POST',
         body: formData
     })
@@ -205,57 +193,6 @@ function updateBookingStatus(bookingId, status) {
     })
     .catch(error => {
         showToast('Error updating booking status', 'danger');
-        console.error('Error:', error);
-    });
-}
-
-// Function to apply discount to booking
-function applyDiscount() {
-    var bookingId = document.getElementById('booking-id').value;
-    var discountAmount = document.getElementById('discount-amount').value;
-    
-    // Validate inputs
-    if (!bookingId || !discountAmount || isNaN(discountAmount) || discountAmount <= 0) {
-        showToast('Please enter a valid discount amount', 'warning');
-        return;
-    }
-    
-    // Create form data
-    var formData = new FormData();
-    formData.append('action', 'apply_discount');
-    formData.append('booking_id', bookingId);
-    formData.append('discount_amount', discountAmount);
-    
-    // Send AJAX request
-    fetch('bookingController.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Update UI
-            var totalPriceElement = document.getElementById('booking-total-price');
-            if (totalPriceElement) {
-                totalPriceElement.textContent = '$' + data.new_total.toFixed(2);
-            }
-            
-            var discountElement = document.getElementById('booking-discount');
-            if (discountElement) {
-                discountElement.textContent = '$' + data.discount.toFixed(2);
-            }
-            
-            // Reset discount input
-            document.getElementById('discount-amount').value = '';
-            
-            // Flash success message
-            showToast('Discount applied successfully', 'success');
-        } else {
-            showToast('Error: ' + data.message, 'danger');
-        }
-    })
-    .catch(error => {
-        showToast('Error applying discount', 'danger');
         console.error('Error:', error);
     });
 }
@@ -286,7 +223,7 @@ function updateCustomPackagePrice() {
     
     var totalPriceElement = document.getElementById('custom-package-total');
     if (totalPriceElement) {
-        totalPriceElement.textContent = '$' + totalPrice.toFixed(2);
+        totalPriceElement.textContent = '£' + totalPrice.toFixed(2);
     }
     
     // Update hidden input for total price

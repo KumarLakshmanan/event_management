@@ -46,14 +46,14 @@ if ($bookingId) {
     // Check if booking exists
     if (!$booking) {
         setFlashMessage('Booking not found.', 'danger');
-        header('Location: ' . APP_URL . '/dashboard/bookings.php');
+        header('Location: ' . APP_URL . 'dashboard/bookings.php');
         exit;
     }
     
     // Check if user has permission to view this booking's guests
     if (!hasPermission('manage_packages') && $booking['user_id'] != $user['id']) {
         setFlashMessage('You do not have permission to manage guests for this booking.', 'danger');
-        header('Location: ' . APP_URL . '/dashboard/bookings.php');
+        header('Location: ' . APP_URL . 'dashboard/bookings.php');
         exit;
     }
 }
@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $bookingCheck = $bookingController->getBookingDetails($guestData['booking_id']);
         if (!$bookingCheck || (!hasPermission('manage_packages') && $bookingCheck['user_id'] != $user['id'])) {
             setFlashMessage('You do not have permission to add guests to this booking.', 'danger');
-            header('Location: ' . APP_URL . '/dashboard/bookings.php');
+            header('Location: ' . APP_URL . 'dashboard/bookings.php');
             exit;
         }
         
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($newGuestId) {
             setFlashMessage('Guest added successfully!', 'success');
-            header('Location: ' . APP_URL . '/dashboard/guests.php?booking_id=' . $guestData['booking_id']);
+            header('Location: ' . APP_URL . 'dashboard/guests.php?booking_id=' . $guestData['booking_id']);
             exit;
         } else {
             $errors[] = 'Failed to add guest. Please check your input and try again.';
@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $bookingCheck = $bookingController->getBookingDetails($bookingId);
         if (!$bookingCheck || (!hasPermission('manage_packages') && $bookingCheck['user_id'] != $user['id'])) {
             setFlashMessage('You do not have permission to add guests to this booking.', 'danger');
-            header('Location: ' . APP_URL . '/dashboard/bookings.php');
+            header('Location: ' . APP_URL . 'dashboard/bookings.php');
             exit;
         }
         
@@ -107,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($guestsAdded > 0) {
             setFlashMessage("$guestsAdded guests added successfully!", 'success');
-            header('Location: ' . APP_URL . '/dashboard/guests.php?booking_id=' . $bookingId);
+            header('Location: ' . APP_URL . 'dashboard/guests.php?booking_id=' . $bookingId);
             exit;
         } else {
             $errors[] = 'Failed to add guests. Please check your input format and try again.';
@@ -128,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $guestCheck = $guestController->getGuestWithBooking($guestData['id']);
         if (!$guestCheck || (!hasPermission('manage_packages') && $guestCheck['user_id'] != $user['id'])) {
             setFlashMessage('You do not have permission to edit this guest.', 'danger');
-            header('Location: ' . APP_URL . '/dashboard/bookings.php');
+            header('Location: ' . APP_URL . 'dashboard/bookings.php');
             exit;
         }
         
@@ -136,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($result) {
             setFlashMessage('Guest updated successfully!', 'success');
-            header('Location: ' . APP_URL . '/dashboard/guests.php?booking_id=' . $guestCheck['booking_id']);
+            header('Location: ' . APP_URL . 'dashboard/guests.php?booking_id=' . $guestCheck['booking_id']);
             exit;
         } else {
             $errors[] = 'Failed to update guest.';
@@ -151,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $guestCheck = $guestController->getGuestWithBooking($guestId);
         if (!$guestCheck || (!hasPermission('manage_packages') && $guestCheck['user_id'] != $user['id'])) {
             setFlashMessage('You do not have permission to delete this guest.', 'danger');
-            header('Location: ' . APP_URL . '/dashboard/bookings.php');
+            header('Location: ' . APP_URL . 'dashboard/bookings.php');
             exit;
         }
         
@@ -159,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($result) {
             setFlashMessage('Guest deleted successfully!', 'success');
-            header('Location: ' . APP_URL . '/dashboard/guests.php?booking_id=' . $guestCheck['booking_id']);
+            header('Location: ' . APP_URL . 'dashboard/guests.php?booking_id=' . $guestCheck['booking_id']);
             exit;
         } else {
             $errors[] = 'Failed to delete guest.';
@@ -174,7 +174,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $bookingCheck = $bookingController->getBookingDetails($bookingId);
         if (!$bookingCheck || (!hasPermission('manage_packages') && $bookingCheck['user_id'] != $user['id'])) {
             setFlashMessage('You do not have permission to send invitations for this booking.', 'danger');
-            header('Location: ' . APP_URL . '/dashboard/bookings.php');
+            header('Location: ' . APP_URL . 'dashboard/bookings.php');
             exit;
         }
         
@@ -182,7 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($sentCount > 0) {
             setFlashMessage("Invitations sent to $sentCount guests!", 'success');
-            header('Location: ' . APP_URL . '/dashboard/guests.php?booking_id=' . $bookingId);
+            header('Location: ' . APP_URL . 'dashboard/guests.php?booking_id=' . $bookingId);
             exit;
         } else {
             $errors[] = 'No invitations sent. Ensure guests have email addresses.';
@@ -228,14 +228,14 @@ if ($action === 'add' && $bookingId) {
     $guest = $guestController->getGuestWithBooking($guestId);
     if (!$guest) {
         setFlashMessage('Guest not found.', 'danger');
-        header('Location: ' . APP_URL . '/dashboard/bookings.php');
+        header('Location: ' . APP_URL . 'dashboard/bookings.php');
         exit;
     }
     
     // Check if user has permission to edit this guest
     if (!hasPermission('manage_packages') && $guest['user_id'] != $user['id']) {
         setFlashMessage('You do not have permission to edit this guest.', 'danger');
-        header('Location: ' . APP_URL . '/dashboard/bookings.php');
+        header('Location: ' . APP_URL . 'dashboard/bookings.php');
         exit;
     }
     
@@ -247,14 +247,14 @@ if ($action === 'add' && $bookingId) {
     $guest = $guestController->getGuestWithBooking($guestId);
     if (!$guest) {
         setFlashMessage('Guest not found.', 'danger');
-        header('Location: ' . APP_URL . '/dashboard/bookings.php');
+        header('Location: ' . APP_URL . 'dashboard/bookings.php');
         exit;
     }
     
     // Check if user has permission to delete this guest
     if (!hasPermission('manage_packages') && $guest['user_id'] != $user['id']) {
         setFlashMessage('You do not have permission to delete this guest.', 'danger');
-        header('Location: ' . APP_URL . '/dashboard/bookings.php');
+        header('Location: ' . APP_URL . 'dashboard/bookings.php');
         exit;
     }
     
@@ -274,7 +274,7 @@ if ($action === 'add' && $bookingId) {
 } else {
     // If no booking ID provided, redirect to bookings page
     setFlashMessage('Please select a booking to manage guests.', 'info');
-    header('Location: ' . APP_URL . '/dashboard/bookings.php');
+    header('Location: ' . APP_URL . 'dashboard/bookings.php');
     exit;
 }
 
@@ -292,12 +292,12 @@ include_once __DIR__ . '/../templates/header.php';
         
         <div>
             <?php if ($template === 'list'): ?>
-                <a href="<?php echo APP_URL; ?>/dashboard/guests.php?booking_id=<?php echo $bookingId; ?>&action=add" class="btn btn-primary me-2">
+                <a href="<?php echo APP_URL; ?>dashboard/guests.php?booking_id=<?php echo $bookingId; ?>&action=add" class="btn btn-primary me-2">
                     <i class="fas fa-user-plus me-2"></i>Add Guests
                 </a>
             <?php endif; ?>
             
-            <a href="<?php echo APP_URL; ?>/dashboard/bookings.php?id=<?php echo $booking['id']; ?>" class="btn btn-secondary">
+            <a href="<?php echo APP_URL; ?>dashboard/bookings.php?id=<?php echo $booking['id']; ?>" class="btn btn-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Back to Booking
             </a>
         </div>
@@ -359,7 +359,7 @@ include_once __DIR__ . '/../templates/header.php';
                 <?php if (empty($guests)): ?>
                     <div class="text-center p-4">
                         <p>No guests added yet for this booking.</p>
-                        <a href="<?php echo APP_URL; ?>/dashboard/guests.php?booking_id=<?php echo $bookingId; ?>&action=add" class="btn btn-primary">
+                        <a href="<?php echo APP_URL; ?>dashboard/guests.php?booking_id=<?php echo $bookingId; ?>&action=add" class="btn btn-primary">
                             <i class="fas fa-user-plus me-1"></i>Add Guests
                         </a>
                     </div>
@@ -382,20 +382,21 @@ include_once __DIR__ . '/../templates/header.php';
                                         <td><?php echo !empty($guest['email']) ? htmlspecialchars($guest['email']) : '<span class="text-muted">Not provided</span>'; ?></td>
                                         <td><?php echo !empty($guest['phone']) ? htmlspecialchars($guest['phone']) : '<span class="text-muted">Not provided</span>'; ?></td>
                                         <td>
-                                            <select class="form-select form-select-sm rsvp-status-select" 
+                                            <!-- <select class="form-select form-select-sm rsvp-status-select" 
                                                     data-guest-id="<?php echo $guest['id']; ?>"
                                                     <?php echo $booking['status'] === STATUS_CANCELLED ? 'disabled' : ''; ?>>
                                                 <option value="pending" <?php echo $guest['rsvp_status'] === RSVP_PENDING ? 'selected' : ''; ?>>Pending</option>
                                                 <option value="accepted" <?php echo $guest['rsvp_status'] === RSVP_ACCEPTED ? 'selected' : ''; ?>>Accepted</option>
                                                 <option value="declined" <?php echo $guest['rsvp_status'] === RSVP_DECLINED ? 'selected' : ''; ?>>Declined</option>
-                                            </select>
+                                            </select> -->
+                                            <?php echo getRsvpStatusName($guest['rsvp_status']); ?>
                                         </td>
                                         <td>
                                             <div class="btn-group btn-group-sm">
-                                                <a href="<?php echo APP_URL; ?>/dashboard/guests.php?action=edit&id=<?php echo $guest['id']; ?>" class="btn btn-outline-primary">
+                                                <a href="<?php echo APP_URL; ?>dashboard/guests.php?action=edit&id=<?php echo $guest['id']; ?>" class="btn btn-outline-primary">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <a href="<?php echo APP_URL; ?>/dashboard/guests.php?action=delete&id=<?php echo $guest['id']; ?>" class="btn btn-outline-danger">
+                                                <a href="<?php echo APP_URL; ?>dashboard/guests.php?action=delete&id=<?php echo $guest['id']; ?>" class="btn btn-outline-danger">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </a>
                                             </div>
@@ -447,7 +448,7 @@ include_once __DIR__ . '/../templates/header.php';
                             </div>
                             
                             <div class="d-flex justify-content-between">
-                                <a href="<?php echo APP_URL; ?>/dashboard/guests.php?booking_id=<?php echo $bookingId; ?>" class="btn btn-outline-secondary">Cancel</a>
+                                <a href="<?php echo APP_URL; ?>dashboard/guests.php?booking_id=<?php echo $bookingId; ?>" class="btn btn-outline-secondary">Cancel</a>
                                 <button type="submit" name="add_guest" class="btn btn-primary">Add Guest</button>
                             </div>
                         </form>
@@ -478,7 +479,7 @@ include_once __DIR__ . '/../templates/header.php';
                             </div>
                             
                             <div class="d-flex justify-content-between">
-                                <a href="<?php echo APP_URL; ?>/dashboard/guests.php?booking_id=<?php echo $bookingId; ?>" class="btn btn-outline-secondary">Cancel</a>
+                                <a href="<?php echo APP_URL; ?>dashboard/guests.php?booking_id=<?php echo $bookingId; ?>" class="btn btn-outline-secondary">Cancel</a>
                                 <button type="submit" name="bulk_add_guests" class="btn btn-primary">Add All Guests</button>
                             </div>
                         </form>
@@ -528,7 +529,7 @@ include_once __DIR__ . '/../templates/header.php';
                     </div>
                     
                     <div class="d-flex justify-content-between">
-                        <a href="<?php echo APP_URL; ?>/dashboard/guests.php?booking_id=<?php echo $guest['booking_id']; ?>" class="btn btn-outline-secondary">Cancel</a>
+                        <a href="<?php echo APP_URL; ?>dashboard/guests.php?booking_id=<?php echo $guest['booking_id']; ?>" class="btn btn-outline-secondary">Cancel</a>
                         <button type="submit" name="edit_guest" class="btn btn-primary">Update Guest</button>
                     </div>
                 </form>
@@ -559,7 +560,7 @@ include_once __DIR__ . '/../templates/header.php';
                     <input type="hidden" name="guest_id" value="<?php echo $guest['id']; ?>">
                     
                     <div class="d-flex justify-content-between">
-                        <a href="<?php echo APP_URL; ?>/dashboard/guests.php?booking_id=<?php echo $guest['booking_id']; ?>" class="btn btn-outline-secondary">Cancel</a>
+                        <a href="<?php echo APP_URL; ?>dashboard/guests.php?booking_id=<?php echo $guest['booking_id']; ?>" class="btn btn-outline-secondary">Cancel</a>
                         <button type="submit" name="delete_guest" class="btn btn-danger">
                             <i class="fas fa-trash-alt me-1"></i>Delete Guest
                         </button>
@@ -587,7 +588,7 @@ include_once __DIR__ . '/../templates/header.php';
                     formData.append('status', status);
                     
                     // Send AJAX request
-                    fetch('<?php echo APP_URL; ?>/dashboard/guests.php', {
+                    fetch('<?php echo APP_URL; ?>dashboard/guests.php', {
                         method: 'POST',
                         body: formData,
                         headers: {

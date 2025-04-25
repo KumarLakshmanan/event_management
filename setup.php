@@ -43,10 +43,11 @@ try {
         description TEXT,
         price REAL NOT NULL,
         image_path TEXT,
+        user_id INTEGER,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )');
-    
+    // ALTER TABLE packages ADD COLUMN user_id INTEGER;
     // Create package_services junction table
     $db->exec('CREATE TABLE IF NOT EXISTS package_services (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -108,20 +109,22 @@ try {
     )');
     
     // Insert default users (password: password123)
-    $hashedPassword = password_hash('password123', PASSWORD_DEFAULT);
-    
+    $adminPassword = password_hash('Admin123', PASSWORD_DEFAULT);
+    $managerPassword = password_hash('Manager123', PASSWORD_DEFAULT);
+    $clientPassword = password_hash('Client123', PASSWORD_DEFAULT);
+
     // Admin user
     $stmt = $db->prepare('INSERT OR IGNORE INTO users (name, email, password, role, can_apply_discount) VALUES (?, ?, ?, ?, ?)');
-    $stmt->execute(['Admin User', 'admin@example.com', $hashedPassword, 'administrator', 1]);
+    $stmt->execute(['Admin User', 'admin@example.com', $adminPassword, 'administrator', 1]);
     
     // Manager user with discount permission
-    $stmt->execute(['Manager User', 'manager@example.com', $hashedPassword, 'manager', 1]);
+    $stmt->execute(['Manager User', 'manager@example.com', $managerPassword, 'manager', 1]);
     
     // Manager without discount permission
-    $stmt->execute(['Manager No Discount', 'manager2@example.com', $hashedPassword, 'manager', 0]);
+    $stmt->execute(['Manager No Discount', 'manager2@example.com', $managerPassword, 'manager', 0]);
     
     // Client user
-    $stmt->execute(['Client User', 'client@example.com', $hashedPassword, 'client', 0]);
+    $stmt->execute(['Client User', 'client@example.com', $clientPassword, 'client', 0]);
     
     // Insert sample packages
     $packageStmt = $db->prepare('INSERT OR IGNORE INTO packages (name, description, price, image_path) VALUES (?, ?, ?, ?)');

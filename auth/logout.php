@@ -15,6 +15,6 @@ logout();
 setFlashMessage('You have been successfully logged out.', 'success');
 
 // Redirect to home page
-header('Location: ' . APP_URL . '/index.php');
+header('Location: ' . APP_URL . 'index.php');
 exit;
 ?>

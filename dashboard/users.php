@@ -11,7 +11,7 @@ requireLogin();
 // Check if user has admin permission
 if (!hasRole(ROLE_ADMIN)) {
     setFlashMessage('You do not have permission to access user management.', 'danger');
-    header('Location: ' . APP_URL . '/dashboard/index.php');
+    header('Location: ' . APP_URL . 'dashboard/index.php');
     exit;
 }
 
@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if ($newUserId) {
                 setFlashMessage('User created successfully!', 'success');
-                header('Location: ' . APP_URL . '/dashboard/users.php');
+                header('Location: ' . APP_URL . 'dashboard/users.php');
                 exit;
             } else {
                 $errors[] = 'Failed to create user. The email may already be in use.';
@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if ($result) {
                 setFlashMessage('User updated successfully!', 'success');
-                header('Location: ' . APP_URL . '/dashboard/users.php');
+                header('Location: ' . APP_URL . 'dashboard/users.php');
                 exit;
             } else {
                 $errors[] = 'Failed to update user. The email may already be in use.';
@@ -140,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Cannot delete yourself
         if ($userId === (int)$user['id']) {
             setFlashMessage('You cannot delete your own account.', 'danger');
-            header('Location: ' . APP_URL . '/dashboard/users.php');
+            header('Location: ' . APP_URL . 'dashboard/users.php');
             exit;
         }
         
@@ -148,7 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($result) {
             setFlashMessage('User deleted successfully!', 'success');
-            header('Location: ' . APP_URL . '/dashboard/users.php');
+            header('Location: ' . APP_URL . 'dashboard/users.php');
             exit;
         } else {
             $errors[] = 'Failed to delete user.';
@@ -166,7 +166,7 @@ if ($action === 'create') {
     $userData = $userController->getUserById($userId);
     if (!$userData) {
         setFlashMessage('User not found.', 'danger');
-        header('Location: ' . APP_URL . '/dashboard/users.php');
+        header('Location: ' . APP_URL . 'dashboard/users.php');
         exit;
     }
     $pageTitle = 'Edit User';
@@ -176,7 +176,7 @@ if ($action === 'create') {
     $userData = $userController->getUserById($userId);
     if (!$userData) {
         setFlashMessage('User not found.', 'danger');
-        header('Location: ' . APP_URL . '/dashboard/users.php');
+        header('Location: ' . APP_URL . 'dashboard/users.php');
         exit;
     }
     $pageTitle = 'Delete User';
@@ -211,11 +211,11 @@ include_once __DIR__ . '/../templates/header.php';
         <h1 class="h3"><?php echo $pageTitle; ?></h1>
         
         <?php if ($template === 'list'): ?>
-            <a href="<?php echo APP_URL; ?>/dashboard/users.php?action=create" class="btn btn-primary">
+            <a href="<?php echo APP_URL; ?>dashboard/users.php?action=create" class="btn btn-primary">
                 <i class="fas fa-user-plus me-2"></i>Create New User
             </a>
         <?php elseif ($template !== 'list'): ?>
-            <a href="<?php echo APP_URL; ?>/dashboard/users.php" class="btn btn-secondary">
+            <a href="<?php echo APP_URL; ?>dashboard/users.php" class="btn btn-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Back to Users
             </a>
         <?php endif; ?>
@@ -242,10 +242,10 @@ include_once __DIR__ . '/../templates/header.php';
                         </div>
                         <div class="col-md-10">
                             <div class="btn-group">
-                                <a href="<?php echo APP_URL; ?>/dashboard/users.php" class="btn <?php echo $roleFilter === '' ? 'btn-primary' : 'btn-outline-primary'; ?>">All</a>
-                                <a href="<?php echo APP_URL; ?>/dashboard/users.php?role=<?php echo ROLE_ADMIN; ?>" class="btn <?php echo $roleFilter === ROLE_ADMIN ? 'btn-primary' : 'btn-outline-primary'; ?>">Administrators</a>
-                                <a href="<?php echo APP_URL; ?>/dashboard/users.php?role=<?php echo ROLE_MANAGER; ?>" class="btn <?php echo $roleFilter === ROLE_MANAGER ? 'btn-primary' : 'btn-outline-primary'; ?>">Managers</a>
-                                <a href="<?php echo APP_URL; ?>/dashboard/users.php?role=<?php echo ROLE_CLIENT; ?>" class="btn <?php echo $roleFilter === ROLE_CLIENT ? 'btn-primary' : 'btn-outline-primary'; ?>">Clients</a>
+                                <a href="<?php echo APP_URL; ?>dashboard/users.php" class="btn <?php echo $roleFilter === '' ? 'btn-primary' : 'btn-outline-primary'; ?>">All</a>
+                                <a href="<?php echo APP_URL; ?>dashboard/users.php?role=<?php echo ROLE_ADMIN; ?>" class="btn <?php echo $roleFilter === ROLE_ADMIN ? 'btn-primary' : 'btn-outline-primary'; ?>">Administrators</a>
+                                <a href="<?php echo APP_URL; ?>dashboard/users.php?role=<?php echo ROLE_MANAGER; ?>" class="btn <?php echo $roleFilter === ROLE_MANAGER ? 'btn-primary' : 'btn-outline-primary'; ?>">Managers</a>
+                                <a href="<?php echo APP_URL; ?>dashboard/users.php?role=<?php echo ROLE_CLIENT; ?>" class="btn <?php echo $roleFilter === ROLE_CLIENT ? 'btn-primary' : 'btn-outline-primary'; ?>">Clients</a>
                             </div>
                         </div>
                     </div>
@@ -325,11 +325,11 @@ include_once __DIR__ . '/../templates/header.php';
                                         <td><?php echo formatDate($u['created_at'], 'M j, Y'); ?></td>
                                         <td>
                                             <div class="btn-group btn-group-sm">
-                                                <a href="<?php echo APP_URL; ?>/dashboard/users.php?action=edit&id=<?php echo $u['id']; ?>" class="btn btn-outline-primary">
+                                                <a href="<?php echo APP_URL; ?>dashboard/users.php?action=edit&id=<?php echo $u['id']; ?>" class="btn btn-outline-primary">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
                                                 <?php if ((int)$u['id'] !== (int)$user['id']): ?>
-                                                    <a href="<?php echo APP_URL; ?>/dashboard/users.php?action=delete&id=<?php echo $u['id']; ?>" class="btn btn-outline-danger">
+                                                    <a href="<?php echo APP_URL; ?>dashboard/users.php?action=delete&id=<?php echo $u['id']; ?>" class="btn btn-outline-danger">
                                                         <i class="fas fa-trash-alt"></i>
                                                     </a>
                                                 <?php else: ?>
@@ -425,7 +425,7 @@ include_once __DIR__ . '/../templates/header.php';
                     </div>
                     
                     <div class="d-flex justify-content-between">
-                        <a href="<?php echo APP_URL; ?>/dashboard/users.php" class="btn btn-outline-secondary">Cancel</a>
+                        <a href="<?php echo APP_URL; ?>dashboard/users.php" class="btn btn-outline-secondary">Cancel</a>
                         <button type="submit" name="<?php echo $template === 'create' ? 'create_user' : 'edit_user'; ?>" class="btn btn-primary">
                             <?php echo $template === 'create' ? 'Create User' : 'Update User'; ?>
                         </button>
@@ -457,7 +457,7 @@ include_once __DIR__ . '/../templates/header.php';
                     <input type="hidden" name="user_id" value="<?php echo $userData['id']; ?>">
                     
                     <div class="d-flex justify-content-between">
-                        <a href="<?php echo APP_URL; ?>/dashboard/users.php" class="btn btn-outline-secondary">Cancel</a>
+                        <a href="<?php echo APP_URL; ?>dashboard/users.php" class="btn btn-outline-secondary">Cancel</a>
                         <button type="submit" name="delete_user" class="btn btn-danger">
                             <i class="fas fa-trash-alt me-1"></i>Confirm Delete
                         </button>

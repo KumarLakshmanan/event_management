@@ -70,7 +70,7 @@ function sanitizeInput($input) {
  * @return string Formatted price
  */
 function formatPrice($price) {
-    return '£' . number_format($price, 2);
+    return '£' . number_format((float)($price ?? 0), 2);
 }
 
 /**

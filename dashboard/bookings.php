@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($newBookingId) {
             setFlashMessage('Booking created successfully!', 'success');
-            header('Location: ' . APP_URL . '/dashboard/bookings.php?id=' . $newBookingId);
+            header('Location: ' . APP_URL . 'dashboard/bookings.php?id=' . $newBookingId);
             exit;
         } else {
             $errors[] = 'Failed to create booking. Please check your input and try again.';
@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Check if user has permission
         if (!hasPermission('manage_packages') && $user['id'] != $_POST['user_id']) {
             setFlashMessage('You do not have permission to update this booking.', 'danger');
-            header('Location: ' . APP_URL . '/dashboard/bookings.php');
+            header('Location: ' . APP_URL . 'dashboard/bookings.php');
             exit;
         }
         
@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($result) {
             setFlashMessage('Booking status updated successfully!', 'success');
-            header('Location: ' . APP_URL . '/dashboard/bookings.php?id=' . $updateData['booking_id']);
+            header('Location: ' . APP_URL . 'dashboard/bookings.php?id=' . $updateData['booking_id']);
             exit;
         } else {
             $errors[] = 'Failed to update booking status.';
@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($result) {
             setFlashMessage('Discount applied successfully!', 'success');
-            header('Location: ' . APP_URL . '/dashboard/bookings.php?id=' . $discountData['booking_id']);
+            header('Location: ' . APP_URL . 'dashboard/bookings.php?id=' . $discountData['booking_id']);
             exit;
         } else {
             $errors[] = 'Failed to apply discount.';
@@ -117,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Check if user has permission
         if (!hasPermission('manage_packages') && $user['id'] != $_POST['user_id']) {
             setFlashMessage('You do not have permission to cancel this booking.', 'danger');
-            header('Location: ' . APP_URL . '/dashboard/bookings.php');
+            header('Location: ' . APP_URL . 'dashboard/bookings.php');
             exit;
         }
         
@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($result) {
             setFlashMessage('Booking cancelled successfully!', 'success');
-            header('Location: ' . APP_URL . '/dashboard/bookings.php');
+            header('Location: ' . APP_URL . 'dashboard/bookings.php');
             exit;
         } else {
             $errors[] = 'Failed to cancel booking.';
@@ -196,7 +196,7 @@ if ($action === 'create') {
         $package = $bookingController->getPackageDetails($packageId);
         if (!$package) {
             setFlashMessage('Package not found.', 'danger');
-            header('Location: ' . APP_URL . '/dashboard/packages.php');
+            header('Location: ' . APP_URL . 'dashboard/packages.php');
             exit;
         }
     }
@@ -211,14 +211,14 @@ if ($action === 'create') {
     // Check if booking exists
     if (!$booking) {
         setFlashMessage('Booking not found.', 'danger');
-        header('Location: ' . APP_URL . '/dashboard/bookings.php');
+        header('Location: ' . APP_URL . 'dashboard/bookings.php');
         exit;
     }
     
     // Check if user has permission to view this booking
     if (!hasPermission('manage_packages') && $booking['user_id'] != $user['id']) {
         setFlashMessage('You do not have permission to view this booking.', 'danger');
-        header('Location: ' . APP_URL . '/dashboard/bookings.php');
+        header('Location: ' . APP_URL . 'dashboard/bookings.php');
         exit;
     }
     
@@ -268,11 +268,11 @@ include_once __DIR__ . '/../templates/header.php';
         <h1 class="h3"><?php echo $pageTitle; ?></h1>
         
         <?php if ($template === 'list' && hasRole(ROLE_CLIENT)): ?>
-            <a href="<?php echo APP_URL; ?>/dashboard/bookings.php?action=create" class="btn btn-primary">
+            <a href="<?php echo APP_URL; ?>dashboard/bookings.php?action=create" class="btn btn-primary">
                 <i class="fas fa-calendar-plus me-2"></i>Book New Event
             </a>
         <?php elseif ($template === 'view'): ?>
-            <a href="<?php echo APP_URL; ?>/dashboard/bookings.php" class="btn btn-secondary">
+            <a href="<?php echo APP_URL; ?>dashboard/bookings.php" class="btn btn-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Back to Bookings
             </a>
         <?php endif; ?>
@@ -301,11 +301,11 @@ include_once __DIR__ . '/../templates/header.php';
                             </div>
                             <div class="col-md-6">
                                 <div class="btn-group w-100">
-                                    <a href="<?php echo APP_URL; ?>/dashboard/bookings.php" class="btn <?php echo $statusFilter === '' ? 'btn-primary' : 'btn-outline-primary'; ?>">All</a>
-                                    <a href="<?php echo APP_URL; ?>/dashboard/bookings.php?status=pending" class="btn <?php echo $statusFilter === 'pending' ? 'btn-primary' : 'btn-outline-primary'; ?>">Pending</a>
-                                    <a href="<?php echo APP_URL; ?>/dashboard/bookings.php?status=confirmed" class="btn <?php echo $statusFilter === 'confirmed' ? 'btn-primary' : 'btn-outline-primary'; ?>">Confirmed</a>
-                                    <a href="<?php echo APP_URL; ?>/dashboard/bookings.php?status=cancelled" class="btn <?php echo $statusFilter === 'cancelled' ? 'btn-primary' : 'btn-outline-primary'; ?>">Cancelled</a>
-                                    <a href="<?php echo APP_URL; ?>/dashboard/bookings.php?status=completed" class="btn <?php echo $statusFilter === 'completed' ? 'btn-primary' : 'btn-outline-primary'; ?>">Completed</a>
+                                    <a href="<?php echo APP_URL; ?>dashboard/bookings.php" class="btn <?php echo $statusFilter === '' ? 'btn-primary' : 'btn-outline-primary'; ?>">All</a>
+                                    <a href="<?php echo APP_URL; ?>dashboard/bookings.php?status=pending" class="btn <?php echo $statusFilter === 'pending' ? 'btn-primary' : 'btn-outline-primary'; ?>">Pending</a>
+                                    <a href="<?php echo APP_URL; ?>dashboard/bookings.php?status=confirmed" class="btn <?php echo $statusFilter === 'confirmed' ? 'btn-primary' : 'btn-outline-primary'; ?>">Confirmed</a>
+                                    <a href="<?php echo APP_URL; ?>dashboard/bookings.php?status=cancelled" class="btn <?php echo $statusFilter === 'cancelled' ? 'btn-primary' : 'btn-outline-primary'; ?>">Cancelled</a>
+                                    <a href="<?php echo APP_URL; ?>dashboard/bookings.php?status=completed" class="btn <?php echo $statusFilter === 'completed' ? 'btn-primary' : 'btn-outline-primary'; ?>">Completed</a>
                                 </div>
                             </div>
                         </div>
@@ -333,7 +333,7 @@ include_once __DIR__ . '/../templates/header.php';
                     <div class="p-4 text-center">
                         <p>No bookings found.</p>
                         <?php if (hasRole(ROLE_CLIENT)): ?>
-                            <a href="<?php echo APP_URL; ?>/dashboard/bookings.php?action=create" class="btn btn-primary">
+                            <a href="<?php echo APP_URL; ?>dashboard/bookings.php?action=create" class="btn btn-primary">
                                 <i class="fas fa-calendar-plus me-1"></i>Book New Event
                             </a>
                         <?php endif; ?>
@@ -381,7 +381,7 @@ include_once __DIR__ . '/../templates/header.php';
                                             </span>
                                         </td>
                                         <td>
-                                            <a href="<?php echo APP_URL; ?>/dashboard/bookings.php?id=<?php echo $booking['id']; ?>" class="btn btn-sm btn-primary">
+                                            <a href="<?php echo APP_URL; ?>dashboard/bookings.php?id=<?php echo $booking['id']; ?>" class="btn btn-sm btn-primary">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                         </td>
@@ -500,7 +500,7 @@ include_once __DIR__ . '/../templates/header.php';
                                             <div class="row g-2 align-items-center">
                                                 <div class="col-md-6">
                                                     <div class="input-group">
-                                                        <span class="input-group-text">$</span>
+                                                        <span class="input-group-text">£</span>
                                                         <input type="number" class="form-control" id="discount-amount" name="discount_amount" step="0.01" min="0" max="<?php echo $booking['total_price']; ?>" placeholder="Amount" required>
                                                     </div>
                                                 </div>
@@ -533,34 +533,6 @@ include_once __DIR__ . '/../templates/header.php';
             
             <!-- Guest List and RSVP Stats -->
             <div class="col-md-4 mb-4">
-                <?php if (hasPermission('apply_discount') && $booking['status'] !== STATUS_CANCELLED): ?>
-                <!-- Discount Management -->
-                <div class="card mb-4">
-                    <div class="card-header bg-light">
-                        <h5 class="card-title mb-0">Apply Discount</h5>
-                    </div>
-                    <div class="card-body">
-                        <form id="discount-form" class="mb-3">
-                            <input type="hidden" name="booking_id" value="<?php echo $booking['id']; ?>">
-                            <div class="mb-3">
-                                <label for="discount_amount" class="form-label">Discount Amount (£)</label>
-                                <input type="number" class="form-control" id="discount_amount" name="discount_amount" 
-                                       min="0" max="<?php echo $booking['total_price']; ?>" step="0.01" 
-                                       value="<?php echo $booking['discount_applied']; ?>" required>
-                                <div class="form-text">Maximum discount: <?php echo formatPrice($booking['total_price']); ?></div>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Apply Discount</button>
-                        </form>
-                        <div class="alert alert-info">
-                            <small>
-                                <i class="fas fa-info-circle me-1"></i>
-                                Discounts can be applied to any booking that hasn't been cancelled.
-                            </small>
-                        </div>
-                    </div>
-                </div>
-                <?php endif; ?>
-                
                 <div class="card mb-4">
                     <div class="card-header bg-light">
                         <h5 class="card-title mb-0">Guest List</h5>
@@ -572,7 +544,7 @@ include_once __DIR__ . '/../templates/header.php';
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Total Guests: <?php echo $rsvpStats['total']; ?></span>
-                                    <a href="<?php echo APP_URL; ?>/dashboard/guests.php?booking_id=<?php echo $booking['id']; ?>" class="btn btn-sm btn-outline-primary">
+                                    <a href="<?php echo APP_URL; ?>dashboard/guests.php?booking_id=<?php echo $booking['id']; ?>" class="btn btn-sm btn-outline-primary">
                                         <i class="fas fa-users me-1"></i>Manage Guests
                                     </a>
                                 </div>
@@ -622,7 +594,7 @@ include_once __DIR__ . '/../templates/header.php';
                                 
                                 <?php if (count($guests) > 5): ?>
                                     <div class="text-center mt-2">
-                                        <a href="<?php echo APP_URL; ?>/dashboard/guests.php?booking_id=<?php echo $booking['id']; ?>" class="btn btn-sm btn-outline-secondary">
+                                        <a href="<?php echo APP_URL; ?>dashboard/guests.php?booking_id=<?php echo $booking['id']; ?>" class="btn btn-sm btn-outline-secondary">
                                             View All <?php echo count($guests); ?> Guests
                                         </a>
                                     </div>
@@ -632,7 +604,7 @@ include_once __DIR__ . '/../templates/header.php';
                         
                         <?php if ($booking['status'] !== STATUS_CANCELLED): ?>
                             <div class="mt-3">
-                                <a href="<?php echo APP_URL; ?>/dashboard/guests.php?booking_id=<?php echo $booking['id']; ?>&action=add" class="btn btn-primary w-100">
+                                <a href="<?php echo APP_URL; ?>dashboard/guests.php?booking_id=<?php echo $booking['id']; ?>&action=add" class="btn btn-primary w-100">
                                     <i class="fas fa-user-plus me-1"></i>Add Guests
                                 </a>
                             </div>
@@ -679,7 +651,7 @@ include_once __DIR__ . '/../templates/header.php';
                                         <p><?php echo htmlspecialchars($package['description']); ?></p>
                                         <div class="d-flex justify-content-between">
                                             <strong>Price: <?php echo formatPrice($package['price']); ?></strong>
-                                            <a href="<?php echo APP_URL; ?>/dashboard/bookings.php?action=create" class="btn btn-sm btn-outline-secondary">
+                                            <a href="<?php echo APP_URL; ?>dashboard/bookings.php?action=create" class="btn btn-sm btn-outline-secondary">
                                                 Change Package
                                             </a>
                                         </div>
@@ -709,53 +681,6 @@ include_once __DIR__ . '/../templates/header.php';
                                     <input type="hidden" name="package_id" id="selected-package-id" value="">
                                 </div>
                             </div>
-                            
-                            <!-- Or create custom package -->
-                            <div class="row mb-3">
-                                <div class="col-md-12">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="custom-package" name="custom_package">
-                                        <label class="form-check-label" for="custom-package">
-                                            Create Custom Package (Select individual services)
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div id="custom-package-services" class="d-none">
-                                <div class="row mb-3">
-                                    <div class="col-md-12">
-                                        <label class="form-label">Select Services</label>
-                                        <div class="row row-cols-1 row-cols-md-2 g-4 mb-3">
-                                            <?php foreach ($services as $svc): ?>
-                                                <div class="col">
-                                                    <div class="card h-100">
-                                                        <div class="card-body">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input custom-service-checkbox" type="checkbox" name="services[]" 
-                                                                       value="<?php echo $svc['id']; ?>" id="service_<?php echo $svc['id']; ?>" 
-                                                                       data-service-price="<?php echo $svc['price']; ?>">
-                                                                <label class="form-check-label w-100" for="service_<?php echo $svc['id']; ?>">
-                                                                    <h6 class="card-title"><?php echo htmlspecialchars($svc['name']); ?></h6>
-                                                                    <p class="card-text"><?php echo htmlspecialchars($svc['description']); ?></p>
-                                                                    <div class="text-primary fs-5 fw-bold"><?php echo formatPrice($svc['price']); ?></div>
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            <?php endforeach; ?>
-                                        </div>
-                                        <div class="alert alert-info">
-                                            <div class="d-flex justify-content-between">
-                                                <h6 class="mb-0">Total Price:</h6>
-                                                <div id="custom-package-total" class="fw-bold">£0.00</div>
-                                            </div>
-                                        </div>
-                                        <input type="hidden" name="total_price" id="custom-package-price" value="0">
-                                    </div>
-                                </div>
-                            </div>
                         <?php endif; ?>
                     </div>
                     
@@ -778,7 +703,7 @@ include_once __DIR__ . '/../templates/header.php';
                     </div>
                     
                     <div class="d-flex justify-content-between">
-                        <a href="<?php echo APP_URL; ?>/dashboard/bookings.php" class="btn btn-outline-secondary">Cancel</a>
+                        <a href="<?php echo APP_URL; ?>dashboard/bookings.php" class="btn btn-outline-secondary">Cancel</a>
                         <button type="submit" name="create_booking" class="btn btn-primary">
                             <i class="fas fa-calendar-check me-1"></i>Confirm Booking
                         </button>

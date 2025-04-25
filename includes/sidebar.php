@@ -103,7 +103,7 @@ if ($userRole) {
             <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
                 <li><a class="dropdown-item" href="#">Profile</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="<?php echo APP_URL; ?>/auth/logout.php">Sign out</a></li>
+                <li><a class="dropdown-item" href="<?php echo APP_URL; ?>auth/logout.php">Sign out</a></li>
             </ul>
         </div>
         <?php endif; ?>

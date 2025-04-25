@@ -1,0 +1,205 @@
+[25-Apr-2025 22:13:17 UTC] Email from: kumar.lakshmanan.projects@gmail.com
+[25-Apr-2025 22:13:17 UTC] Email to: lakshmanan.coder@gmail.com
+[25-Apr-2025 22:13:17 UTC] Subject: You're Invited: asdf on April 30, 2025
+[25-Apr-2025 22:13:17 UTC] Body: 
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background-color: #4F46E5; color: white; padding: 20px; text-align: center;">
+            <h2>You're Invited!</h2>
+        </div>
+        <div style="padding: 20px;">
+            <p>Hello Lakshmanan,</p>
+            <p>You have been invited to an event at <strong>asdf</strong> on <strong>April 30, 2025</strong>.</p>
+            <p>Please let us know if you can attend:</p>
+            
+       ...
+[25-Apr-2025 22:13:20 UTC] Email sending failed: SMTP Error: Could not authenticate.
+[25-Apr-2025 22:15:27 UTC] Email from: kumar.lakshmanan.projects@gmail.com
+[25-Apr-2025 22:15:27 UTC] Email to: lakshmanan.coder@gmail.com
+[25-Apr-2025 22:15:27 UTC] Subject: You're Invited: asdf on April 30, 2025
+[25-Apr-2025 22:15:27 UTC] Body: 
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background-color: #4F46E5; color: white; padding: 20px; text-align: center;">
+            <h2>You're Invited!</h2>
+        </div>
+        <div style="padding: 20px;">
+            <p>Hello Lakshmanan,</p>
+            <p>You have been invited to an event at <strong>asdf</strong> on <strong>April 30, 2025</strong>.</p>
+            <p>Please let us know if you can attend:</p>
+            
+       ...
+[25-Apr-2025 22:15:27 UTC] AltBody: Hello Lakshmanan,
+    
+You have been invited to an event at asdf on April 30, 2025.
+
+To accept: http://localhost/event_v3/rsvp.php?token=800c7ae3bbf9338eccb71bc661822a38&action=accept
+To decline: http://localhost/event_v3/rsvp.php?token=800c7ae3bbf9338eccb71bc661822a38&action=decline
+
+Thank you!
+This is an automated message from Event Planning Platform
+[25-Apr-2025 22:15:29 UTC] Email sending failed: SMTP Error: Could not authenticate.
+[25-Apr-2025 22:19:19 UTC] Email from: kumar.lakshmanan.projects@gmail.com
+[25-Apr-2025 22:19:19 UTC] Email to: lakshmanan.coder@gmail.com
+[25-Apr-2025 22:19:19 UTC] Subject: You're Invited: asdf on April 30, 2025
+[25-Apr-2025 22:19:19 UTC] Body: 
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background-color: #4F46E5; color: white; padding: 20px; text-align: center;">
+            <h2>You're Invited!</h2>
+        </div>
+        <div style="padding: 20px;">
+            <p>Hello Lakshmanan,</p>
+            <p>You have been invited to an event at <strong>asdf</strong> on <strong>April 30, 2025</strong>.</p>
+            <p>Please let us know if you can attend:</p>
+            
+       ...
+[25-Apr-2025 22:19:19 UTC] AltBody: Hello Lakshmanan,
+    
+You have been invited to an event at asdf on April 30, 2025.
+
+To accept: http://localhost/event_v3/rsvp.php?token=800c7ae3bbf9338eccb71bc661822a38&action=accept
+To decline: http://localhost/event_v3/rsvp.php?token=800c7ae3bbf9338eccb71bc661822a38&action=decline
+
+Thank you!
+This is an automated message from Event Planning Platform
+[25-Apr-2025 22:19:22 UTC] Email sending failed: SMTP Error: Could not authenticate.
+[25-Apr-2025 22:20:00 UTC] Email from: kumar.lakshmanan.projects@gmail.com
+[25-Apr-2025 22:20:00 UTC] Email to: lakshmanan.coder@gmail.com
+[25-Apr-2025 22:20:00 UTC] Subject: You're Invited: asdf on April 30, 2025
+[25-Apr-2025 22:20:00 UTC] Body: 
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background-color: #4F46E5; color: white; padding: 20px; text-align: center;">
+            <h2>You're Invited!</h2>
+        </div>
+        <div style="padding: 20px;">
+            <p>Hello Lakshmanan,</p>
+            <p>You have been invited to an event at <strong>asdf</strong> on <strong>April 30, 2025</strong>.</p>
+            <p>Please let us know if you can attend:</p>
+            
+       ...
+[25-Apr-2025 22:20:00 UTC] AltBody: Hello Lakshmanan,
+    
+You have been invited to an event at asdf on April 30, 2025.
+
+To accept: http://localhost/event_v3/rsvp.php?token=800c7ae3bbf9338eccb71bc661822a38&action=accept
+To decline: http://localhost/event_v3/rsvp.php?token=800c7ae3bbf9338eccb71bc661822a38&action=decline
+
+Thank you!
+This is an automated message from Event Planning Platform
+[25-Apr-2025 22:20:03 UTC] PHP Fatal error:  Uncaught PHPMailer\PHPMailer\Exception: SMTP Error: Could not authenticate. in D:\xampp\htdocs\event_v3\vendor\phpmailer\phpmailer\src\PHPMailer.php:2261
+Stack trace:
+#0 D:\xampp\htdocs\event_v3\vendor\phpmailer\phpmailer\src\PHPMailer.php(2058): PHPMailer\PHPMailer\PHPMailer->smtpConnect(Array)
+#1 D:\xampp\htdocs\event_v3\vendor\phpmailer\phpmailer\src\PHPMailer.php(1687): PHPMailer\PHPMailer\PHPMailer->smtpSend('Date: Fri, 25 A...', '--b1=_CJCwIJgQI...')
+#2 D:\xampp\htdocs\event_v3\vendor\phpmailer\phpmailer\src\PHPMailer.php(1521): PHPMailer\PHPMailer\PHPMailer->postSend()
+#3 D:\xampp\htdocs\event_v3\includes\mailer.php(55): PHPMailer\PHPMailer\PHPMailer->send()
+#4 D:\xampp\htdocs\event_v3\includes\mailer.php(114): sendEmail('lakshmanan.code...', 'You're Invited:...', '\n    <div style...', 'Hello Lakshmana...')
+#5 D:\xampp\htdocs\event_v3\models\Guest.php(270): sendGuestInvitation(Array, Array)
+#6 D:\xampp\htdocs\event_v3\models\Guest.php(301): Guest->sendInvitation(1)
+#7 D:\xampp\htdocs\event_v3\controllers\GuestController.php(250): Guest->sendAllInvitations(1)
+#8 D:\xampp\htdocs\event_v3\dashboard\guests.php(181): GuestController->sendInvitations(1)
+#9 {main}
+  thrown in D:\xampp\htdocs\event_v3\vendor\phpmailer\phpmailer\src\PHPMailer.php on line 2261
+[25-Apr-2025 22:21:30 UTC] Email from: kumar.lakshmanan.projects@gmail.com
+[25-Apr-2025 22:21:30 UTC] Email to: lakshmanan.coder@gmail.com
+[25-Apr-2025 22:21:30 UTC] Subject: You're Invited: asdf on April 30, 2025
+[25-Apr-2025 22:21:30 UTC] Body: 
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background-color: #4F46E5; color: white; padding: 20px; text-align: center;">
+            <h2>You're Invited!</h2>
+        </div>
+        <div style="padding: 20px;">
+            <p>Hello Lakshmanan,</p>
+            <p>You have been invited to an event at <strong>asdf</strong> on <strong>April 30, 2025</strong>.</p>
+            <p>Please let us know if you can attend:</p>
+            
+       ...
+[25-Apr-2025 22:21:30 UTC] AltBody: Hello Lakshmanan,
+    
+You have been invited to an event at asdf on April 30, 2025.
+
+To accept: http://localhost/event_v3/rsvp.php?token=800c7ae3bbf9338eccb71bc661822a38&action=accept
+To decline: http://localhost/event_v3/rsvp.php?token=800c7ae3bbf9338eccb71bc661822a38&action=decline
+
+Thank you!
+This is an automated message from Event Planning Platform
+[25-Apr-2025 22:21:32 UTC] PHP Fatal error:  Uncaught PHPMailer\PHPMailer\Exception: SMTP Error: Could not authenticate. in D:\xampp\htdocs\event_v3\vendor\phpmailer\phpmailer\src\PHPMailer.php:2261
+Stack trace:
+#0 D:\xampp\htdocs\event_v3\vendor\phpmailer\phpmailer\src\PHPMailer.php(2058): PHPMailer\PHPMailer\PHPMailer->smtpConnect(Array)
+#1 D:\xampp\htdocs\event_v3\vendor\phpmailer\phpmailer\src\PHPMailer.php(1687): PHPMailer\PHPMailer\PHPMailer->smtpSend('Date: Fri, 25 A...', '--b1=_Jj0npK5qh...')
+#2 D:\xampp\htdocs\event_v3\vendor\phpmailer\phpmailer\src\PHPMailer.php(1521): PHPMailer\PHPMailer\PHPMailer->postSend()
+#3 D:\xampp\htdocs\event_v3\includes\mailer.php(57): PHPMailer\PHPMailer\PHPMailer->send()
+#4 D:\xampp\htdocs\event_v3\includes\mailer.php(116): sendEmail('lakshmanan.code...', 'You're Invited:...', '\n    <div style...', 'Hello Lakshmana...')
+#5 D:\xampp\htdocs\event_v3\models\Guest.php(270): sendGuestInvitation(Array, Array)
+#6 D:\xampp\htdocs\event_v3\models\Guest.php(301): Guest->sendInvitation(1)
+#7 D:\xampp\htdocs\event_v3\controllers\GuestController.php(250): Guest->sendAllInvitations(1)
+#8 D:\xampp\htdocs\event_v3\dashboard\guests.php(181): GuestController->sendInvitations(1)
+#9 {main}
+  thrown in D:\xampp\htdocs\event_v3\vendor\phpmailer\phpmailer\src\PHPMailer.php on line 2261
+[25-Apr-2025 22:23:12 UTC] Email from: kumar.lakshmanan.projects@gmail.com
+[25-Apr-2025 22:23:12 UTC] Email to: lakshmanan.coder@gmail.com
+[25-Apr-2025 22:23:12 UTC] Subject: You're Invited: asdf on April 30, 2025
+[25-Apr-2025 22:23:12 UTC] Body: 
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background-color: #4F46E5; color: white; padding: 20px; text-align: center;">
+            <h2>You're Invited!</h2>
+        </div>
+        <div style="padding: 20px;">
+            <p>Hello Lakshmanan,</p>
+            <p>You have been invited to an event at <strong>asdf</strong> on <strong>April 30, 2025</strong>.</p>
+            <p>Please let us know if you can attend:</p>
+            
+       ...
+[25-Apr-2025 22:23:12 UTC] AltBody: Hello Lakshmanan,
+    
+You have been invited to an event at asdf on April 30, 2025.
+
+To accept: http://localhost/event_v3/rsvp.php?token=800c7ae3bbf9338eccb71bc661822a38&action=accept
+To decline: http://localhost/event_v3/rsvp.php?token=800c7ae3bbf9338eccb71bc661822a38&action=decline
+
+Thank you!
+This is an automated message from Event Planning Platform
+[25-Apr-2025 22:23:16 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at D:\xampp\htdocs\event_v3\vendor\phpmailer\phpmailer\src\SMTP.php:305) in D:\xampp\htdocs\event_v3\dashboard\guests.php on line 185
+[25-Apr-2025 22:24:35 UTC] Email from: kumar.lakshmanan.projects@gmail.com
+[25-Apr-2025 22:24:35 UTC] Email to: lakshmanan.coder@gmail.com
+[25-Apr-2025 22:24:35 UTC] Subject: You're Invited: asdf on April 30, 2025
+[25-Apr-2025 22:24:35 UTC] Body: 
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background-color: #4F46E5; color: white; padding: 20px; text-align: center;">
+            <h2>You're Invited!</h2>
+        </div>
+        <div style="padding: 20px;">
+            <p>Hello Lakshmanan,</p>
+            <p>You have been invited to an event at <strong>asdf</strong> on <strong>April 30, 2025</strong>.</p>
+            <p>Please let us know if you can attend:</p>
+            
+       ...
+[25-Apr-2025 22:24:35 UTC] AltBody: Hello Lakshmanan,
+    
+You have been invited to an event at asdf on April 30, 2025.
+
+To accept: http://localhost/event_v3/rsvp.php?token=800c7ae3bbf9338eccb71bc661822a38&action=accept
+To decline: http://localhost/event_v3/rsvp.php?token=800c7ae3bbf9338eccb71bc661822a38&action=decline
+
+Thank you!
+This is an automated message from Event Planning Platform
+[25-Apr-2025 22:24:58 UTC] Email from: kumar.lakshmanan.projects@gmail.com
+[25-Apr-2025 22:24:58 UTC] Email to: lakshmanan.coder@gmail.com
+[25-Apr-2025 22:24:58 UTC] Subject: You're Invited: asdf on April 30, 2025
+[25-Apr-2025 22:24:58 UTC] Body: 
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background-color: #4F46E5; color: white; padding: 20px; text-align: center;">
+            <h2>You're Invited!</h2>
+        </div>
+        <div style="padding: 20px;">
+            <p>Hello Lakshmanan,</p>
+            <p>You have been invited to an event at <strong>asdf</strong> on <strong>April 30, 2025</strong>.</p>
+            <p>Please let us know if you can attend:</p>
+            
+       ...
+[25-Apr-2025 22:24:58 UTC] AltBody: Hello Lakshmanan,
+    
+You have been invited to an event at asdf on April 30, 2025.
+
+To accept: http://localhost/event_v3/rsvp.php?token=800c7ae3bbf9338eccb71bc661822a38&action=accept
+To decline: http://localhost/event_v3/rsvp.php?token=800c7ae3bbf9338eccb71bc661822a38&action=decline
+
+Thank you!
+This is an automated message from Event Planning Platform
