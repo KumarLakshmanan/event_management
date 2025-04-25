@@ -524,6 +524,34 @@ include_once __DIR__ . '/../templates/header.php';
             
             <!-- Guest List and RSVP Stats -->
             <div class="col-md-4 mb-4">
+                <?php if (hasPermission('apply_discount') && $booking['status'] !== STATUS_CANCELLED): ?>
+                <!-- Discount Management -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="card-title mb-0">Apply Discount</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="discount-form" class="mb-3">
+                            <input type="hidden" name="booking_id" value="<?php echo $booking['id']; ?>">
+                            <div class="mb-3">
+                                <label for="discount_amount" class="form-label">Discount Amount (£)</label>
+                                <input type="number" class="form-control" id="discount_amount" name="discount_amount" 
+                                       min="0" max="<?php echo $booking['total_price']; ?>" step="0.01" 
+                                       value="<?php echo $booking['discount_applied']; ?>" required>
+                                <div class="form-text">Maximum discount: <?php echo formatPrice($booking['total_price']); ?></div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Apply Discount</button>
+                        </form>
+                        <div class="alert alert-info">
+                            <small>
+                                <i class="fas fa-info-circle me-1"></i>
+                                Discounts can be applied to any booking that hasn't been cancelled.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+                
                 <div class="card mb-4">
                     <div class="card-header bg-light">
                         <h5 class="card-title mb-0">Guest List</h5>
@@ -800,3 +828,53 @@ include_once __DIR__ . '/../templates/header.php';
 </div>
 
 <?php include_once __DIR__ . '/../templates/footer.php'; ?>
+
+<?php if ($template === 'view'): ?>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Discount form handling
+        const discountForm = document.getElementById('discount-form');
+        if (discountForm) {
+            discountForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const bookingId = discountForm.querySelector('input[name="booking_id"]').value;
+                const discountAmount = parseFloat(discountForm.querySelector('input[name="discount_amount"]').value);
+                
+                // Validate discount amount
+                if (isNaN(discountAmount) || discountAmount < 0) {
+                    alert('Please enter a valid discount amount.');
+                    return;
+                }
+                
+                // Submit discount via AJAX
+                fetch('', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: `action=apply_discount&booking_id=${bookingId}&discount_amount=${discountAmount}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update discount and total price display
+                        document.getElementById('booking-discount').textContent = '£' + data.discount.toFixed(2);
+                        document.getElementById('booking-total-price').textContent = '£' + data.new_total.toFixed(2);
+                        
+                        // Show success message
+                        alert('Discount applied successfully!');
+                    } else {
+                        alert(data.message || 'Failed to apply discount. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
+            });
+        }
+    });
+</script>
+<?php endif; ?>
