@@ -10,6 +10,7 @@ class User {
     private $name;
     private $email;
     private $role;
+    private $canApplyDiscount;
     private $createdAt;
     private $updatedAt;
     
@@ -54,7 +55,8 @@ class User {
             'name' => $name,
             'email' => $email,
             'password' => $hashedPassword,
-            'role' => $role
+            'role' => $role,
+            'can_apply_discount' => $role === ROLE_ADMIN ? 1 : 0
         ];
         
         // Insert user
@@ -69,7 +71,7 @@ class User {
      */
     public function getById($id) {
         return $this->db->fetchOne(
-            "SELECT id, name, email, role, created_at, updated_at FROM users WHERE id = :id",
+            "SELECT id, name, email, role, can_apply_discount, created_at, updated_at FROM users WHERE id = :id",
             [':id' => $id]
         );
     }
@@ -101,7 +103,7 @@ class User {
         }
         
         // Remove protected fields
-        $allowedFields = ['name', 'email', 'role'];
+        $allowedFields = ['name', 'email', 'role', 'can_apply_discount'];
         $updateData = array_intersect_key($data, array_flip($allowedFields));
         
         // Add updated_at timestamp
@@ -170,7 +172,7 @@ class User {
         $orderDir = strtoupper($orderDir) === 'DESC' ? 'DESC' : 'ASC';
         
         return $this->db->fetchAll(
-            "SELECT id, name, email, role, created_at, updated_at 
+            "SELECT id, name, email, role, can_apply_discount, created_at, updated_at 
              FROM users 
              ORDER BY $orderBy $orderDir 
              LIMIT :limit OFFSET :offset",
@@ -198,7 +200,7 @@ class User {
      */
     public function getByRole($role) {
         return $this->db->fetchAll(
-            "SELECT id, name, email, role, created_at, updated_at 
+            "SELECT id, name, email, role, can_apply_discount, created_at, updated_at 
              FROM users 
              WHERE role = :role",
             [':role' => $role]
@@ -257,6 +259,36 @@ class User {
     public function isClient($id) {
         $user = $this->getById($id);
         return $user && $user['role'] === ROLE_CLIENT;
+    }
+    
+    /**
+     * Check if a user can apply discounts
+     * 
+     * @param int $id User ID
+     * @return bool True if user can apply discounts, false otherwise
+     */
+    public function canApplyDiscount($id) {
+        $user = $this->getById($id);
+        return $user && (int)$user['can_apply_discount'] === 1;
+    }
+    
+    /**
+     * Set user's discount permission
+     * 
+     * @param int $id User ID
+     * @param bool $canApplyDiscount Whether user can apply discounts
+     * @return bool Success or failure
+     */
+    public function setDiscountPermission($id, $canApplyDiscount) {
+        return $this->db->update(
+            'users', 
+            [
+                'can_apply_discount' => $canApplyDiscount ? 1 : 0,
+                'updated_at' => date('Y-m-d H:i:s')
+            ], 
+            'id = :id', 
+            [':id' => $id]
+        );
     }
 }
 ?>

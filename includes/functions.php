@@ -292,4 +292,41 @@ function getPagination($currentPage, $totalPages, $baseUrl) {
     
     return $output;
 }
+
+/**
+ * Convert timestamp to time ago format (e.g. "2 hours ago")
+ * 
+ * @param string $timestamp Timestamp string
+ * @return string Formatted time ago string
+ */
+function timeAgo($timestamp) {
+    $time = strtotime($timestamp);
+    $current = time();
+    $time_difference = $current - $time;
+    
+    // Time intervals in seconds
+    $intervals = [
+        31536000 => 'year',
+        2592000 => 'month',
+        604800 => 'week',
+        86400 => 'day',
+        3600 => 'hour',
+        60 => 'minute',
+        1 => 'second'
+    ];
+    
+    foreach ($intervals as $seconds => $label) {
+        $rounded = round($time_difference / $seconds);
+        
+        if ($rounded > 0) {
+            if ($rounded === 1) {
+                return "1 $label ago";
+            } else {
+                return "$rounded {$label}s ago";
+            }
+        }
+    }
+    
+    return 'Just now';
+}
 ?>
