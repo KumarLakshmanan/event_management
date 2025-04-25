@@ -23,6 +23,11 @@ define('RSVP_PENDING', 'pending');
 define('RSVP_ACCEPTED', 'accepted');
 define('RSVP_DECLINED', 'declined');
 
+// Notification types
+define('NOTIFICATION_BOOKING', 'booking');
+define('NOTIFICATION_USER', 'user');
+define('NOTIFICATION_RSVP', 'rsvp');
+
 // Make sure the uploads directory exists
 if (!file_exists(UPLOADS_DIR)) {
     mkdir(UPLOADS_DIR, 0755, true);
