@@ -238,7 +238,7 @@ require_once '../templates/header.php';
             <h4 class="mb-0"><?php echo $pageTitle; ?></h4>
             <?php if ($action === '' || $action === 'list'): ?>
                 <a href="users.php?action=create" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Create User
+                    <i class="bi bi-plus-lg"></i> Create User
                 </a>
             <?php endif; ?>
         </div>
@@ -257,17 +257,17 @@ require_once '../templates/header.php';
                     
                     <div class="col-md-6">
                         <label for="name" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="name" name="name" value="<?php echo htmlspecialchars($user['name']); ?>" required>
+                        <input type="text" class="form-control" id="name" name="name" value="<?php echo htmlspecialchars($user['name'] ?? ""); ?>" required>
                     </div>
                     
                     <div class="col-md-6">
                         <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
+                        <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($user['email'] ?? ""); ?>" required>
                     </div>
                     
                     <div class="col-md-6">
                         <label for="phone" class="form-label">Phone</label>
-                        <input type="text" class="form-control" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone']); ?>">
+                        <input type="text" class="form-control" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ""); ?>">
                     </div>
                     
                     <div class="col-md-6">
@@ -281,7 +281,7 @@ require_once '../templates/header.php';
                     
                     <div class="col-12">
                         <label for="address" class="form-label">Address</label>
-                        <textarea class="form-control" id="address" name="address" rows="3"><?php echo htmlspecialchars($user['address'] ?? ''); ?></textarea>
+                        <textarea class="form-control" id="address" name="address" rows="3"><?php echo htmlspecialchars($user['address'] ?? "" ?? ''); ?></textarea>
                     </div>
                     
                     <div class="col-12">
@@ -325,9 +325,9 @@ require_once '../templates/header.php';
                                 <?php foreach ($users as $user): ?>
                                     <tr>
                                         <td><?php echo $user['id']; ?></td>
-                                        <td><?php echo htmlspecialchars($user['name']); ?></td>
-                                        <td><?php echo htmlspecialchars($user['email']); ?></td>
-                                        <td><?php echo htmlspecialchars($user['phone']); ?></td>
+                                        <td><?php echo htmlspecialchars($user['name'] ?? ""); ?></td>
+                                        <td><?php echo htmlspecialchars($user['email'] ?? ""); ?></td>
+                                        <td><?php echo htmlspecialchars($user['phone'] ?? ""); ?></td>
                                         <td>
                                             <span class="badge bg-<?php 
                                                 echo $user['role'] === 'administrator' ? 'danger' : 
@@ -347,18 +347,18 @@ require_once '../templates/header.php';
                                         <td>
                                             <div class="btn-group" role="group">
                                                 <a href="users.php?action=edit&id=<?php echo $user['id']; ?>" class="btn btn-sm btn-primary">
-                                                    <i class="fas fa-edit"></i>
+                                                    <i class="bi bi-plus-lg"></i>
                                                 </a>
                                                 
                                                 <!-- Reset Password Button -->
                                                 <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#resetPasswordModal<?php echo $user['id']; ?>">
-                                                    <i class="fas fa-key"></i>
+                                                    <i class="bi bi-key"></i>
                                                 </button>
                                                 
                                                 <!-- Delete Button -->
                                                 <?php if ($user['id'] !== $_SESSION['user_id']): ?>
                                                     <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $user['id']; ?>">
-                                                        <i class="fas fa-trash"></i>
+                                                        <i class="bi bi-trash"></i>
                                                     </button>
                                                 <?php endif; ?>
                                             </div>
@@ -372,7 +372,7 @@ require_once '../templates/header.php';
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
                                                         <div class="modal-body">
-                                                            <p>Are you sure you want to reset the password for <strong><?php echo htmlspecialchars($user['name']); ?></strong>?</p>
+                                                            <p>Are you sure you want to reset the password for <strong><?php echo htmlspecialchars($user['name'] ?? ""); ?></strong>?</p>
                                                             <p>A new random password will be generated.</p>
                                                         </div>
                                                         <div class="modal-footer">
@@ -396,7 +396,7 @@ require_once '../templates/header.php';
                                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                             </div>
                                                             <div class="modal-body">
-                                                                <p>Are you sure you want to delete <strong><?php echo htmlspecialchars($user['name']); ?></strong>?</p>
+                                                                <p>Are you sure you want to delete <strong><?php echo htmlspecialchars($user['name'] ?? ""); ?></strong>?</p>
                                                                 <p>This action cannot be undone.</p>
                                                             </div>
                                                             <div class="modal-footer">

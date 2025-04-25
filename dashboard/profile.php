@@ -207,7 +207,7 @@ include_once TEMPLATES_PATH . 'header.php';
                         ?>
                         <p><strong>Total bookings:</strong> <?= $bookingsCount ?></p>
                         <div class="d-grid gap-2 mt-3">
-                            <a href="/dashboard/bookings.php" class="btn btn-outline-primary">View My Bookings</a>
+                            <a href="<?= BASE_URL ?>dashboard/bookings.php" class="btn btn-outline-primary">View My Bookings</a>
                         </div>
                     <?php elseif ($user['role'] === 'manager' || $user['role'] === 'administrator'): ?>
                         <p><strong>Discount permission:</strong> <?= $user['can_give_discount'] ? 'Yes' : 'No' ?></p>
@@ -232,7 +232,7 @@ include_once TEMPLATES_PATH . 'header.php';
                         <li>Never sharing your login credentials</li>
                     </ul>
                     <div class="d-grid gap-2 mt-3">
-                        <a href="/auth/logout.php" class="btn btn-outline-danger">
+                        <a href="<?= BASE_URL ?>auth/logout.php" class="btn btn-outline-danger">
                             <i class="bi bi-box-arrow-right me-2"></i>Logout
                         </a>
                     </div>

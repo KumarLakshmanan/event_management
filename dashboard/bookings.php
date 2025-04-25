@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Bookings Management
  * 
@@ -18,7 +19,7 @@ $db = getDBConnection();
 // Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = isset($_GET['action']) ? $_GET['action'] : '';
-    
+
     if ($action === 'create' || $action === 'edit') {
         // Get form data
         $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
@@ -28,28 +29,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $discount = isset($_POST['discount']) ? floatval($_POST['discount']) : 0;
         $userId = isset($_POST['user_id']) ? (int)$_POST['user_id'] : $_SESSION['user_id'];
         $status = isset($_POST['status']) ? trim($_POST['status']) : 'pending';
-        
+
         // Validate form data
         $errors = [];
-        
+
         if (empty($bundleId)) {
             $errors[] = 'Package is required';
         }
-        
+
         if (empty($eventPlace)) {
             $errors[] = 'Event place is required';
         }
-        
+
         if (empty($eventDate)) {
             $errors[] = 'Event date is required';
         }
-        
+
         // Check if user can give discount
         $currentUser = getCurrentUser();
         if ($discount > 0 && !$currentUser['can_give_discount'] && !hasRole('administrator')) {
             $errors[] = 'You do not have permission to give discount';
         }
-        
+
         // If there are no errors, create or update booking
         if (empty($errors)) {
             if ($action === 'create') {
@@ -58,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $status = 'pending';
                     $discount = 0; // Clients can't set discount
                 }
-                
+
                 // Create booking
                 $stmt = $db->prepare("INSERT INTO reservations (user_id, bundle_id, event_place, event_date, discount, status) 
                                     VALUES (:user_id, :bundle_id, :event_place, :event_date, :discount, :status)");
@@ -68,21 +69,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->bindParam(':event_date', $eventDate);
                 $stmt->bindParam(':discount', $discount);
                 $stmt->bindParam(':status', $status);
-                
+
                 if ($stmt->execute()) {
                     $bookingId = $db->lastInsertId();
-                    
+
                     if ($status === 'pending') {
                         setAlert('success', 'Booking created successfully and is awaiting approval');
                     } else {
                         setAlert('success', 'Booking created successfully');
                     }
-                    
+
                     // Add notification for new booking
                     $currentUser = getCurrentUser();
                     $message = 'New booking created by ' . $currentUser['name'];
                     addNotification('new_booking', $message, $bookingId);
-                    
+
                     header('Location: bookings.php');
                     exit;
                 } else {
@@ -94,12 +95,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->bindParam(':id', $id);
                 $stmt->execute();
                 $oldStatus = $stmt->fetchColumn();
-                
+
                 // Update booking
                 $confirmedBy = null;
                 if ($status === 'confirmed' && $oldStatus !== 'confirmed') {
                     $confirmedBy = $_SESSION['user_id'];
-                    
+
                     // Add notification for booking confirmation
                     $currentUser = getCurrentUser();
                     $message = 'Booking #' . $id . ' confirmed by ' . $currentUser['name'];
@@ -115,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $message = 'Booking #' . $id . ' marked as completed by ' . $currentUser['name'];
                     addNotification('booking_completed', $message, $id);
                 }
-                
+
                 $stmt = $db->prepare("UPDATE reservations SET bundle_id = :bundle_id, event_place = :event_place, 
                                     event_date = :event_date, discount = :discount, status = :status, 
                                     confirmed_by = :confirmed_by
@@ -127,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->bindParam(':status', $status);
                 $stmt->bindParam(':confirmed_by', $confirmedBy);
                 $stmt->bindParam(':id', $id);
-                
+
                 if ($stmt->execute()) {
                     setAlert('success', 'Booking updated successfully');
                     header('Location: bookings.php');
@@ -142,17 +143,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($action === 'delete') {
         // Delete booking
         $id = (int)$_POST['id'];
-        
+
         // Only allow admins, managers, or the booking owner to delete bookings
         $stmt = $db->prepare("SELECT user_id FROM reservations WHERE id = :id");
         $stmt->bindParam(':id', $id);
         $stmt->execute();
         $userId = $stmt->fetchColumn();
-        
+
         if (hasRole('administrator') || hasRole('manager') || $userId === $_SESSION['user_id']) {
             $stmt = $db->prepare("DELETE FROM reservations WHERE id = :id");
             $stmt->bindParam(':id', $id);
-            
+
             if ($stmt->execute()) {
                 setAlert('success', 'Booking deleted successfully');
             } else {
@@ -161,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             setAlert('danger', 'You do not have permission to delete this booking');
         }
-        
+
         header('Location: bookings.php');
         exit;
     }
@@ -190,7 +191,7 @@ if ($action === 'edit' && $id > 0) {
     $stmt->bindParam(':id', $id);
     $stmt->execute();
     $fetchedBooking = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if ($fetchedBooking) {
         // Only allow admins, managers, or the booking owner to edit bookings
         if (hasRole('administrator') || hasRole('manager') || $fetchedBooking['user_id'] === $_SESSION['user_id']) {
@@ -234,7 +235,7 @@ if ($action === '' || $action === 'list') {
         $stmt->bindParam(':user_id', $userId);
         $stmt->execute();
     }
-    
+
     $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
@@ -266,10 +267,12 @@ require_once '../templates/header.php';
     <div class="row bg-light rounded align-items-center justify-content-center p-3 mx-1">
         <div class="d-flex align-items-center justify-content-between">
             <h4 class="mb-0"><?php echo $pageTitle; ?></h4>
-            <?php if ($action === '' || $action === 'list'): ?>
-                <a href="bookings.php?action=create" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Create Booking
-                </a>
+            <?php if (hasRole('client')): ?>
+                <?php if ($action === '' || $action === 'list'): ?>
+                    <a href="bookings.php?action=create" class="btn btn-primary">
+                        <i class="bi bi-plus-lg"></i> Create Booking
+                    </a>
+                <?php endif; ?>
             <?php endif; ?>
         </div>
     </div>
@@ -284,7 +287,7 @@ require_once '../templates/header.php';
                     <?php if ($id > 0): ?>
                         <input type="hidden" name="id" value="<?php echo $id; ?>">
                     <?php endif; ?>
-                    
+
                     <?php if (hasRole('administrator') || hasRole('manager')): ?>
                         <div class="col-md-6">
                             <label for="user_id" class="form-label">Client</label>
@@ -300,7 +303,7 @@ require_once '../templates/header.php';
                     <?php else: ?>
                         <input type="hidden" name="user_id" value="<?php echo $_SESSION['user_id']; ?>">
                     <?php endif; ?>
-                    
+
                     <div class="col-md-6">
                         <label for="bundle_id" class="form-label">Package</label>
                         <select class="form-select" id="bundle_id" name="bundle_id" required>
@@ -312,17 +315,17 @@ require_once '../templates/header.php';
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    
+
                     <div class="col-md-6">
                         <label for="event_place" class="form-label">Event Place</label>
                         <input type="text" class="form-control" id="event_place" name="event_place" value="<?php echo htmlspecialchars($booking['event_place']); ?>" required>
                     </div>
-                    
+
                     <div class="col-md-6">
                         <label for="event_date" class="form-label">Event Date & Time</label>
                         <input type="datetime-local" class="form-control" id="event_date" name="event_date" value="<?php echo $booking['event_date']; ?>" required>
                     </div>
-                    
+
                     <?php if ($action === 'edit' && ($booking['status'] === 'pending' || $booking['status'] === 'confirmed')): ?>
                         <?php if (hasRole('administrator') || (hasRole('manager') && getCurrentUser()['can_give_discount'])): ?>
                             <div class="col-md-6">
@@ -335,7 +338,7 @@ require_once '../templates/header.php';
                     <?php else: ?>
                         <input type="hidden" name="discount" value="0">
                     <?php endif; ?>
-                    
+
                     <?php if (hasRole('administrator') || hasRole('manager')): ?>
                         <div class="col-md-6">
                             <label for="status" class="form-label">Status</label>
@@ -354,7 +357,7 @@ require_once '../templates/header.php';
                     <?php else: ?>
                         <input type="hidden" name="status" value="pending">
                     <?php endif; ?>
-                    
+
                     <div class="col-12">
                         <button type="submit" class="btn btn-primary">Save</button>
                         <a href="bookings.php" class="btn btn-secondary">Cancel</a>
@@ -397,11 +400,9 @@ require_once '../templates/header.php';
                                         <td><?php echo htmlspecialchars($booking['event_place']); ?></td>
                                         <td><?php echo date('Y-m-d H:i', strtotime($booking['event_date'])); ?></td>
                                         <td>
-                                            <span class="badge bg-<?php 
-                                                echo $booking['status'] === 'confirmed' ? 'success' : 
-                                                    ($booking['status'] === 'pending' ? 'warning' : 
-                                                    ($booking['status'] === 'completed' ? 'info' : 'danger')); 
-                                            ?>">
+                                            <span class="badge bg-<?php
+                                                                    echo $booking['status'] === 'confirmed' ? 'success' : ($booking['status'] === 'pending' ? 'warning' : ($booking['status'] === 'completed' ? 'info' : 'danger'));
+                                                                    ?>">
                                                 <?php echo ucfirst($booking['status']); ?>
                                             </span>
                                         </td>
@@ -410,21 +411,21 @@ require_once '../templates/header.php';
                                         <td>
                                             <div class="btn-group" role="group">
                                                 <a href="bookings.php?action=edit&id=<?php echo $booking['id']; ?>" class="btn btn-sm btn-primary">
-                                                    <i class="fas fa-edit"></i>
+                                                    <i class="bi bi-pen"></i>
                                                 </a>
-                                                
+
                                                 <a href="guests.php?booking_id=<?php echo $booking['id']; ?>" class="btn btn-sm btn-info">
-                                                    <i class="fas fa-users"></i>
+                                                    <i class="bi bi-eye"></i>
                                                 </a>
-                                                
+
                                                 <!-- Delete Button -->
                                                 <?php if (hasRole('administrator') || hasRole('manager') || $booking['user_id'] === $_SESSION['user_id']): ?>
                                                     <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $booking['id']; ?>">
-                                                        <i class="fas fa-trash"></i>
+                                                        <i class="bi bi-trash"></i>
                                                     </button>
                                                 <?php endif; ?>
                                             </div>
-                                            
+
                                             <!-- Delete Modal -->
                                             <?php if (hasRole('administrator') || hasRole('manager') || $booking['user_id'] === $_SESSION['user_id']): ?>
                                                 <div class="modal fade" id="deleteModal<?php echo $booking['id']; ?>" tabindex="-1" aria-labelledby="deleteModalLabel<?php echo $booking['id']; ?>" aria-hidden="true">

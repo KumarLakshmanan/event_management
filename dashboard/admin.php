@@ -66,10 +66,10 @@ include_once TEMPLATES_PATH . 'header.php';
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Administrator Dashboard</h1>
         <div>
-            <a href="/dashboard/users.php?action=create" class="btn btn-outline-primary me-2">
+            <a href="<?= BASE_URL ?>dashboard/users.php?action=create" class="btn btn-outline-primary me-2">
                 <i class="bi bi-person-plus me-2"></i>Add User
             </a>
-            <a href="/dashboard/packages.php?action=create" class="btn btn-primary">
+            <a href="<?= BASE_URL ?>dashboard/packages.php?action=create" class="btn btn-primary">
                 <i class="bi bi-plus-circle me-2"></i>Create Package
             </a>
         </div>
@@ -82,7 +82,7 @@ include_once TEMPLATES_PATH . 'header.php';
                 <div class="stat-icon"><i class="bi bi-people"></i></div>
                 <h3><?= $usersCount ?></h3>
                 <p>Users</p>
-                <a href="/dashboard/users.php" class="text-white">Manage Users <i class="bi bi-arrow-right"></i></a>
+                <a href="<?= BASE_URL ?>dashboard/users.php" class="text-white">Manage Users <i class="bi bi-arrow-right"></i></a>
             </div>
         </div>
         
@@ -91,7 +91,7 @@ include_once TEMPLATES_PATH . 'header.php';
                 <div class="stat-icon"><i class="bi bi-gear"></i></div>
                 <h3><?= $servicesCount ?></h3>
                 <p>Services</p>
-                <a href="/dashboard/services.php" class="text-white">Manage Services <i class="bi bi-arrow-right"></i></a>
+                <a href="<?= BASE_URL ?>dashboard/services.php" class="text-white">Manage Services <i class="bi bi-arrow-right"></i></a>
             </div>
         </div>
         
@@ -100,7 +100,7 @@ include_once TEMPLATES_PATH . 'header.php';
                 <div class="stat-icon"><i class="bi bi-box"></i></div>
                 <h3><?= $packagesCount ?></h3>
                 <p>Packages</p>
-                <a href="/dashboard/packages.php" class="text-white">Manage Packages <i class="bi bi-arrow-right"></i></a>
+                <a href="<?= BASE_URL ?>dashboard/packages.php" class="text-white">Manage Packages <i class="bi bi-arrow-right"></i></a>
             </div>
         </div>
         
@@ -109,7 +109,7 @@ include_once TEMPLATES_PATH . 'header.php';
                 <div class="stat-icon"><i class="bi bi-calendar-check"></i></div>
                 <h3><?= $bookingsCount ?></h3>
                 <p>Bookings</p>
-                <a href="/dashboard/bookings.php" class="text-white">View Bookings <i class="bi bi-arrow-right"></i></a>
+                <a href="<?= BASE_URL ?>dashboard/bookings.php" class="text-white">View Bookings <i class="bi bi-arrow-right"></i></a>
             </div>
         </div>
     </div>
@@ -120,7 +120,7 @@ include_once TEMPLATES_PATH . 'header.php';
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="bi bi-people me-2"></i>Recent Users</h5>
-                    <a href="/dashboard/users.php" class="btn btn-sm btn-outline-primary">View All</a>
+                    <a href="<?= BASE_URL ?>dashboard/users.php" class="btn btn-sm btn-outline-primary">View All</a>
                 </div>
                 <div class="card-body">
                     <?php if (empty($recentUsers)): ?>
@@ -145,7 +145,7 @@ include_once TEMPLATES_PATH . 'header.php';
                                             <td><?= htmlspecialchars($user['email']) ?></td>
                                             <td><span class="badge bg-secondary"><?= ucfirst($user['role']) ?></span></td>
                                             <td>
-                                                <a href="/dashboard/users.php?action=edit&id=<?= $user['id'] ?>" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Edit User">
+                                                <a href="<?= BASE_URL ?>dashboard/users.php?action=edit&id=<?= $user['id'] ?>" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Edit User">
                                                     <i class="bi bi-pencil"></i>
                                                 </a>
                                             </td>
@@ -164,7 +164,7 @@ include_once TEMPLATES_PATH . 'header.php';
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="bi bi-calendar-check me-2"></i>Pending Bookings</h5>
-                    <a href="/dashboard/bookings.php?status=pending" class="btn btn-sm btn-outline-primary">View All</a>
+                    <a href="<?= BASE_URL ?>dashboard/bookings.php?status=pending" class="btn btn-sm btn-outline-primary">View All</a>
                 </div>
                 <div class="card-body">
                     <?php if (empty($pendingBookings)): ?>
@@ -189,10 +189,10 @@ include_once TEMPLATES_PATH . 'header.php';
                                             <td><?= htmlspecialchars($booking['bundle_name']) ?></td>
                                             <td><?= formatDate($booking['event_date'], 'M d, Y') ?></td>
                                             <td>
-                                                <a href="/dashboard/bookings.php?action=view&id=<?= $booking['id'] ?>" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="View Details">
+                                                <a href="<?= BASE_URL ?>dashboard/bookings.php?action=view&id=<?= $booking['id'] ?>" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="View Details">
                                                     <i class="bi bi-eye"></i>
                                                 </a>
-                                                <a href="/dashboard/bookings.php?action=confirm&id=<?= $booking['id'] ?>" class="btn btn-sm btn-outline-success" data-bs-toggle="tooltip" title="Confirm Booking">
+                                                <a href="<?= BASE_URL ?>dashboard/bookings.php?action=confirm&id=<?= $booking['id'] ?>" class="btn btn-sm btn-outline-success" data-bs-toggle="tooltip" title="Confirm Booking">
                                                     <i class="bi bi-check-circle"></i>
                                                 </a>
                                             </td>
@@ -215,7 +215,7 @@ include_once TEMPLATES_PATH . 'header.php';
                 <div class="card-body">
                     <h5 class="card-title"><i class="bi bi-person-gear me-2"></i>User Management</h5>
                     <p class="card-text">Add, edit, and manage user accounts and permissions.</p>
-                    <a href="/dashboard/users.php" class="btn btn-outline-primary">Manage Users</a>
+                    <a href="<?= BASE_URL ?>dashboard/users.php" class="btn btn-outline-primary">Manage Users</a>
                 </div>
             </div>
         </div>
@@ -225,7 +225,7 @@ include_once TEMPLATES_PATH . 'header.php';
                 <div class="card-body">
                     <h5 class="card-title"><i class="bi bi-gear me-2"></i>Service Management</h5>
                     <p class="card-text">Create and manage individual services offered in packages.</p>
-                    <a href="/dashboard/services.php" class="btn btn-outline-primary">Manage Services</a>
+                    <a href="<?= BASE_URL ?>dashboard/services.php" class="btn btn-outline-primary">Manage Services</a>
                 </div>
             </div>
         </div>
@@ -235,7 +235,7 @@ include_once TEMPLATES_PATH . 'header.php';
                 <div class="card-body">
                     <h5 class="card-title"><i class="bi bi-box me-2"></i>Package Management</h5>
                     <p class="card-text">Create and customize event packages from available services.</p>
-                    <a href="/dashboard/packages.php" class="btn btn-outline-primary">Manage Packages</a>
+                    <a href="<?= BASE_URL ?>dashboard/packages.php" class="btn btn-outline-primary">Manage Packages</a>
                 </div>
             </div>
         </div>

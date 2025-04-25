@@ -11,6 +11,6 @@ require_once INCLUDES_PATH . 'auth.php';
 logoutUser();
 
 // Redirect to home page
-header("Location: /index.php");
+header("Location: " . BASE_URL);
 exit;
 ?>

@@ -955,15 +955,6 @@ include_once TEMPLATES_PATH . 'header.php';
                                 </div>
                                 <div class="form-text">Leave blank or set to 0 for custom pricing.</div>
                             </div>
-                            
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" id="customized" name="customized" value="1" 
-                                       <?= (isset($package['customized']) && $package['customized'] == 1) ? 'checked' : '' ?>>
-                                <label class="form-check-label" for="customized">
-                                    Customizable Package
-                                </label>
-                                <div class="form-text">If checked, clients can select individual services during booking. Services below will be ignored.</div>
-                            </div>
                         </div>
                     </div>
                     
@@ -974,7 +965,7 @@ include_once TEMPLATES_PATH . 'header.php';
                         <div class="card-body">
                             <?php if (empty($allServices)): ?>
                                 <div class="alert alert-warning">
-                                    <i class="bi bi-exclamation-triangle me-2"></i>No services available. Please <a href="/dashboard/services.php?action=create">create some services</a> first.
+                                    <i class="bi bi-exclamation-triangle me-2"></i>No services available. Please <a href="<?= BASE_URL ?>dashboard/services.php?action=create">create some services</a> first.
                                 </div>
                             <?php else: ?>
                                 <div class="mb-3">

@@ -56,7 +56,7 @@ include_once TEMPLATES_PATH . 'header.php';
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Welcome, <?= $_SESSION['user_name'] ?></h1>
-        <a href="/dashboard/bookings.php?action=create" class="btn btn-primary">
+        <a href="<?= BASE_URL ?>dashboard/bookings.php?action=create" class="btn btn-primary">
             <i class="bi bi-plus-circle me-2"></i>Book New Event
         </a>
     </div>
@@ -68,7 +68,7 @@ include_once TEMPLATES_PATH . 'header.php';
                 <div class="stat-icon"><i class="bi bi-calendar-check"></i></div>
                 <h3><?= $bookingsCount ?></h3>
                 <p>Events Booked</p>
-                <a href="/dashboard/bookings.php" class="text-white">View All <i class="bi bi-arrow-right"></i></a>
+                <a href="<?= BASE_URL ?>dashboard/bookings.php" class="text-white">View All <i class="bi bi-arrow-right"></i></a>
             </div>
         </div>
         
@@ -77,7 +77,7 @@ include_once TEMPLATES_PATH . 'header.php';
                 <div class="stat-icon"><i class="bi bi-box"></i></div>
                 <h3>Explore</h3>
                 <p>Event Packages</p>
-                <a href="/dashboard/packages.php" class="text-white">Browse Packages <i class="bi bi-arrow-right"></i></a>
+                <a href="<?= BASE_URL ?>dashboard/packages.php" class="text-white">Browse Packages <i class="bi bi-arrow-right"></i></a>
             </div>
         </div>
         
@@ -86,7 +86,7 @@ include_once TEMPLATES_PATH . 'header.php';
                 <div class="stat-icon"><i class="bi bi-people"></i></div>
                 <h3><?= $guestsCount ?></h3>
                 <p>Total Guests</p>
-                <a href="/dashboard/guests.php" class="text-white">Manage Guests <i class="bi bi-arrow-right"></i></a>
+                <a href="<?= BASE_URL ?>dashboard/guests.php" class="text-white">Manage Guests <i class="bi bi-arrow-right"></i></a>
             </div>
         </div>
     </div>
@@ -97,7 +97,7 @@ include_once TEMPLATES_PATH . 'header.php';
     <?php if (empty($upcomingEvents)): ?>
         <div class="alert alert-info">
             <i class="bi bi-info-circle me-2"></i>You have no upcoming events. 
-            <a href="/dashboard/packages.php">Browse packages</a> to book a new event.
+            <a href="<?= BASE_URL ?>dashboard/packages.php">Browse packages</a> to book a new event.
         </div>
     <?php else: ?>
         <div class="table-responsive">
@@ -119,10 +119,10 @@ include_once TEMPLATES_PATH . 'header.php';
                             <td><?= htmlspecialchars($event['event_place']) ?></td>
                             <td><?= getStatusBadge($event['status']) ?></td>
                             <td>
-                                <a href="/dashboard/bookings.php?action=view&id=<?= $event['id'] ?>" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="View Details">
+                                <a href="<?= BASE_URL ?>dashboard/bookings.php?action=view&id=<?= $event['id'] ?>" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="View Details">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <a href="/dashboard/guests.php?booking_id=<?= $event['id'] ?>" class="btn btn-sm btn-outline-success" data-bs-toggle="tooltip" title="Manage Guests">
+                                <a href="<?= BASE_URL ?>dashboard/guests.php?booking_id=<?= $event['id'] ?>" class="btn btn-sm btn-outline-success" data-bs-toggle="tooltip" title="Manage Guests">
                                     <i class="bi bi-people"></i>
                                 </a>
                             </td>
@@ -134,7 +134,7 @@ include_once TEMPLATES_PATH . 'header.php';
         
         <?php if (count($upcomingEvents) >= 5): ?>
             <div class="text-center mt-3">
-                <a href="/dashboard/bookings.php" class="btn btn-outline-primary">View All Events</a>
+                <a href="<?= BASE_URL ?>dashboard/bookings.php" class="btn btn-outline-primary">View All Events</a>
             </div>
         <?php endif; ?>
     <?php endif; ?>
@@ -147,7 +147,7 @@ include_once TEMPLATES_PATH . 'header.php';
                 <div class="card-body">
                     <h5 class="card-title"><i class="bi bi-box me-2"></i>Browse Packages</h5>
                     <p class="card-text">View all available event packages and find the perfect one for your needs.</p>
-                    <a href="/dashboard/packages.php" class="btn btn-outline-primary">View Packages</a>
+                    <a href="<?= BASE_URL ?>dashboard/packages.php" class="btn btn-outline-primary">View Packages</a>
                 </div>
             </div>
         </div>
@@ -157,7 +157,7 @@ include_once TEMPLATES_PATH . 'header.php';
                 <div class="card-body">
                     <h5 class="card-title"><i class="bi bi-calendar-plus me-2"></i>Book an Event</h5>
                     <p class="card-text">Start planning your next event by booking a package or customizing your own.</p>
-                    <a href="/dashboard/bookings.php?action=create" class="btn btn-outline-primary">Book Now</a>
+                    <a href="<?= BASE_URL ?>dashboard/bookings.php?action=create" class="btn btn-outline-primary">Book Now</a>
                 </div>
             </div>
         </div>
@@ -167,7 +167,7 @@ include_once TEMPLATES_PATH . 'header.php';
                 <div class="card-body">
                     <h5 class="card-title"><i class="bi bi-person-circle me-2"></i>Update Profile</h5>
                     <p class="card-text">Update your account information and preferences.</p>
-                    <a href="/dashboard/profile.php" class="btn btn-outline-primary">View Profile</a>
+                    <a href="<?= BASE_URL ?>dashboard/profile.php" class="btn btn-outline-primary">View Profile</a>
                 </div>
             </div>
         </div>

@@ -178,7 +178,7 @@ function canGiveDiscount() {
  */
 function requireLogin() {
     if (!isLoggedIn()) {
-        header("Location: /auth/login.php");
+        header("Location:" . BASE_URL . "auth/login.php");
         exit;
     }
 }
@@ -193,7 +193,7 @@ function requireRole($roles) {
     requireLogin();
     
     if (!hasRole($roles)) {
-        header("Location: /dashboard/index.php");
+        header("Location:" . BASE_URL . "dashboard/index.php");
         exit;
     }
 }

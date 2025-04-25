@@ -13,7 +13,7 @@ function initCustomPackagePricing() {
     
     // Check if we're on a page with service checkboxes (customize package page)
     const serviceCheckboxes = document.querySelectorAll('input[name="services[]"]');
-    if (serviceCheckboxes.length === 0) {
+    if (serviceCheckboxes.length == 0) {
         console.log('No service checkboxes found');
         return;
     }
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function() {
             const target = document.querySelector(this.getAttribute('data-target'));
             
-            if (target.getAttribute('type') === 'password') {
+            if (target.getAttribute('type') == 'password') {
                 target.setAttribute('type', 'text');
                 this.innerHTML = '<i class="bi bi-eye-slash"></i>';
             } else {

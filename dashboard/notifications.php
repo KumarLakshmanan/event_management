@@ -57,7 +57,7 @@ require_once '../templates/header.php';
             <h4 class="mb-0"><?php echo $pageTitle; ?></h4>
             <?php if (!empty($notifications)): ?>
                 <a href="notifications.php?action=mark_read" class="btn btn-outline-primary">
-                    <i class="fas fa-check-double"></i> Mark All as Read
+                    <i class="bi bi-check2-all"></i> Mark All as Read
                 </a>
             <?php endif; ?>
         </div>
@@ -69,7 +69,7 @@ require_once '../templates/header.php';
         <div class="col-12">
             <?php if (empty($notifications)): ?>
                 <div class="alert alert-info" role="alert">
-                    <i class="fas fa-info-circle"></i> You have no notifications.
+                    <i class="bi bi-info-circle"></i> You have no notifications.
                 </div>
             <?php else: ?>
                 <div class="list-group">
@@ -83,31 +83,31 @@ require_once '../templates/header.php';
                                     
                                     switch ($type) {
                                         case 'new_booking':
-                                            $icon = '<i class="fas fa-calendar-plus text-primary"></i>';
+                                            $icon = '<i class="bi bi-calendar-check text-primary"></i>';
                                             break;
                                         case 'booking_confirmed':
-                                            $icon = '<i class="fas fa-calendar-check text-success"></i>';
+                                            $icon = '<i class="bi bi-calendar-check text-success"></i>';
                                             break;
                                         case 'booking_cancelled':
-                                            $icon = '<i class="fas fa-calendar-times text-danger"></i>';
+                                            $icon = '<i class="bi bi-calendar-x text-danger"></i>';
                                             break;
                                         case 'booking_completed':
-                                            $icon = '<i class="fas fa-calendar-check text-info"></i>';
+                                            $icon = '<i class="bi bi-calendar-check text-info"></i>';
                                             break;
                                         case 'login':
-                                            $icon = '<i class="fas fa-sign-in-alt text-info"></i>';
+                                            $icon = '<i class="bi bi-box-arrow-in-right text-info"></i>';
                                             break;
                                         case 'register':
-                                            $icon = '<i class="fas fa-user-plus text-success"></i>';
+                                            $icon = '<i class="bi bi-person-check text-success"></i>';
                                             break;
                                         case 'guest_accepted':
-                                            $icon = '<i class="fas fa-user-check text-success"></i>';
+                                            $icon = '<i class="bi bi-person-check text-success"></i>';
                                             break;
                                         case 'guest_rejected':
-                                            $icon = '<i class="fas fa-user-times text-danger"></i>';
+                                            $icon = '<i class="bi bi-person-x text-danger"></i>';
                                             break;
                                         default:
-                                            $icon = '<i class="fas fa-bell text-primary"></i>';
+                                            $icon = '<i class="bi bi-bell text-primary"></i>';
                                     }
                                     
                                     echo $icon . ' ' . ucfirst(str_replace('_', ' ', $type));
@@ -142,7 +142,7 @@ require_once '../templates/header.php';
                                     }
                                     ?>
                                     <a href="<?php echo $link; ?>" class="btn btn-sm btn-outline-secondary">
-                                        <i class="fas fa-eye"></i> <?php echo $text; ?>
+                                        <i class="bi bi-eye"></i> <?php echo $text; ?>
                                     </a>
                                 <?php else: ?>
                                     <span>&nbsp;</span>
@@ -150,7 +150,7 @@ require_once '../templates/header.php';
                                 
                                 <?php if (!$notification['is_read']): ?>
                                     <a href="notifications.php?action=mark_read&id=<?php echo $notification['id']; ?>" class="btn btn-sm btn-primary">
-                                        <i class="fas fa-check"></i> Mark as Read
+                                        <i class="bi bi-check"></i> Mark as Read
                                     </a>
                                 <?php endif; ?>
                             </div>

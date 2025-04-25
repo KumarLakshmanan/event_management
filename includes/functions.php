@@ -92,17 +92,17 @@ function formatDate($dateString, $format = 'M d, Y h:i A') {
  */
 function getDashboardUrl() {
     if (!isset($_SESSION['user_role'])) {
-        return '/dashboard/index.php';
+        return BASE_URL . 'dashboard/index.php';
     }
     
     switch ($_SESSION['user_role']) {
         case 'administrator':
-            return '/dashboard/admin.php';
+            return BASE_URL . 'dashboard/admin.php';
         case 'manager':
-            return '/dashboard/manager.php';
+            return BASE_URL . 'dashboard/manager.php';
         case 'client':
         default:
-            return '/dashboard/client.php';
+            return BASE_URL . 'dashboard/client.php';
     }
 }
 

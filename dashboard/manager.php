@@ -51,10 +51,10 @@ include_once TEMPLATES_PATH . 'header.php';
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Manager Dashboard</h1>
         <div>
-            <a href="/dashboard/services.php?action=create" class="btn btn-outline-primary me-2">
+            <a href="<?= BASE_URL ?>dashboard/services.php?action=create" class="btn btn-outline-primary me-2">
                 <i class="bi bi-plus-circle me-2"></i>Add Service
             </a>
-            <a href="/dashboard/packages.php?action=create" class="btn btn-primary">
+            <a href="<?= BASE_URL ?>dashboard/packages.php?action=create" class="btn btn-primary">
                 <i class="bi bi-plus-circle me-2"></i>Create Package
             </a>
         </div>
@@ -67,7 +67,7 @@ include_once TEMPLATES_PATH . 'header.php';
                 <div class="stat-icon"><i class="bi bi-gear"></i></div>
                 <h3><?= $servicesCount ?></h3>
                 <p>Services Available</p>
-                <a href="/dashboard/services.php" class="text-white">Manage Services <i class="bi bi-arrow-right"></i></a>
+                <a href="<?= BASE_URL ?>dashboard/services.php" class="text-white">Manage Services <i class="bi bi-arrow-right"></i></a>
             </div>
         </div>
         
@@ -76,7 +76,7 @@ include_once TEMPLATES_PATH . 'header.php';
                 <div class="stat-icon"><i class="bi bi-box"></i></div>
                 <h3><?= $packagesCount ?></h3>
                 <p>Event Packages</p>
-                <a href="/dashboard/packages.php" class="text-white">Manage Packages <i class="bi bi-arrow-right"></i></a>
+                <a href="<?= BASE_URL ?>dashboard/packages.php" class="text-white">Manage Packages <i class="bi bi-arrow-right"></i></a>
             </div>
         </div>
         
@@ -85,7 +85,7 @@ include_once TEMPLATES_PATH . 'header.php';
                 <div class="stat-icon"><i class="bi bi-calendar-check"></i></div>
                 <h3><?= $pendingBookingsCount ?></h3>
                 <p>Pending Bookings</p>
-                <a href="/dashboard/bookings.php?status=pending" class="text-white">Review Bookings <i class="bi bi-arrow-right"></i></a>
+                <a href="<?= BASE_URL ?>dashboard/bookings.php?status=pending" class="text-white">Review Bookings <i class="bi bi-arrow-right"></i></a>
             </div>
         </div>
     </div>
@@ -119,12 +119,12 @@ include_once TEMPLATES_PATH . 'header.php';
                             <td><?= formatDate($booking['event_date']) ?></td>
                             <td><?= getStatusBadge($booking['status']) ?></td>
                             <td>
-                                <a href="/dashboard/bookings.php?action=view&id=<?= $booking['id'] ?>" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="View Details">
+                                <a href="<?= BASE_URL ?>dashboard/bookings.php?action=view&id=<?= $booking['id'] ?>" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="View Details">
                                     <i class="bi bi-eye"></i>
                                 </a>
                                 
                                 <?php if ($booking['status'] == 'pending'): ?>
-                                    <a href="/dashboard/bookings.php?action=confirm&id=<?= $booking['id'] ?>" class="btn btn-sm btn-outline-success" data-bs-toggle="tooltip" title="Confirm Booking">
+                                    <a href="<?= BASE_URL ?>dashboard/bookings.php?action=confirm&id=<?= $booking['id'] ?>" class="btn btn-sm btn-outline-success" data-bs-toggle="tooltip" title="Confirm Booking">
                                         <i class="bi bi-check-circle"></i>
                                     </a>
                                 <?php endif; ?>
@@ -136,7 +136,7 @@ include_once TEMPLATES_PATH . 'header.php';
         </div>
         
         <div class="text-center mt-3">
-            <a href="/dashboard/bookings.php" class="btn btn-outline-primary">View All Bookings</a>
+            <a href="<?= BASE_URL ?>dashboard/bookings.php" class="btn btn-outline-primary">View All Bookings</a>
         </div>
     <?php endif; ?>
     
@@ -148,7 +148,7 @@ include_once TEMPLATES_PATH . 'header.php';
                 <div class="card-body">
                     <h5 class="card-title"><i class="bi bi-gear me-2"></i>Service Management</h5>
                     <p class="card-text">Create, edit and manage available services for event packages.</p>
-                    <a href="/dashboard/services.php" class="btn btn-outline-primary">Manage Services</a>
+                    <a href="<?= BASE_URL ?>dashboard/services.php" class="btn btn-outline-primary">Manage Services</a>
                 </div>
             </div>
         </div>
@@ -158,7 +158,7 @@ include_once TEMPLATES_PATH . 'header.php';
                 <div class="card-body">
                     <h5 class="card-title"><i class="bi bi-box me-2"></i>Package Management</h5>
                     <p class="card-text">Create and manage event packages by combining different services.</p>
-                    <a href="/dashboard/packages.php" class="btn btn-outline-primary">Manage Packages</a>
+                    <a href="<?= BASE_URL ?>dashboard/packages.php" class="btn btn-outline-primary">Manage Packages</a>
                 </div>
             </div>
         </div>
@@ -168,7 +168,7 @@ include_once TEMPLATES_PATH . 'header.php';
                 <div class="card-body">
                     <h5 class="card-title"><i class="bi bi-calendar-check me-2"></i>Booking Management</h5>
                     <p class="card-text">Review, confirm, and manage client bookings and events.</p>
-                    <a href="/dashboard/bookings.php" class="btn btn-outline-primary">Manage Bookings</a>
+                    <a href="<?= BASE_URL ?>dashboard/bookings.php" class="btn btn-outline-primary">Manage Bookings</a>
                 </div>
             </div>
         </div>

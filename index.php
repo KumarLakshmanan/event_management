@@ -23,8 +23,8 @@ include_once TEMPLATES_PATH . 'header.php';
         
         <?php if (!isLoggedIn()): ?>
             <div class="mt-4">
-                <a href="/auth/register.php" class="btn btn-primary btn-lg me-3">Get Started</a>
-                <a href="/auth/login.php" class="btn btn-outline-secondary btn-lg">Sign In</a>
+                <a href="<?= BASE_URL ?>auth/register.php" class="btn btn-primary btn-lg me-3">Get Started</a>
+                <a href="<?= BASE_URL ?>auth/login.php" class="btn btn-outline-secondary btn-lg">Sign In</a>
             </div>
         <?php else: ?>
             <a href="<?= getDashboardUrl() ?>" class="btn btn-primary btn-lg">Go to Dashboard</a>
@@ -122,7 +122,7 @@ include_once TEMPLATES_PATH . 'header.php';
     <p class="lead mb-4">Join our platform today and start creating memorable experiences</p>
     
     <?php if (!isLoggedIn()): ?>
-        <a href="/auth/register.php" class="btn btn-primary btn-lg">Get Started Now</a>
+        <a href="<?= BASE_URL ?>auth/register.php" class="btn btn-primary btn-lg">Get Started Now</a>
     <?php else: ?>
         <a href="<?= getDashboardUrl() ?>" class="btn btn-primary btn-lg">Go to Dashboard</a>
     <?php endif; ?>

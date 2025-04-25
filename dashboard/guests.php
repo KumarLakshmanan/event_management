@@ -341,8 +341,8 @@ function sendRsvpEmail($name, $email, $token, $bookingId) {
     }
     
     // Create Accept/Decline links
-    $acceptUrl = 'https://' . $_SERVER['HTTP_HOST'] . '/dashboard/guests.php?token=' . $token . '&response=yes';
-    $declineUrl = 'https://' . $_SERVER['HTTP_HOST'] . '/dashboard/guests.php?token=' . $token . '&response=no';
+    $acceptUrl = BASE_URL . 'rsvp.php?token=' . $token . '&response=yes';
+    $declineUrl = BASE_URL . 'rsvp.php?token=' . $token . '&response=no';
     
     // Create email content
     $subject = 'Event Invitation: ' . $booking['package_name'] . ' on ' . date('F j, Y', strtotime($booking['event_date']));
@@ -402,17 +402,17 @@ function sendRsvpEmail($name, $email, $token, $bookingId) {
     try {
         $mail = new PHPMailer(true);
         
-        // Server settings
         $mail->isSMTP();
-        $mail->Host = 'smtp.example.com'; // Replace with your SMTP server
-        $mail->SMTPAuth = true;
-        $mail->Username = 'your-email@example.com'; // Replace with your email
-        $mail->Password = 'your-password'; // Replace with your password
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587;
-        
-        // Recipients
-        $mail->setFrom('noreply@eventplanning.com', 'Event Planning Platform');
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = MAIL_USERNAME;
+        $mail->Password   = MAIL_PASSWORD;
+        $mail->SMTPSecure = 'tls';
+        $mail->Port       = 587;
+
+        $mail->setFrom(MAIL_USERNAME, APP_NAME);
+        $mail->addReplyTo(MAIL_USERNAME, APP_NAME);
+
         $mail->addAddress($email, $name);
         
         // Content
@@ -426,7 +426,7 @@ function sendRsvpEmail($name, $email, $token, $bookingId) {
         $mail->Debugoutput = 'html';
         
         // Uncomment this in production
-        // $mail->send();
+        $mail->send();
         
         return true; // Just pretend we sent for the demo
     } catch (Exception $e) {
@@ -444,23 +444,23 @@ function sendRsvpEmail($name, $email, $token, $bookingId) {
             <div>
                 <?php if (isset($booking) && ($action === '' || $action === 'list')): ?>
                     <a href="guests.php?booking_id=<?php echo $bookingId; ?>&action=create" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add Guest
+                        <i class="bi bi-plus-lg"></i> Add Guest
                     </a>
                     <?php if (!empty($guests)): ?>
                         <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#sendAllModal">
-                            <i class="fas fa-envelope"></i> Send All Invitations
+                            <i class="bi bi-envelope"></i> Send All Invitations
                         </button>
                     <?php endif; ?>
                     <a href="bookings.php" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Back to Bookings
+                        <i class="bi bi-arrow-left"></i> Back to Bookings
                     </a>
                 <?php elseif ($action === 'create' || $action === 'edit'): ?>
                     <a href="guests.php?booking_id=<?php echo $bookingId; ?>" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Back to Guest List
+                        <i class="bi bi-arrow-left"></i> Back to Guest List
                     </a>
                 <?php else: ?>
                     <a href="bookings.php" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Back to Bookings
+                        <i class="bi bi-arrow-left"></i> Back to Bookings
                     </a>
                 <?php endif; ?>
             </div>
@@ -531,15 +531,6 @@ function sendRsvpEmail($name, $email, $token, $bookingId) {
                         <input type="text" class="form-control" id="phone" name="phone" value="<?php echo htmlspecialchars($guest['phone']); ?>">
                     </div>
                     
-                    <div class="col-md-6">
-                        <label for="rsvp_status" class="form-label">RSVP Status</label>
-                        <select class="form-select" id="rsvp_status" name="rsvp_status">
-                            <option value="pending" <?php echo $guest['rsvp_status'] === 'pending' ? 'selected' : ''; ?>>Pending</option>
-                            <option value="attending" <?php echo $guest['rsvp_status'] === 'attending' ? 'selected' : ''; ?>>Attending</option>
-                            <option value="declined" <?php echo $guest['rsvp_status'] === 'declined' ? 'selected' : ''; ?>>Declined</option>
-                        </select>
-                    </div>
-                    
                     <?php if ($action === 'edit'): ?>
                         <div class="col-12">
                             <div class="form-check">
@@ -590,11 +581,11 @@ function sendRsvpEmail($name, $email, $token, $bookingId) {
                                         <td>
                                             <div class="btn-group" role="group">
                                                 <a href="guests.php?action=edit&id=<?php echo $g['id']; ?>" class="btn btn-sm btn-primary">
-                                                    <i class="fas fa-edit"></i>
+                                                    <i class="bi bi-plus-lg"></i>
                                                 </a>
                                                 
                                                 <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $g['id']; ?>">
-                                                    <i class="fas fa-trash"></i>
+                                                    <i class="bi bi-trash"></i>
                                                 </button>
                                             </div>
                                             
@@ -654,7 +645,7 @@ function sendRsvpEmail($name, $email, $token, $bookingId) {
         <?php else: ?>
             <div class="col-12">
                 <div class="alert alert-info" role="alert">
-                    <i class="fas fa-info-circle"></i> Select a booking to manage its guests.
+                    <i class="bi bi-info-circle"></i> Select a booking to manage its guests.
                 </div>
                 <a href="bookings.php" class="btn btn-primary">View Bookings</a>
             </div>
