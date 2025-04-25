@@ -290,11 +290,46 @@ function getAlert() {
 function addNotification($type, $message, $relatedId = null, $userId = null) {
     $db = getDBConnection();
     
-    // If no user ID specified, add notification for all admins and managers
-    if ($userId === null) {
-        if (isLoggedIn()) {
-            // Add for current user
-            $userId = $_SESSION['user_id'];
+    try {
+        // Set a timeout value to prevent long-running lock
+        $db->exec('PRAGMA busy_timeout = 5000');
+        
+        // Start a transaction to prevent database locking issues
+        $db->beginTransaction();
+        
+        // If no user ID specified, add notification for all admins and managers
+        if ($userId === null) {
+            if (isLoggedIn()) {
+                // Add for current user
+                $userId = $_SESSION['user_id'];
+                $stmt = $db->prepare("INSERT INTO notifications (user_id, type, message, related_id) 
+                                    VALUES (:user_id, :type, :message, :related_id)");
+                $stmt->bindParam(':user_id', $userId);
+                $stmt->bindParam(':type', $type);
+                $stmt->bindParam(':message', $message);
+                $stmt->bindParam(':related_id', $relatedId);
+                $stmt->execute();
+            }
+            
+            // Add for all admins and managers (except current user)
+            $stmt = $db->prepare("SELECT id FROM members WHERE role IN ('administrator', 'manager') AND id != :current_user");
+            $currentUser = isLoggedIn() ? $_SESSION['user_id'] : 0;
+            $stmt->bindParam(':current_user', $currentUser);
+            $stmt->execute();
+            
+            $adminUsers = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            
+            foreach ($adminUsers as $adminId) {
+                $stmt = $db->prepare("INSERT INTO notifications (user_id, type, message, related_id) 
+                                    VALUES (:user_id, :type, :message, :related_id)");
+                $stmt->bindParam(':user_id', $adminId);
+                $stmt->bindParam(':type', $type);
+                $stmt->bindParam(':message', $message);
+                $stmt->bindParam(':related_id', $relatedId);
+                $stmt->execute();
+            }
+        } else {
+            // Add notification for specific user
             $stmt = $db->prepare("INSERT INTO notifications (user_id, type, message, related_id) 
                                 VALUES (:user_id, :type, :message, :related_id)");
             $stmt->bindParam(':user_id', $userId);
@@ -304,35 +339,21 @@ function addNotification($type, $message, $relatedId = null, $userId = null) {
             $stmt->execute();
         }
         
-        // Add for all admins and managers (except current user)
-        $stmt = $db->prepare("SELECT id FROM members WHERE role IN ('administrator', 'manager') AND id != :current_user");
-        $currentUser = isLoggedIn() ? $_SESSION['user_id'] : 0;
-        $stmt->bindParam(':current_user', $currentUser);
-        $stmt->execute();
+        // Commit the transaction
+        $db->commit();
+        return true;
         
-        $adminUsers = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        
-        foreach ($adminUsers as $adminId) {
-            $stmt = $db->prepare("INSERT INTO notifications (user_id, type, message, related_id) 
-                                VALUES (:user_id, :type, :message, :related_id)");
-            $stmt->bindParam(':user_id', $adminId);
-            $stmt->bindParam(':type', $type);
-            $stmt->bindParam(':message', $message);
-            $stmt->bindParam(':related_id', $relatedId);
-            $stmt->execute();
+    } catch (PDOException $e) {
+        // Roll back the transaction if something failed
+        if ($db->inTransaction()) {
+            $db->rollBack();
         }
         
-        return true;
-    } else {
-        // Add notification for specific user
-        $stmt = $db->prepare("INSERT INTO notifications (user_id, type, message, related_id) 
-                            VALUES (:user_id, :type, :message, :related_id)");
-        $stmt->bindParam(':user_id', $userId);
-        $stmt->bindParam(':type', $type);
-        $stmt->bindParam(':message', $message);
-        $stmt->bindParam(':related_id', $relatedId);
+        // Log the error
+        error_log("Error adding notification: " . $e->getMessage());
         
-        return $stmt->execute();
+        // Return false to indicate failure
+        return false;
     }
 }
 
