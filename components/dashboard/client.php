@@ -1,13 +1,6 @@
 <?php
-if (!isset($conn)) {
-    $path = $_SERVER['DOCUMENT_ROOT'];
-    include_once($baseDirectory . "/admin/api/config.php");
-    $db = new Connection();
-    $conn = $db->getConnection();
-}
-
 $sql = "SELECT * FROM users where type=0 ORDER BY id DESC";
-$stmt = $conn->prepare($sql);
+$stmt = $pdoConn->prepare($sql);
 $stmt->execute();
 $result = $stmt->fetchAll();
 ?>

@@ -1,9 +1,8 @@
 <?php
-// https://dev.codingfrontend.in/
+
 $apiUrl  = "http://localhost/iwd/api/v1.php";
 $adminBaseUrl  = "http://localhost/iwd/";
 $webAddress = "http://localhost/iwd/";
-$baseDirectory = "D:\\xampp\\htdocs\\iwd\\";
 
 $mailUsername = 'kumar.lakshmanan.projects@gmail.com';
 $mailPassword   = 'vgwjdkoiirxcvhds';

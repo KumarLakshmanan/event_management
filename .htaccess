@@ -45,13 +45,4 @@ RewriteRule ^editbooking index.php?pageid=editbooking [NC,QSA,L]
 RewriteRule ^clientbooking index.php?pageid=clientbooking [NC,QSA,L]
 RewriteRule ^editallbooking index.php?pageid=editallbooking [NC,QSA,L]
 
-RewriteRule ^delete index.php?pageid=delete [NC,QSA,L]
-RewriteRule ^all index.php?pageid=all [NC,QSA,L]
-RewriteRule ^enquirymessages index.php?pageid=enquirymessages [NC,QSA,L]
-RewriteRule ^serviceman index.php?pageid=serviceman [NC,QSA,L]
-RewriteRule ^logout components/logout.php [NC,QSA,L]
-RewriteRule ^allbooking index.php?pageid=allbooking [NC,QSA,L]
-RewriteRule ^blog/([a-zA-Z0-9-]+) blog-details.php?slug=$1 [NC,QSA,L]
-
-
 ErrorDocument 404 index.php?pageid=404
