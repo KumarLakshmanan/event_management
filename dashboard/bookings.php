@@ -749,7 +749,7 @@ include_once __DIR__ . '/../templates/header.php';
                                         <div class="alert alert-info">
                                             <div class="d-flex justify-content-between">
                                                 <h6 class="mb-0">Total Price:</h6>
-                                                <div id="custom-package-total" class="fw-bold">$0.00</div>
+                                                <div id="custom-package-total" class="fw-bold">£0.00</div>
                                             </div>
                                         </div>
                                         <input type="hidden" name="total_price" id="custom-package-price" value="0">
@@ -830,6 +830,27 @@ include_once __DIR__ . '/../templates/header.php';
                             customPackageServices.classList.add('d-none');
                         }
                     });
+                });
+                
+                // Handle custom package service selection
+                const serviceCheckboxes = document.querySelectorAll('.custom-service-checkbox');
+                const customPackageTotal = document.getElementById('custom-package-total');
+                const customPackagePrice = document.getElementById('custom-package-price');
+                
+                function updateCustomPackagePrice() {
+                    let total = 0;
+                    serviceCheckboxes.forEach(function(checkbox) {
+                        if (checkbox.checked) {
+                            total += parseFloat(checkbox.getAttribute('data-service-price'));
+                        }
+                    });
+                    
+                    customPackageTotal.textContent = '£' + total.toFixed(2);
+                    customPackagePrice.value = total.toFixed(2);
+                }
+                
+                serviceCheckboxes.forEach(function(checkbox) {
+                    checkbox.addEventListener('change', updateCustomPackagePrice);
                 });
             });
         </script>
