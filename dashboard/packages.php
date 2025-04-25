@@ -425,8 +425,28 @@ switch ($action) {
         
     case 'list':
     default:
-        // Get all packages
-        $stmt = $db->query("SELECT * FROM bundles ORDER BY name");
+        // Determine which packages to show based on user role
+        if (hasRole(['manager', 'administrator'])) {
+            // Admins and managers see all packages
+            $stmt = $db->query("SELECT b.*, u.name as created_by_name 
+                                FROM bundles b
+                                LEFT JOIN members u ON b.created_by = u.id
+                                ORDER BY b.name");
+        } else {
+            // Regular clients see only:
+            // 1. System-created packages (not user-created custom packages)
+            // 2. Their own custom packages
+            $userId = $_SESSION['user_id'];
+            $stmt = $db->prepare("SELECT b.*, u.name as created_by_name 
+                                  FROM bundles b
+                                  LEFT JOIN members u ON b.created_by = u.id
+                                  WHERE b.created_by IS NULL 
+                                  OR b.created_by = :user_id 
+                                  ORDER BY b.name");
+            $stmt->bindParam(':user_id', $userId);
+            $stmt->execute();
+        }
+        
         $packages = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         // Get services count for each package
@@ -537,7 +557,7 @@ include_once TEMPLATES_PATH . 'header.php';
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>Event Packages</h1>
             <div>
-                <?php if (hasRole('client')): ?>
+                <?php if (hasRole('client') && !hasRole('administrator')): ?>
                     <a href="?action=customize" class="btn btn-info me-2">
                         <i class="bi bi-pencil-square me-2"></i>Customize Your Package
                     </a>
@@ -609,7 +629,7 @@ include_once TEMPLATES_PATH . 'header.php';
                                 </div>
                             <?php elseif (hasRole('client')): ?>
                                 <div class="card-footer bg-white">
-                                    <a href="/dashboard/bookings.php?action=create&package_id=<?= $pkg['id'] ?>" class="btn btn-primary w-100">
+                                    <a href="<?= BASE_URL ?>dashboard/bookings.php?action=create&package_id=<?= $pkg['id'] ?>" class="btn btn-primary w-100">
                                         <i class="bi bi-calendar-plus me-2"></i>Book This Package
                                     </a>
                                 </div>
@@ -621,16 +641,25 @@ include_once TEMPLATES_PATH . 'header.php';
         <?php endif; ?>
         
     <?php elseif ($action == 'customize'): ?>
+        <?php if (hasRole('administrator')): ?>
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle me-2"></i>Administrators cannot create customized packages. This feature is available only to clients.
+            </div>
+            <div class="text-center mt-3">
+                <a href="<?= BASE_URL ?>dashboard/packages.php" class="btn btn-primary">Return to Packages</a>
+            </div>
+        <?php else: ?>
         <!-- Customize Package Form -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>Create Your Customized Package</h1>
-            <a href="packages.php" class="btn btn-outline-secondary">
+            <a href="<?= BASE_URL ?>dashboard/packages.php" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-2"></i>Back to Packages
             </a>
         </div>
         
         <?php if (!empty($error)): ?>
             <div class="alert alert-danger mb-4"><?php echo $error; ?></div>
+        <?php endif; ?>
         <?php endif; ?>
         
         <form method="post" action="packages.php?action=customize">
@@ -715,7 +744,7 @@ include_once TEMPLATES_PATH . 'header.php';
             <h1><?= htmlspecialchars($package['name']) ?></h1>
             <div>
                 <?php if (hasRole('client')): ?>
-                    <a href="/dashboard/bookings.php?action=create&package_id=<?= $package['id'] ?>" class="btn btn-primary">
+                    <a href="<?= BASE_URL ?>dashboard/bookings.php?action=create&package_id=<?= $package['id'] ?>" class="btn btn-primary">
                         <i class="bi bi-calendar-plus me-2"></i>Book This Package
                     </a>
                 <?php endif; ?>
@@ -869,7 +898,7 @@ include_once TEMPLATES_PATH . 'header.php';
                         <div class="card-body">
                             <p class="mb-3">Ready to book this package for your event?</p>
                             <div class="d-grid">
-                                <a href="/dashboard/bookings.php?action=create&package_id=<?= $package['id'] ?>" class="btn btn-primary">
+                                <a href="<?= BASE_URL ?>dashboard/bookings.php?action=create&package_id=<?= $package['id'] ?>" class="btn btn-primary">
                                     <i class="bi bi-calendar-plus me-2"></i>Book This Package
                                 </a>
                             </div>
