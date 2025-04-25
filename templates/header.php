@@ -9,7 +9,11 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Get page title from query parameter or use default
-$pageTitle = isset($title) ? $title . ' - ' . APP_NAME : APP_NAME;
+$title = isset($title) ? $title : '';
+$pageTitle = !empty($title) ? $title . ' - ' . APP_NAME : APP_NAME;
+
+// Set showSidebar default if not already set
+$showSidebar = isset($showSidebar) ? $showSidebar : false;
 
 // Get unread notification count for header
 $unreadNotifications = 0;

@@ -378,6 +378,15 @@ include_once __DIR__ . '/../templates/header.php';
                                     Administrator
                                 </option>
                             </select>
+                            <?php if (isset($userData['role']) && ($userData['role'] === ROLE_MANAGER || $userData['role'] === ROLE_ADMIN)): ?>
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox" id="can_apply_discount" name="can_apply_discount" value="1" 
+                                       <?php echo isset($userData['can_apply_discount']) && (int)$userData['can_apply_discount'] === 1 ? 'checked' : ''; ?>>
+                                <label class="form-check-label" for="can_apply_discount">
+                                    Allow user to apply discounts
+                                </label>
+                            </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                     
