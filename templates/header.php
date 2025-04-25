@@ -44,6 +44,36 @@ if (isLoggedIn()) {
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="<?php echo APP_URL; ?>/assets/css/style.css">
+    
+    <style>
+        /* Discount styles */
+        .discount-applied {
+            color: #198754;
+            font-weight: bold;
+            position: relative;
+        }
+        
+        .discount-info {
+            cursor: help;
+            position: relative;
+        }
+        
+        .discount-info:hover::after {
+            content: attr(title);
+            position: absolute;
+            background: #198754;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            z-index: 100;
+            margin-bottom: 5px;
+        }
+    </style>
 </head>
 <body>
     <div class="container-fluid">

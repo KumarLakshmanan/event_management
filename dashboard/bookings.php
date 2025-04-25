@@ -365,7 +365,16 @@ include_once __DIR__ . '/../templates/header.php';
                                         <td><?php echo htmlspecialchars($booking['package_name']); ?></td>
                                         <td><?php echo formatDate($booking['event_date']); ?></td>
                                         <td><?php echo htmlspecialchars(substr($booking['event_location'], 0, 20) . (strlen($booking['event_location']) > 20 ? '...' : '')); ?></td>
-                                        <td><?php echo formatPrice($booking['total_price'] - $booking['discount_applied']); ?></td>
+                                        <td>
+                                            <?php if ((float)$booking['discount_applied'] > 0): ?>
+                                                <span class="discount-applied discount-info" title="Discount of <?php echo formatPrice($booking['discount_applied']); ?> applied">
+                                                    <?php echo formatPrice($booking['total_price'] - $booking['discount_applied']); ?>
+                                                    <i class="fas fa-tag ms-1"></i>
+                                                </span>
+                                            <?php else: ?>
+                                                <?php echo formatPrice($booking['total_price']); ?>
+                                            <?php endif; ?>
+                                        </td>
                                         <td>
                                             <span class="booking-status-<?php echo $booking['id']; ?>">
                                                 <?php echo getStatusBadge($booking['status']); ?>
