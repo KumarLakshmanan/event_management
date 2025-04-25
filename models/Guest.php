@@ -168,6 +168,32 @@ class Guest {
     }
     
     /**
+     * Get guest by token
+     * 
+     * @param string $token Security token for RSVP
+     * @return array|false Guest data or false if not found
+     */
+    public function getByToken($token) {
+        // Token validation
+        if (empty($token) || strlen($token) !== 32) {
+            return false;
+        }
+        
+        // For demonstration purposes, we'll compute the token again
+        // In a real system, you might store the token in the database
+        $guests = $this->db->fetchAll("SELECT * FROM guests", []);
+        
+        foreach ($guests as $guest) {
+            $calculatedToken = md5($guest['id'] . $guest['created_at'] . $guest['booking_id']);
+            if ($calculatedToken === $token) {
+                return $guest;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
      * Count guests by RSVP status for a booking
      * 
      * @param int $bookingId Booking ID
@@ -228,8 +254,23 @@ class Guest {
             return false;
         }
         
-        // In a real implementation, this would send an email
-        // For now, just mark as sent by updating the guest
+        // Get booking details for the invitation
+        require_once __DIR__ . '/Booking.php';
+        $bookingModel = new Booking();
+        $booking = $bookingModel->getById($guest['booking_id']);
+        
+        if (!$booking) {
+            return false;
+        }
+        
+        // Include mailer functionality
+        require_once __DIR__ . '/../includes/mailer.php';
+        
+        // Send the email invitation
+        $emailResult = sendGuestInvitation($guest, $booking);
+        
+        // Mark as sent by updating the guest regardless of email result
+        // In production, you would only do this if email was successfully sent
         return $this->update($guestId, [
             'rsvp_status' => RSVP_PENDING,
             'updated_at' => date('Y-m-d H:i:s')

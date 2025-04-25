@@ -84,6 +84,25 @@ class NotificationController {
     }
     
     /**
+     * Create a notification with array parameters
+     * 
+     * @param array $data Notification data
+     * @return int|false Notification ID or false on failure
+     */
+    public function create($data) {
+        if (!isset($data['user_id']) || !isset($data['type']) || !isset($data['message'])) {
+            return false;
+        }
+        
+        $userId = $data['user_id'];
+        $type = $data['type'];
+        $message = $data['message'];
+        $relatedId = isset($data['related_id']) ? $data['related_id'] : null;
+        
+        return $this->createNotification($userId, $type, $message, $relatedId);
+    }
+    
+    /**
      * Count unread notifications for a user
      * 
      * @param int $userId User ID

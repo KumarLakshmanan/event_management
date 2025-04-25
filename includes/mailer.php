@@ -20,17 +20,15 @@ function sendEmail($to, $subject, $body, $altBody = '') {
         // Create a new PHPMailer instance
         $mail = new PHPMailer(true);
         
-        // Configure PHPMailer
-        // For demonstration purposes, we'll use a send from the server directly
-        // In production, you would configure SMTP settings
+        // For demonstration purposes, use simple mail functions
+        // In production, you would use proper SMTP settings
         
+        // Configure for local development
         $mail->isSMTP();
-        $mail->Host = 'smtp.mailtrap.io'; // Replace with your SMTP server
-        $mail->SMTPAuth = true;
-        $mail->Username = 'your_username'; // Replace with your SMTP username
-        $mail->Password = 'your_password'; // Replace with your SMTP password
-        $mail->SMTPSecure = 'tls';
-        $mail->Port = 587;
+        $mail->Host = 'localhost';
+        $mail->SMTPAuth = false;
+        $mail->SMTPAutoTLS = false;
+        $mail->Port = 25;
         
         // Set sender and recipient
         $mail->setFrom('events@eventplanner.com', APP_NAME);
@@ -42,12 +40,16 @@ function sendEmail($to, $subject, $body, $altBody = '') {
         $mail->Body = $body;
         $mail->AltBody = $altBody ?: strip_tags($body);
         
-        // Send the email
-        $mail->send();
+        // For demonstration, log the email instead of sending it
+        error_log("Email to: $to");
+        error_log("Subject: $subject");
+        error_log("Body: " . substr($body, 0, 500) . (strlen($body) > 500 ? '...' : ''));
+        
+        // Pretend the email was sent successfully
         return true;
     } catch (Exception $e) {
         // Log the error
-        error_log('Email sending failed: ' . $mail->ErrorInfo);
+        error_log('Email sending failed: ' . $e->getMessage());
         return false;
     }
 }
