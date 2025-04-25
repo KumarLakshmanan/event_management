@@ -6,6 +6,8 @@
 // Require config file
 require_once INCLUDES_PATH . 'config.php';
 
+// Authentication functions are defined below
+
 /**
  * Register a new user
  * 

@@ -4,6 +4,43 @@
  */
 
 /**
+ * Gets the currently logged in user ID
+ * 
+ * @return int|null Current user ID or null if not logged in
+ */
+function getCurrentUserId() {
+    return $_SESSION['user_id'] ?? null;
+}
+
+/**
+ * Creates a notification in the system
+ * 
+ * @param int $userId User ID associated with the notification
+ * @param string $type Notification type
+ * @param string $message Notification message
+ * @param string $link Optional link for the notification
+ * @return bool True on success, false on failure
+ */
+function createNotification($userId, $type, $message, $link = null) {
+    try {
+        $db = getDBConnection();
+        
+        $stmt = $db->prepare("INSERT INTO notifications (user_id, type, message, link, created_at, is_read) 
+                             VALUES (:user_id, :type, :message, :link, CURRENT_TIMESTAMP, 0)");
+        $stmt->bindParam(':user_id', $userId);
+        $stmt->bindParam(':type', $type);
+        $stmt->bindParam(':message', $message);
+        $stmt->bindParam(':link', $link);
+        return $stmt->execute();
+    } catch (PDOException $e) {
+        error_log("Error creating notification: " . $e->getMessage());
+        return false;
+    }
+}
+
+// setAlert function moved to beginning of file
+
+/**
  * Sanitize input data
  * 
  * @param string $data Data to sanitize

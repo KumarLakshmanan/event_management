@@ -36,30 +36,36 @@ if (hasRole('client')) {
 switch ($action) {
     case 'customize':
         // This action creates a customized package for clients
+        // Ensure user is logged in and has client role
+        if (!hasRole('client')) {
+            setAlert('danger', 'You must be logged in as a client to create customized packages');
+            header('Location: packages.php');
+            exit;
+        }
+        
         // Get all available services
         $stmt = $db->query("SELECT * FROM products ORDER BY name");
         $allServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        // Set page title
-        $pageTitle = 'Create Customized Package';
         
         // Process form submission for creating a customized package
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = sanitizeInput($_POST['name'] ?? 'Customized Package');
             $description = sanitizeInput($_POST['description'] ?? '');
             $selectedServiceIds = $_POST['services'] ?? [];
+            $calculatedPrice = isset($_POST['calculated_price']) ? (float)$_POST['calculated_price'] : 0;
             
-            // Calculate price based on selected services
-            $totalPrice = 0;
-            if (!empty($selectedServiceIds)) {
+            // Calculate price based on selected services if not provided
+            if ($calculatedPrice == 0 && !empty($selectedServiceIds)) {
                 $serviceIds = implode(',', array_map('intval', $selectedServiceIds));
                 $stmt = $db->query("SELECT SUM(price) as total FROM products WHERE id IN ($serviceIds)");
                 $result = $stmt->fetch(PDO::FETCH_ASSOC);
-                $totalPrice = $result['total'] ?? 0;
+                $calculatedPrice = $result['total'] ?? 0;
             }
             
             // Validate input
-            if (empty($selectedServiceIds)) {
+            if (empty($name)) {
+                $error = "Package name is required";
+            } elseif (empty($selectedServiceIds)) {
                 $error = "Please select at least one service for your customized package";
             } else {
                 // Begin transaction
@@ -72,7 +78,7 @@ switch ($action) {
                                          VALUES (:name, :description, :price, :customized, :created_by, CURRENT_TIMESTAMP)");
                     $stmt->bindParam(':name', $name);
                     $stmt->bindParam(':description', $description);
-                    $stmt->bindParam(':price', $totalPrice);
+                    $stmt->bindParam(':price', $calculatedPrice);
                     $stmt->bindParam(':customized', $customized);
                     $stmt->bindParam(':created_by', $_SESSION['user_id']);
                     $stmt->execute();
@@ -89,13 +95,20 @@ switch ($action) {
                         $insertServiceStmt->execute();
                     }
                     
+                    // Create notification
+                    createNotification(
+                        $_SESSION['user_id'],
+                        'package_created',
+                        'Created a new customized package: ' . $name,
+                        'packages.php?action=view&id=' . $packageId
+                    );
+                    
                     // Commit transaction
                     $db->commit();
                     
-                    // Set success message and redirect to list view
-                    $_SESSION['alert_message'] = "Customized Package created successfully with a total price of " . formatCurrency($totalPrice);
-                    $_SESSION['alert_type'] = "success";
-                    header("Location: packages.php");
+                    // Set success message and redirect to view
+                    setAlert('success', 'Your customized package has been created successfully with a total price of ' . formatCurrency($calculatedPrice));
+                    header('Location: packages.php?action=view&id=' . $packageId);
                     exit;
                 } catch (PDOException $e) {
                     // Rollback transaction on error
