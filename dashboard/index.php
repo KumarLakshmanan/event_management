@@ -7,6 +7,8 @@
 
 // Include configuration
 require_once dirname(__DIR__) . '/includes/config.php';
+require_once INCLUDES_PATH . 'auth.php';
+require_once INCLUDES_PATH . 'functions.php';
 
 // Require user to be logged in
 requireLogin();

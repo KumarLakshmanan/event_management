@@ -1,0 +1,71 @@
+Members (users)
+Products (services)
+Bundles (packages)
+BundleProducts (package_services)
+Reservations (bookings)
+Attendees (guests)
+AttendanceRecords (event_attendance)
+Key Features
+Authentication System
+User registration and login
+Role-based access (customer, staff, administrator)
+Session management
+Logout functionality
+Role-Based Dashboard
+Each role sees a customized dashboard with relevant metrics
+Sidebar navigation adapts to user role:
+Client: Dashboard, Packages, Bookings, Guests
+Manager/Admin: Dashboard, Packages, Services, Bookings
+Package Management (Admin/Manager)
+Create, read, update, delete packages
+Upload package images
+Set package pricing
+Attach services to packages
+View all packages
+Service Management (Admin/Manager)
+Create, read, update, delete services
+Set service pricing
+Service descriptions
+Attach services to packages
+Booking System
+Clients can select packages
+Set event date and location
+Custom package option (choose individual services)
+View booking status
+Managers can confirm bookings
+Optional discount application (permission-based)
+Guest Management (Client)
+Add guests with name, email, phone
+Send invitations
+Track RSVP status
+Real-time status updates
+Admin Functionality
+All manager rights
+Assign roles to users
+Grant/revoke discount permissions for managers
+Implementation Plan
+Phase 1: Project Setup
+Configure Replit environment
+Set up PHP server
+Create SQLite database schema
+Implement basic folder structure
+Phase 2: Authentication & Core Pages
+Implement user registration
+Create login system
+Build base templates (header, footer, sidebar)
+Create home page with banner
+Implement role-based dashboard
+Phase 3: Manager/Admin Features
+Package management (CRUD)
+Service management (CRUD)
+Booking confirmation system
+Discount application system
+Phase 4: Client Features
+Package browsing and selection
+Booking creation
+Guest management
+RSVP system
+Phase 5: Admin Controls
+User role management
+Permissions system
+Admin dashboard

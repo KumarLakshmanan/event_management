@@ -6,8 +6,12 @@
 // Page title
 $pageTitle = 'Home';
 
-// Include header
+// Include required files
 require_once 'includes/config.php';
+require_once INCLUDES_PATH . 'auth.php';
+require_once INCLUDES_PATH . 'functions.php';
+
+// Include header
 include_once TEMPLATES_PATH . 'header.php';
 ?>
 
