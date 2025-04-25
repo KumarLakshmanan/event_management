@@ -427,10 +427,14 @@ switch ($action) {
 }
 
 // Set page title
-$pageTitle = 'Package Management';
+if ($action == 'customize') {
+    $pageTitle = 'Create Customized Package';
+} else {
+    $pageTitle = 'Package Management';
+}
 
-// Include extra scripts for create/edit forms
-if ($action == 'create' || $action == 'edit') {
+// Include extra scripts for forms
+if ($action == 'create' || $action == 'edit' || $action == 'customize') {
     $extraScripts = '
         <script>
             document.addEventListener("DOMContentLoaded", function() {
@@ -504,11 +508,18 @@ include_once TEMPLATES_PATH . 'header.php';
         <!-- Packages list view -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>Event Packages</h1>
-            <?php if (hasRole(['manager', 'administrator'])): ?>
-                <a href="?action=create" class="btn btn-primary">
-                    <i class="bi bi-plus-circle me-2"></i>Create New Package
-                </a>
-            <?php endif; ?>
+            <div>
+                <?php if (hasRole('client')): ?>
+                    <a href="?action=customize" class="btn btn-info me-2">
+                        <i class="bi bi-pencil-square me-2"></i>Customize Your Package
+                    </a>
+                <?php endif; ?>
+                <?php if (hasRole(['manager', 'administrator'])): ?>
+                    <a href="?action=create" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i>Create New Package
+                    </a>
+                <?php endif; ?>
+            </div>
         </div>
         
         <?php if (empty($packages)): ?>
@@ -581,6 +592,95 @@ include_once TEMPLATES_PATH . 'header.php';
             </div>
         <?php endif; ?>
         
+    <?php elseif ($action == 'customize'): ?>
+        <!-- Customize Package Form -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Create Your Customized Package</h1>
+            <a href="packages.php" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Back to Packages
+            </a>
+        </div>
+        
+        <?php if (!empty($error)): ?>
+            <div class="alert alert-danger mb-4"><?php echo $error; ?></div>
+        <?php endif; ?>
+        
+        <form method="post" action="packages.php?action=customize">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Your Customized Package</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Package Name</label>
+                                <input type="text" class="form-control" id="name" name="name" 
+                                       value="My Customized Package" required>
+                                <div class="form-text">Name your custom package</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Notes</label>
+                                <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                                <div class="form-text">Any special requirements or notes</div>
+                            </div>
+                            
+                            <input type="hidden" id="calculated_price" name="calculated_price" value="0">
+                            
+                            <div class="alert alert-info">
+                                <p><i class="bi bi-info-circle me-2"></i>Select the services you want included in your custom package. The price will update automatically.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="packages.php" class="btn btn-outline-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary">Create My Package</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-8">
+                    <div id="servicesSection" class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Available Services</h5>
+                            <div class="badge bg-primary fs-6" id="totalPrice">£0.00</div>
+                        </div>
+                        <div class="card-body">
+                            <?php if (empty($allServices)): ?>
+                                <div class="alert alert-warning">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>No services available.
+                                </div>
+                            <?php else: ?>
+                                <div class="row">
+                                    <?php foreach ($allServices as $service): ?>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card h-100">
+                                                <div class="card-body">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" id="service_<?= $service['id'] ?>" 
+                                                               name="services[]" value="<?= $service['id'] ?>">
+                                                        <label class="form-check-label fw-bold" for="service_<?= $service['id'] ?>">
+                                                            <?= htmlspecialchars($service['name']) ?> 
+                                                            <span class="badge bg-info">(£<?= number_format($service['price'], 2) ?>)</span>
+                                                        </label>
+                                                    </div>
+                                                    <p class="mt-2 mb-0 text-muted small"><?= htmlspecialchars($service['description']) ?></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
     <?php elseif ($action == 'view'): ?>
         <!-- Package detail view -->
         <div class="d-flex justify-content-between align-items-center mb-4">

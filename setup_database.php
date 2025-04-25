@@ -221,12 +221,12 @@ if ($confirm || $seed) {
             if ($bundlesCount == 0) {
                 // Sample packages
                 $packages = [
-                    ['Wedding Basic', 'Essential wedding services', 3000.00, 'Wedding basic package with essentials.', 1],
-                    ['Corporate Event', 'Complete corporate event package', 2500.00, 'Full service package for corporate events.', 1],
-                    ['Birthday Deluxe', 'Deluxe birthday celebration package', 1800.00, 'All-inclusive birthday celebration package.', 1]
+                    ['Wedding Basic', 3000.00, 'Essential wedding services for your special day.', 1, 0],
+                    ['Corporate Event', 2500.00, 'Complete corporate event package for professional gatherings.', 1, 0],
+                    ['Birthday Deluxe', 1800.00, 'All-inclusive birthday celebration package.', 1, 0]
                 ];
                 
-                $packageInsert = $db->prepare("INSERT INTO bundles (name, price, description, created_by, customized) VALUES (?, ?, ?, ?, 0)");
+                $packageInsert = $db->prepare("INSERT INTO bundles (name, price, description, created_by, customized) VALUES (?, ?, ?, ?, ?)");
                 
                 foreach ($packages as $package) {
                     $packageInsert->execute($package);
@@ -437,4 +437,3 @@ $output = ob_get_clean();
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-?>
