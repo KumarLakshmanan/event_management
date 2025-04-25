@@ -1,0 +1,132 @@
+Event Planning Platform - Project Plan
+Project Overview
+This project is an event planning platform with role-based access control for administrators, managers, and clients. It will allow clients to book event packages, manage guest lists, and track event status, while providing staff with tools to manage packages, services, and bookings.
+
+Technology Stack
+Backend: PHP 8.2
+Database: SQLite 3
+Frontend: HTML5, CSS3, JavaScript, Bootstrap 5
+Authentication: PHP sessions and PDO for secure database operations
+Hosting: Replit with PHP server
+Database Schema
+We'll implement the following tables with modified names:
+
+Members (users)
+Products (services)
+Bundles (packages)
+BundleProducts (package_services)
+Reservations (bookings)
+Attendees (guests)
+AttendanceRecords (event_attendance)
+Key Features
+Authentication System
+User registration and login
+Role-based access (customer, staff, administrator)
+Session management
+Logout functionality
+Role-Based Dashboard
+Each role sees a customized dashboard with relevant metrics
+Sidebar navigation adapts to user role:
+Client: Dashboard, Packages, Bookings, Guests
+Manager/Admin: Dashboard, Packages, Services, Bookings
+Package Management (Admin/Manager)
+Create, read, update, delete packages
+Upload package images
+Set package pricing
+Attach services to packages
+View all packages
+Service Management (Admin/Manager)
+Create, read, update, delete services
+Set service pricing
+Service descriptions
+Attach services to packages
+Booking System
+Clients can select packages
+Set event date and location
+Custom package option (choose individual services)
+View booking status
+Managers can confirm bookings
+Optional discount application (permission-based)
+Guest Management (Client)
+Add guests with name, email, phone
+Send invitations
+Track RSVP status
+Real-time status updates
+Admin Functionality
+All manager rights
+Assign roles to users
+Grant/revoke discount permissions for managers
+Implementation Plan
+Phase 1: Project Setup
+Configure Replit environment
+Set up PHP server
+Create SQLite database schema
+Implement basic folder structure
+Phase 2: Authentication & Core Pages
+Implement user registration
+Create login system
+Build base templates (header, footer, sidebar)
+Create home page with banner
+Implement role-based dashboard
+Phase 3: Manager/Admin Features
+Package management (CRUD)
+Service management (CRUD)
+Booking confirmation system
+Discount application system
+Phase 4: Client Features
+Package browsing and selection
+Booking creation
+Guest management
+RSVP system
+Phase 5: Admin Controls
+User role management
+Permissions system
+Admin dashboard
+Phase 6: Testing & Refinement
+Test all user flows
+Fix bugs and issues
+Optimize performance
+Improve UI/UX
+File Structure
+/
+├── assets/
+│   ├── css/
+│   ├── js/
+│   └── img/
+├── includes/
+│   ├── config.php
+│   ├── auth.php
+│   ├── functions.php
+│   └── sidebar.php
+├── controllers/
+│   └── [controller files]
+├── templates/
+│   ├── header.php
+│   └── footer.php
+├── dashboard/
+│   └── [dashboard pages]
+├── auth/
+│   ├── login.php
+│   └── register.php
+├── index.php
+└── database.sqlite
+UI Design
+Clean, professional interface
+Bootstrap 5 for responsive design
+Role-specific dashboards
+Clear navigation
+Consistent branding
+Mobile-friendly layout
+Security Considerations
+Password hashing with PHP's password_hash
+Prepared statements for all database operations
+Input validation and sanitization
+Role-based access control
+Session security
+Future Enhancements
+API endpoints for mobile integration
+Advanced reporting and analytics
+Email template editor
+Calendar integration
+Payment gateway integration
+Would you like to proceed with this plan? I can start implementing it once you approve.
