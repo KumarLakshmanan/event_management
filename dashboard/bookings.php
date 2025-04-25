@@ -53,6 +53,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // If there are no errors, create or update booking
         if (empty($errors)) {
             if ($action === 'create') {
+                // When a client creates a booking, status is always 'pending'
+                if (!hasRole('administrator') && !hasRole('manager')) {
+                    $status = 'pending';
+                    $discount = 0; // Clients can't set discount
+                }
+                
                 // Create booking
                 $stmt = $db->prepare("INSERT INTO reservations (user_id, bundle_id, event_place, event_date, discount, status) 
                                     VALUES (:user_id, :bundle_id, :event_place, :event_date, :discount, :status)");
@@ -65,7 +71,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 if ($stmt->execute()) {
                     $bookingId = $db->lastInsertId();
-                    setAlert('success', 'Booking created successfully');
+                    
+                    if ($status === 'pending') {
+                        setAlert('success', 'Booking created successfully and is awaiting approval');
+                    } else {
+                        setAlert('success', 'Booking created successfully');
+                    }
                     
                     // Add notification for new booking
                     $currentUser = getCurrentUser();
@@ -312,11 +323,17 @@ require_once '../templates/header.php';
                         <input type="datetime-local" class="form-control" id="event_date" name="event_date" value="<?php echo $booking['event_date']; ?>" required>
                     </div>
                     
-                    <?php if (hasRole('administrator') || (hasRole('manager') && getCurrentUser()['can_give_discount'])): ?>
-                        <div class="col-md-6">
-                            <label for="discount" class="form-label">Discount (£)</label>
-                            <input type="number" class="form-control" id="discount" name="discount" value="<?php echo $booking['discount']; ?>" step="0.01" min="0">
-                        </div>
+                    <?php if ($action === 'edit' && ($booking['status'] === 'pending' || $booking['status'] === 'confirmed')): ?>
+                        <?php if (hasRole('administrator') || (hasRole('manager') && getCurrentUser()['can_give_discount'])): ?>
+                            <div class="col-md-6">
+                                <label for="discount" class="form-label">Discount (£)</label>
+                                <input type="number" class="form-control" id="discount" name="discount" value="<?php echo $booking['discount']; ?>" step="0.01" min="0">
+                            </div>
+                        <?php else: ?>
+                            <input type="hidden" name="discount" value="<?php echo $booking['discount']; ?>">
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <input type="hidden" name="discount" value="0">
                     <?php endif; ?>
                     
                     <?php if (hasRole('administrator') || hasRole('manager')): ?>
@@ -328,7 +345,14 @@ require_once '../templates/header.php';
                                 <option value="cancelled" <?php echo $booking['status'] === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
                                 <option value="completed" <?php echo $booking['status'] === 'completed' ? 'selected' : ''; ?>>Completed</option>
                             </select>
+                            <small class="form-text text-muted">
+                                <?php if ($action === 'edit' && $booking['status'] === 'pending'): ?>
+                                    Approve booking by changing status to "Confirmed"
+                                <?php endif; ?>
+                            </small>
                         </div>
+                    <?php else: ?>
+                        <input type="hidden" name="status" value="pending">
                     <?php endif; ?>
                     
                     <div class="col-12">

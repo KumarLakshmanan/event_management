@@ -19,16 +19,90 @@ $package = null;
 $packageServices = [];
 $allServices = [];
 
-// Check if user is client; if so limit to viewing packages only
+// Check permissions based on role
 if (hasRole('client')) {
-    $action = 'list';
-} else {
-    // Require manager or admin role for other actions
-    requireRole(['manager', 'administrator']);
+    // Clients can view packages and create customized packages
+    if ($action !== 'list' && $action !== 'create' && $action !== 'customize') {
+        $action = 'list';
+    }
+} elseif (!hasRole('manager') && !hasRole('administrator')) {
+    // Users without roles shouldn't be here
+    setAlert('danger', 'You do not have permission to access this page');
+    header('Location: index.php');
+    exit;
 }
 
 // Process actions
 switch ($action) {
+    case 'customize':
+        // This action creates a customized package for clients
+        // Get all available services
+        $stmt = $db->query("SELECT * FROM products ORDER BY name");
+        $allServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Process form submission for creating a customized package
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $name = sanitizeInput($_POST['name'] ?? 'Customized Package');
+            $description = sanitizeInput($_POST['description'] ?? '');
+            $selectedServiceIds = $_POST['services'] ?? [];
+            
+            // Calculate price based on selected services
+            $totalPrice = 0;
+            if (!empty($selectedServiceIds)) {
+                $serviceIds = implode(',', array_map('intval', $selectedServiceIds));
+                $stmt = $db->query("SELECT SUM(price) as total FROM products WHERE id IN ($serviceIds)");
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                $totalPrice = $result['total'] ?? 0;
+            }
+            
+            // Validate input
+            if (empty($selectedServiceIds)) {
+                $error = "Please select at least one service for your customized package";
+            } else {
+                // Begin transaction
+                $db->beginTransaction();
+                
+                try {
+                    // Insert package into database (always customized for this action)
+                    $customized = 1;
+                    $stmt = $db->prepare("INSERT INTO bundles (name, description, price, customized, created_by, created_at) 
+                                         VALUES (:name, :description, :price, :customized, :created_by, CURRENT_TIMESTAMP)");
+                    $stmt->bindParam(':name', $name);
+                    $stmt->bindParam(':description', $description);
+                    $stmt->bindParam(':price', $totalPrice);
+                    $stmt->bindParam(':customized', $customized);
+                    $stmt->bindParam(':created_by', $_SESSION['user_id']);
+                    $stmt->execute();
+                    
+                    // Get the newly inserted package ID
+                    $packageId = $db->lastInsertId();
+                    
+                    // Insert package services
+                    $insertServiceStmt = $db->prepare("INSERT INTO bundle_products (bundle_id, product_id) VALUES (:bundle_id, :product_id)");
+                    
+                    foreach ($selectedServiceIds as $serviceId) {
+                        $insertServiceStmt->bindParam(':bundle_id', $packageId);
+                        $insertServiceStmt->bindParam(':product_id', $serviceId);
+                        $insertServiceStmt->execute();
+                    }
+                    
+                    // Commit transaction
+                    $db->commit();
+                    
+                    // Set success message and redirect to list view
+                    $_SESSION['alert_message'] = "Customized Package created successfully with a total price of " . formatCurrency($totalPrice);
+                    $_SESSION['alert_type'] = "success";
+                    header("Location: packages.php");
+                    exit;
+                } catch (PDOException $e) {
+                    // Rollback transaction on error
+                    $db->rollBack();
+                    $error = "Error creating customized package: " . $e->getMessage();
+                }
+            }
+        }
+        break;
+        
     case 'create':
         // Get all available services
         $stmt = $db->query("SELECT * FROM products ORDER BY name");
@@ -715,7 +789,7 @@ include_once TEMPLATES_PATH . 'header.php';
                             <div class="mb-3">
                                 <label for="price" class="form-label">Package Price</label>
                                 <div class="input-group">
-                                    <span class="input-group-text">$</span>
+                                    <span class="input-group-text">£</span>
                                     <input type="number" step="0.01" min="0" class="form-control" id="price" name="price" 
                                            value="<?= isset($package['price']) ? htmlspecialchars($package['price']) : '' ?>">
                                 </div>

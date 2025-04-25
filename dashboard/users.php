@@ -281,7 +281,7 @@ require_once '../templates/header.php';
                     
                     <div class="col-12">
                         <label for="address" class="form-label">Address</label>
-                        <textarea class="form-control" id="address" name="address" rows="3"><?php echo htmlspecialchars($user['address']); ?></textarea>
+                        <textarea class="form-control" id="address" name="address" rows="3"><?php echo htmlspecialchars($user['address'] ?? ''); ?></textarea>
                     </div>
                     
                     <div class="col-12">
