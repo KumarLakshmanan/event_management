@@ -119,12 +119,19 @@ class UserController {
         }
         
         // Create the user
-        return $this->userModel->create(
+        $userId = $this->userModel->create(
             $data['name'],
             $data['email'],
             $data['password'],
             $data['role']
         );
+        
+        // If user created successfully and discount permission is specified, update it
+        if ($userId && isset($data['can_apply_discount']) && in_array($data['role'], [ROLE_ADMIN, ROLE_MANAGER])) {
+            $this->userModel->setDiscountPermission($userId, (bool)$data['can_apply_discount']);
+        }
+        
+        return $userId;
     }
     
     /**
@@ -162,6 +169,14 @@ class UserController {
             'email' => $data['email'],
             'role' => $data['role']
         ];
+        
+        // Add discount permission if applicable
+        if (in_array($data['role'], [ROLE_ADMIN, ROLE_MANAGER])) {
+            $updateData['can_apply_discount'] = isset($data['can_apply_discount']) ? 1 : 0;
+        } else {
+            // Clients cannot apply discounts
+            $updateData['can_apply_discount'] = 0;
+        }
         
         // Update user
         $result = $this->userModel->update($data['id'], $updateData);

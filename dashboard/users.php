@@ -49,7 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'email' => filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL),
             'password' => $_POST['password'],
             'confirm_password' => $_POST['confirm_password'],
-            'role' => sanitizeInput($_POST['role'])
+            'role' => sanitizeInput($_POST['role']),
+            'can_apply_discount' => isset($_POST['can_apply_discount']) ? 1 : 0
         ];
         
         // Validate email
@@ -91,7 +92,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'id' => (int)$_POST['user_id'],
             'name' => sanitizeInput($_POST['name']),
             'email' => filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL),
-            'role' => sanitizeInput($_POST['role'])
+            'role' => sanitizeInput($_POST['role']),
+            'can_apply_discount' => isset($_POST['can_apply_discount']) ? 1 : 0
         ];
         
         // Check if password is being updated
@@ -289,6 +291,7 @@ include_once __DIR__ . '/../templates/header.php';
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Role</th>
+                                    <th>Permissions</th>
                                     <th>Created</th>
                                     <th>Actions</th>
                                 </tr>
@@ -307,6 +310,17 @@ include_once __DIR__ . '/../templates/header.php';
                                                   ?>">
                                                 <?php echo getRoleName($u['role']); ?>
                                             </span>
+                                        </td>
+                                        <td>
+                                            <?php if ($u['role'] !== ROLE_CLIENT): ?>
+                                                <?php if ((int)$u['can_apply_discount'] === 1): ?>
+                                                    <span class="badge bg-success">Can Apply Discounts</span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-secondary">No Discount Permission</span>
+                                                <?php endif; ?>
+                                            <?php else: ?>
+                                                <span class="badge bg-light text-dark">N/A</span>
+                                            <?php endif; ?>
                                         </td>
                                         <td><?php echo formatDate($u['created_at'], 'M j, Y'); ?></td>
                                         <td>
@@ -457,3 +471,50 @@ include_once __DIR__ . '/../templates/header.php';
 </div>
 
 <?php include_once __DIR__ . '/../templates/footer.php'; ?>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Dynamic show/hide of discount permission checkbox based on role selection
+        const roleSelect = document.getElementById('role');
+        const discountPermissionContainer = document.getElementById('discount-permission-container');
+        
+        if (roleSelect && discountPermissionContainer) {
+            // Create container for discount checkbox if it doesn't exist
+            if (!document.getElementById('discount-permission-container')) {
+                const container = document.createElement('div');
+                container.id = 'discount-permission-container';
+                container.className = 'form-check mt-2';
+                container.innerHTML = `
+                    <input class="form-check-input" type="checkbox" id="can_apply_discount" name="can_apply_discount" value="1">
+                    <label class="form-check-label" for="can_apply_discount">
+                        Allow user to apply discounts
+                    </label>
+                `;
+                roleSelect.parentNode.appendChild(container);
+            }
+            
+            // Function to toggle discount permission visibility
+            const toggleDiscountPermission = function() {
+                const role = roleSelect.value;
+                const container = document.getElementById('discount-permission-container');
+                
+                if (role === '<?php echo ROLE_MANAGER; ?>' || role === '<?php echo ROLE_ADMIN; ?>') {
+                    container.style.display = 'block';
+                    // Auto-check for administrators
+                    if (role === '<?php echo ROLE_ADMIN; ?>') {
+                        document.getElementById('can_apply_discount').checked = true;
+                    }
+                } else {
+                    container.style.display = 'none';
+                    document.getElementById('can_apply_discount').checked = false;
+                }
+            };
+            
+            // Initial call
+            toggleDiscountPermission();
+            
+            // Add event listener for changes
+            roleSelect.addEventListener('change', toggleDiscountPermission);
+        }
+    });
+</script>
