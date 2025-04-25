@@ -33,7 +33,7 @@ function isValidEmail($email) {
  * @return string Formatted amount
  */
 function formatCurrency($amount) {
-    return '$' . number_format($amount, 2);
+    return '£' . number_format($amount, 2);
 }
 
 /**
@@ -204,5 +204,146 @@ function displayAlert($message, $type = 'info') {
                 ' . $message . '
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>';
+}
+
+/**
+ * Set an alert message in session
+ * 
+ * @param string $type Alert type (success, danger, warning, info)
+ * @param string $message Message to display
+ */
+function setAlert($type, $message) {
+    $_SESSION['alert_type'] = $type;
+    $_SESSION['alert_message'] = $message;
+}
+
+/**
+ * Get alert message from session and clear it
+ * 
+ * @return array|null Alert data or null if no alert
+ */
+function getAlert() {
+    if (isset($_SESSION['alert_type']) && isset($_SESSION['alert_message'])) {
+        $alert = [
+            'type' => $_SESSION['alert_type'],
+            'message' => $_SESSION['alert_message']
+        ];
+        
+        // Clear alert from session
+        unset($_SESSION['alert_type']);
+        unset($_SESSION['alert_message']);
+        
+        return $alert;
+    }
+    
+    return null;
+}
+
+// Note: getCurrentUser() is already defined in auth.php
+
+/**
+ * Add a notification for a user
+ * 
+ * @param string $type Notification type
+ * @param string $message Notification message
+ * @param int $relatedId Related item ID (optional)
+ * @param int $userId User ID (default: current user)
+ * @return bool Success status
+ */
+function addNotification($type, $message, $relatedId = null, $userId = null) {
+    $db = getDBConnection();
+    
+    // If no user ID specified, add notification for all admins and managers
+    if ($userId === null) {
+        if (isLoggedIn()) {
+            // Add for current user
+            $userId = $_SESSION['user_id'];
+            $stmt = $db->prepare("INSERT INTO notifications (user_id, type, message, related_id) 
+                                VALUES (:user_id, :type, :message, :related_id)");
+            $stmt->bindParam(':user_id', $userId);
+            $stmt->bindParam(':type', $type);
+            $stmt->bindParam(':message', $message);
+            $stmt->bindParam(':related_id', $relatedId);
+            $stmt->execute();
+        }
+        
+        // Add for all admins and managers (except current user)
+        $stmt = $db->prepare("SELECT id FROM members WHERE role IN ('administrator', 'manager') AND id != :current_user");
+        $currentUser = isLoggedIn() ? $_SESSION['user_id'] : 0;
+        $stmt->bindParam(':current_user', $currentUser);
+        $stmt->execute();
+        
+        $adminUsers = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        
+        foreach ($adminUsers as $adminId) {
+            $stmt = $db->prepare("INSERT INTO notifications (user_id, type, message, related_id) 
+                                VALUES (:user_id, :type, :message, :related_id)");
+            $stmt->bindParam(':user_id', $adminId);
+            $stmt->bindParam(':type', $type);
+            $stmt->bindParam(':message', $message);
+            $stmt->bindParam(':related_id', $relatedId);
+            $stmt->execute();
+        }
+        
+        return true;
+    } else {
+        // Add notification for specific user
+        $stmt = $db->prepare("INSERT INTO notifications (user_id, type, message, related_id) 
+                            VALUES (:user_id, :type, :message, :related_id)");
+        $stmt->bindParam(':user_id', $userId);
+        $stmt->bindParam(':type', $type);
+        $stmt->bindParam(':message', $message);
+        $stmt->bindParam(':related_id', $relatedId);
+        
+        return $stmt->execute();
+    }
+}
+
+/**
+ * Get unread notifications count for current user
+ * 
+ * @return int Number of unread notifications
+ */
+function getUnreadNotificationsCount() {
+    if (!isLoggedIn()) {
+        return 0;
+    }
+    
+    $db = getDBConnection();
+    $stmt = $db->prepare("SELECT COUNT(*) FROM notifications WHERE user_id = :user_id AND is_read = 0");
+    $stmt->bindParam(':user_id', $_SESSION['user_id']);
+    $stmt->execute();
+    
+    return (int)$stmt->fetchColumn();
+}
+
+/**
+ * Format time ago
+ * 
+ * @param string $datetime Datetime string
+ * @return string Formatted time ago string
+ */
+function timeAgo($datetime) {
+    $time = strtotime($datetime);
+    $now = time();
+    $diff = $now - $time;
+    
+    if ($diff < 60) {
+        return 'Just now';
+    } elseif ($diff < 3600) {
+        $mins = floor($diff / 60);
+        return $mins . ' minute' . ($mins > 1 ? 's' : '') . ' ago';
+    } elseif ($diff < 86400) {
+        $hours = floor($diff / 3600);
+        return $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ago';
+    } elseif ($diff < 604800) {
+        $days = floor($diff / 86400);
+        return $days . ' day' . ($days > 1 ? 's' : '') . ' ago';
+    } elseif ($diff < 2592000) {
+        $weeks = floor($diff / 604800);
+        return $weeks . ' week' . ($weeks > 1 ? 's' : '') . ' ago';
+    } else {
+        return date('M j, Y', $time);
+    }
 }
 ?>

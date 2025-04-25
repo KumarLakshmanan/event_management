@@ -63,12 +63,30 @@ require_once INCLUDES_PATH . 'functions.php';
                             </ul>
                             <ul class="navbar-nav">
                                 <?php if (isLoggedIn()): ?>
+                                    <!-- Notifications -->
+                                    <li class="nav-item">
+                                        <a class="nav-link position-relative" href="/dashboard/notifications.php">
+                                            <i class="fas fa-bell"></i>
+                                            <?php 
+                                            $notificationsCount = getUnreadNotificationsCount();
+                                            if ($notificationsCount > 0): 
+                                            ?>
+                                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                                    <?php echo $notificationsCount > 99 ? '99+' : $notificationsCount; ?>
+                                                    <span class="visually-hidden">unread notifications</span>
+                                                </span>
+                                            <?php endif; ?>
+                                        </a>
+                                    </li>
+                                    
+                                    <!-- User dropdown -->
                                     <li class="nav-item dropdown">
                                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bi bi-person-circle me-1"></i><?= $_SESSION['user_name'] ?>
+                                            <i class="fas fa-user-circle me-1"></i><?= $_SESSION['user_name'] ?>
                                         </a>
                                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                             <li><a class="dropdown-item" href="/dashboard/profile.php">My Profile</a></li>
+                                            <li><a class="dropdown-item" href="/dashboard/notifications.php">Notifications</a></li>
                                             <li><hr class="dropdown-divider"></li>
                                             <li><a class="dropdown-item" href="/auth/logout.php">Logout</a></li>
                                         </ul>

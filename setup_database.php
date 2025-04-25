@@ -124,6 +124,7 @@ if ($confirm || $seed) {
                 email VARCHAR(150),
                 phone VARCHAR(20),
                 rsvp_status VARCHAR(10) DEFAULT 'pending',
+                rsvp_token VARCHAR(64),
                 FOREIGN KEY (booking_id) REFERENCES reservations(id) ON DELETE CASCADE
             )",
             
@@ -135,6 +136,18 @@ if ($confirm || $seed) {
                 checked_in_at TIMESTAMP,
                 remarks TEXT,
                 FOREIGN KEY (guest_id) REFERENCES attendees(id) ON DELETE CASCADE
+            )",
+            
+            // Notifications table
+            "CREATE TABLE IF NOT EXISTS notifications (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                type VARCHAR(50) NOT NULL,
+                message TEXT NOT NULL,
+                is_read BOOLEAN DEFAULT 0,
+                related_id INTEGER,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES members(id) ON DELETE CASCADE
             )"
         ];
         
