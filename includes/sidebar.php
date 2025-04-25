@@ -1,11 +1,19 @@
 <?php
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/../controllers/NotificationController.php';
 
 // Get current page
 $currentPage = basename($_SERVER['PHP_SELF']);
 
 // Get current user role
 $userRole = isLoggedIn() ? $_SESSION['user']['role'] : null;
+
+// Get unread notification count
+$unreadNotifications = 0;
+if (isLoggedIn()) {
+    $notificationController = new NotificationController();
+    $unreadNotifications = $notificationController->countUnread($_SESSION['user']['id']);
+}
 
 // Define sidebar items based on user role
 $sidebarItems = [
@@ -46,15 +54,13 @@ if ($userRole) {
         'active' => $currentPage == 'bookings.php'
     ];
     
-    // Guests - only for clients and admin
-    if (in_array($userRole, [ROLE_CLIENT, ROLE_ADMIN])) {
-        $sidebarItems['guests'] = [
-            'icon' => 'fas fa-users',
-            'title' => 'Guests',
-            'link' => '/dashboard/guests.php',
-            'active' => $currentPage == 'guests.php'
-        ];
-    }
+    // Notifications - available to all roles
+    $sidebarItems['notifications'] = [
+        'icon' => 'fas fa-bell',
+        'title' => 'Notifications',
+        'link' => '/dashboard/notifications.php',
+        'active' => $currentPage == 'notifications.php'
+    ];
     
     // User Management - only for admin
     if ($userRole == ROLE_ADMIN) {
@@ -80,6 +86,9 @@ if ($userRole) {
                 <a href="<?php echo APP_URL . $item['link']; ?>" class="nav-link <?php echo $item['active'] ? 'active' : 'text-white'; ?>">
                     <i class="<?php echo $item['icon']; ?> me-2"></i>
                     <?php echo $item['title']; ?>
+                    <?php if ($item['title'] === 'Notifications' && $unreadNotifications > 0): ?>
+                        <span class="badge rounded-pill bg-danger ms-1"><?php echo $unreadNotifications; ?></span>
+                    <?php endif; ?>
                 </a>
             </li>
             <?php endforeach; ?>

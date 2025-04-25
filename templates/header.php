@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../controllers/NotificationController.php';
 
 // Start the session if not already started
 if (session_status() === PHP_SESSION_NONE) {
@@ -9,6 +10,20 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Get page title from query parameter or use default
 $pageTitle = isset($title) ? $title . ' - ' . APP_NAME : APP_NAME;
+
+// Get unread notification count for header
+$unreadNotifications = 0;
+$recentNotifications = [];
+if (isLoggedIn()) {
+    $notificationController = new NotificationController();
+    $unreadNotifications = $notificationController->countUnread($_SESSION['user']['id']);
+    
+    // Get 5 most recent notifications
+    if ($unreadNotifications > 0) {
+        $result = $notificationController->getUserNotifications($_SESSION['user']['id'], 1, 5, true);
+        $recentNotifications = $result['notifications'];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -55,6 +70,44 @@ $pageTitle = isset($title) ? $title . ' - ' . APP_NAME : APP_NAME;
                             </ul>
                             <ul class="navbar-nav">
                                 <?php if (isLoggedIn()): ?>
+                                <!-- Notification Dropdown -->
+                                <li class="nav-item dropdown me-2">
+                                    <a class="nav-link dropdown-toggle notification-counter" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-bell"></i>
+                                        <?php if ($unreadNotifications > 0): ?>
+                                            <span class="notification-badge bg-danger"><?php echo $unreadNotifications; ?></span>
+                                        <?php endif; ?>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" style="width: 300px;">
+                                        <li>
+                                            <div class="d-flex justify-content-between align-items-center px-3 py-2 bg-light">
+                                                <h6 class="mb-0">Notifications</h6>
+                                                <a href="<?php echo APP_URL; ?>/dashboard/notifications.php" class="text-decoration-none">View All</a>
+                                            </div>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <?php if (empty($recentNotifications)): ?>
+                                            <li><div class="px-3 py-2 text-muted">No new notifications</div></li>
+                                        <?php else: ?>
+                                            <?php foreach ($recentNotifications as $notification): ?>
+                                                <li>
+                                                    <a class="dropdown-item d-flex align-items-center" href="<?php echo APP_URL; ?>/dashboard/notifications.php">
+                                                        <div class="flex-shrink-0 me-2">
+                                                            <div class="notification-icon bg-<?php echo $notificationController->getTypeColor($notification['type']); ?>" style="width: 30px; height: 30px;">
+                                                                <i class="<?php echo $notificationController->getTypeIcon($notification['type']); ?> fa-sm"></i>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex-grow-1">
+                                                            <p class="mb-0 small"><?php echo htmlspecialchars($notification['message']); ?></p>
+                                                            <small class="text-muted"><?php echo timeAgo($notification['created_at']); ?></small>
+                                                        </div>
+                                                    </a>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </ul>
+                                </li>
+                                <!-- User Dropdown -->
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="fas fa-user-circle me-1"></i> <?php echo htmlspecialchars($_SESSION['user']['name']); ?>
