@@ -9,13 +9,21 @@ function formatCurrency(value) {
 
 // Initialize dynamic price calculation for custom packages
 function initCustomPackagePricing() {
+    console.log('Initializing custom package pricing...');
+    
     // Check if we're on a page with service checkboxes (customize package page)
     const serviceCheckboxes = document.querySelectorAll('input[name="services[]"]');
-    if (serviceCheckboxes.length === 0) return;
+    if (serviceCheckboxes.length === 0) {
+        console.log('No service checkboxes found');
+        return;
+    }
+    
+    console.log(`Found ${serviceCheckboxes.length} service checkboxes`);
     
     // Get the total price display element
     const totalPriceDisplay = document.getElementById('totalPrice');
     if (!totalPriceDisplay) {
+        console.log('No total price display found, creating one');
         // Create one if it doesn't exist
         const servicesSection = document.getElementById('servicesSection');
         if (servicesSection) {
@@ -30,6 +38,7 @@ function initCustomPackagePricing() {
     function updateTotalPrice() {
         let total = 0;
         const selectedServices = document.querySelectorAll('input[name="services[]"]:checked');
+        console.log(`${selectedServices.length} services selected`);
         
         selectedServices.forEach(checkbox => {
             // Extract price from the label (format: Service Name (£100.00))
@@ -37,10 +46,14 @@ function initCustomPackagePricing() {
             if (label) {
                 const priceMatch = label.innerText.match(/\(£([\d\.]+)\)/);
                 if (priceMatch && priceMatch[1]) {
-                    total += parseFloat(priceMatch[1]);
+                    const price = parseFloat(priceMatch[1]);
+                    total += price;
+                    console.log(`Added service: ${label.innerText.split('(')[0].trim()} - £${price}`);
                 }
             }
         });
+        
+        console.log(`Total price: £${total.toFixed(2)}`);
         
         // Update the price display
         const totalPriceElement = document.getElementById('totalPrice');
@@ -51,6 +64,7 @@ function initCustomPackagePricing() {
             const priceInput = document.getElementById('calculated_price');
             if (priceInput) {
                 priceInput.value = total;
+                console.log(`Updated hidden input price to: ${total}`);
             }
         }
     }

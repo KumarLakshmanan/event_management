@@ -448,6 +448,17 @@ if ($action == 'customize') {
 
 // Include extra scripts for forms
 if ($action == 'create' || $action == 'edit' || $action == 'customize') {
+    // Add the dynamic price calculation script for customize view
+    if ($action == 'customize') {
+        $extraScripts .= '
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                // Initialize dynamic price calculation
+                initCustomPackagePricing();
+            });
+        </script>
+        ';
+    }
     $extraScripts = '
         <script>
             document.addEventListener("DOMContentLoaded", function() {
