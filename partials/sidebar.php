@@ -16,7 +16,6 @@
         <nav class="sidebar-nav">
             <ul id="sidebarnav" class="list-unstyled">
                 <?php if($_SESSION['role'] != 'client') { ?>
-
                     <li class="sidebar-item">
                         <a class="sidebar-link" href="<?= $adminBaseUrl ?>services">
                             <i class="bi bi-gear"></i> <span>Services</span>

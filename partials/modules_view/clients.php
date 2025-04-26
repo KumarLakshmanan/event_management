@@ -10,7 +10,7 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="card">
             <div class="card-header bg-transparent">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Manage Guests</h5>
+                    <h5 class="mb-0">Manage Client</h5>
                     <a href="<?= $adminBaseUrl ?>addclient" class="btn btn-success">
                         <i class="bi bi-plus-circle me-2"></i> Add New Guest
                     </a>
@@ -26,7 +26,7 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="stat-card warning">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <div class="stat-card-title">TOTAL GUESTS</div>
+                    <div class="stat-card-title">TOTAL CLIENTS</div>
                     <div class="stat-card-value"><?= count($result) ?></div>
                 </div>
                 <div class="stat-card-icon">
@@ -36,7 +36,7 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 </div>
-<!-- Guests List -->
+<!-- Client List -->
 <div class="row g-4">
     <?php $i = 1; foreach ($result as $row): ?>
     <div class="col-md-6 col-lg-4 col-xl-3 mb-4">

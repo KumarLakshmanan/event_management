@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.1
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 26, 2025 at 12:06 PM
--- Server version: 10.4.22-MariaDB
--- PHP Version: 8.1.1
+-- Generation Time: Apr 26, 2025 at 01:40 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `event_management_4`
+-- Database: `event_management`
 --
 
 -- --------------------------------------------------------
@@ -38,14 +38,16 @@ CREATE TABLE `bookings` (
   `discount_amount` decimal(10,2) NOT NULL DEFAULT 0.00,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `bookings`
 --
 
 INSERT INTO `bookings` (`id`, `package_id`, `event_date`, `event_place`, `user_id`, `status`, `package_type`, `discount_amount`, `created_at`, `updated_at`) VALUES
-(1, 7, '2025-04-26', 'dgl', 2, 'pending', 'package', '0.00', '2025-04-26 10:05:44', '2025-04-26 10:05:44');
+(1, 7, '2025-04-26', 'dgl', 2, 'pending', 'package', 0.00, '2025-04-26 10:05:44', '2025-04-26 10:05:44'),
+(2, 7, '2025-04-26', 'test', 17, 'confirmed', 'package', 0.00, '2025-04-26 10:47:48', '2025-04-26 10:51:35'),
+(4, 12, '2025-04-25', 'asdf', 17, 'confirmed', 'package', 0.00, '2025-04-26 11:28:57', '2025-04-26 11:29:09');
 
 -- --------------------------------------------------------
 
@@ -61,14 +63,19 @@ CREATE TABLE `guests` (
   `guest_email` varchar(50) DEFAULT NULL,
   `rsvp_status` int(1) NOT NULL DEFAULT 0 COMMENT '0-pending,1-not attending,2-attending',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `guests`
 --
 
 INSERT INTO `guests` (`id`, `booking_id`, `guest_name`, `guest_contact`, `guest_email`, `rsvp_status`, `created_at`) VALUES
-(1, 1, 'test', '989898989', 'test@test.com', 0, '2025-04-26 10:06:10');
+(1, 1, 'test', '989898989', 'test@test.com', 0, '2025-04-26 10:06:10'),
+(2, 2, 'test', '6382775774', 'lakshmanan@gmail.com', 0, '2025-04-26 10:52:21'),
+(3, 2, 'test', 'klakshmanan48@gmail.com', 'klakshmanan48@gmail.com', 0, '2025-04-26 10:52:44'),
+(4, 4, 'Lakshmanan', 'klakshmanan48@gmail.com', 'klakshmanan48@gmail.com', 0, '2025-04-26 11:30:10'),
+(5, 4, 'klakshmanan48@gmail.com', 'klakshmanan48@gmail.com', 'klakshmanan48@gmail.com', 2, '2025-04-26 11:34:01'),
+(6, 4, 'klakshmanan48@gmail.com', 'klakshmanan48@gmail.com', 'klakshmanan48@gmail.com', 1, '2025-04-26 11:38:35');
 
 -- --------------------------------------------------------
 
@@ -85,18 +92,20 @@ CREATE TABLE `package` (
   `created_by` int(11) NOT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `package`
 --
 
 INSERT INTO `package` (`id`, `package_name`, `description`, `price`, `image_url`, `created_by`, `created_at`, `updated_at`) VALUES
-(3, 'Basic Wedding Package', 'Our essential wedding package covering the basic needs for your special day.', '3000.00', '68036260e974e3.34535284.jpg', 0, '2025-04-19 14:14:25', '2025-04-19 14:14:25'),
-(4, 'Premium Wedding Package', 'Comprehensive wedding package with all premium services for an unforgettable celebration', '4000.00', '6803627ff00a86.15046880.jpg', 0, '2025-04-19 14:14:55', '2025-04-19 14:14:55'),
-(5, 'Corporate Event Package', 'Complete package for professional corporate events, conferences, and meetings.', '3500.00', '680362970a7d63.61659650.jpg', 0, '2025-04-19 14:15:20', '2025-04-19 14:15:20'),
-(6, 'Birthday Celebration Package', 'Make your birthday special with this complete celebration package.', '1500.00', '68036324547b62.88574898.jpg', 0, '2025-04-19 14:17:46', '2025-04-19 14:17:46'),
-(7, 'Luxury Event Package', 'Our most exclusive package with all premium services and personalized attention to detail.', '2000.00', '6803635983c7f1.23004531.jpg', 0, '2025-04-19 14:18:34', '2025-04-19 14:18:34');
+(3, 'Basic Wedding Package', 'Our essential wedding package covering the basic needs for your special day.', 3000.00, '68036260e974e3.34535284.jpg', 0, '2025-04-19 14:14:25', '2025-04-19 14:14:25'),
+(4, 'Premium Wedding Package', 'Comprehensive wedding package with all premium services for an unforgettable celebration', 4000.00, '6803627ff00a86.15046880.jpg', 0, '2025-04-19 14:14:55', '2025-04-19 14:14:55'),
+(5, 'Corporate Event Package', 'Complete package for professional corporate events, conferences, and meetings.', 3500.00, '680362970a7d63.61659650.jpg', 0, '2025-04-19 14:15:20', '2025-04-19 14:15:20'),
+(6, 'Birthday Celebration Package', 'Make your birthday special with this complete celebration package.', 1500.00, '68036324547b62.88574898.jpg', 0, '2025-04-19 14:17:46', '2025-04-19 14:17:46'),
+(7, 'Luxury Event Package', 'Our most exclusive package with all premium services and personalized attention to detail.', 2000.00, '6803635983c7f1.23004531.jpg', 0, '2025-04-19 14:18:34', '2025-04-19 14:18:34'),
+(11, 'asdf', 'asdf', 1600.00, '680cc1951973f2.27096303.jpg', 0, '2025-04-26 16:50:58', '2025-04-26 16:50:58'),
+(12, 'asdf', 'test', 800.00, '680cc23f38b9f8.49401855.jpg', 0, '2025-04-26 16:57:10', '2025-04-26 16:57:10');
 
 -- --------------------------------------------------------
 
@@ -109,7 +118,7 @@ CREATE TABLE `package_services` (
   `service_id` int(11) NOT NULL,
   `package_id` int(11) NOT NULL,
   `created_at` date NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `package_services`
@@ -128,52 +137,10 @@ INSERT INTO `package_services` (`id`, `service_id`, `package_id`, `created_at`) 
 (10, 9, 4, '2025-04-26'),
 (11, 10, 4, '2025-04-26'),
 (12, 13, 3, '2025-04-26'),
-(13, 15, 3, '2025-04-26');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `page_views`
---
-
-CREATE TABLE `page_views` (
-  `id` int(11) NOT NULL,
-  `page` varchar(255) NOT NULL,
-  `ip` varchar(255) NOT NULL,
-  `date` date NOT NULL,
-  `time` time NOT NULL,
-  `referer` varchar(255) NOT NULL,
-  `session_id` varchar(255) NOT NULL,
-  `device` varchar(255) NOT NULL,
-  `browser` varchar(255) NOT NULL,
-  `agent` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `page_views`
---
-
-INSERT INTO `page_views` (`id`, `page`, `ip`, `date`, `time`, `referer`, `session_id`, `device`, `browser`, `agent`) VALUES
-(1, 'index.php', '117.252.135.167', '2024-12-23', '18:47:45', '', 'uqao5s96ad5pgfkip2tr4q0qqr', 'Windows', 'Google Chrome', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'),
-(2, 'index.php', '117.252.135.167', '2024-12-23', '18:47:47', '', 'uqao5s96ad5pgfkip2tr4q0qqr', 'Windows', 'Google Chrome', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'),
-(3, 'index.php', '61.0.126.136', '2024-12-24', '14:16:20', '', '3s5giphb0a1ooj320k0k97c9i4', 'Windows', 'Google Chrome', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'),
-(4, 'index.php', '61.0.126.136', '2024-12-24', '14:18:00', '', '3s5giphb0a1ooj320k0k97c9i4', 'Windows', 'Google Chrome', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'),
-(5, 'index.php', '61.0.126.136', '2024-12-24', '14:18:01', '', '3s5giphb0a1ooj320k0k97c9i4', 'Windows', 'Google Chrome', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'),
-(6, 'index.php', '120.60.205.111', '2024-12-24', '17:40:52', '', '3s5giphb0a1ooj320k0k97c9i4', 'Windows', 'Google Chrome', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'),
-(7, 'index.php', '120.60.205.111', '2024-12-24', '17:40:59', '', '3s5giphb0a1ooj320k0k97c9i4', 'Windows', 'Google Chrome', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'),
-(8, 'index.php', '120.60.205.111', '2024-12-24', '17:41:00', '', '3s5giphb0a1ooj320k0k97c9i4', 'Windows', 'Google Chrome', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'),
-(9, 'index.php', '120.60.205.111', '2024-12-24', '17:42:33', '', '3s5giphb0a1ooj320k0k97c9i4', 'Windows', 'Google Chrome', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'),
-(10, 'index.php', '120.60.205.111', '2024-12-24', '17:42:36', '', '3s5giphb0a1ooj320k0k97c9i4', 'Windows', 'Google Chrome', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'),
-(11, 'index.php', '120.60.205.111', '2024-12-24', '17:42:50', '', '3s5giphb0a1ooj320k0k97c9i4', 'Windows', 'Google Chrome', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'),
-(12, 'index.php', '120.60.205.111', '2024-12-24', '17:43:04', '', '3s5giphb0a1ooj320k0k97c9i4', 'Android', 'Google Chrome', 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36'),
-(13, 'index.php', '120.60.205.111', '2024-12-24', '17:43:09', '', '3s5giphb0a1ooj320k0k97c9i4', 'Android', 'Google Chrome', 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36'),
-(14, 'index.php', '120.60.205.111', '2024-12-24', '17:43:26', '', '3s5giphb0a1ooj320k0k97c9i4', 'Android', 'Google Chrome', 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36'),
-(15, 'index.php', '120.60.205.111', '2024-12-24', '17:43:31', '', '3s5giphb0a1ooj320k0k97c9i4', 'Android', 'Google Chrome', 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36'),
-(16, 'index.php', '::1', '2024-12-25', '12:33:57', '', 'dgj2pc727kibbh6ibecr4mov7e', 'Windows', 'Google Chrome', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'),
-(17, 'index.php', '::1', '2024-12-25', '13:11:50', 'http://localhost/justdial/admin/enquirymessages', 'dgj2pc727kibbh6ibecr4mov7e', 'Windows', 'Google Chrome', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'),
-(18, 'index.php', '::1', '2024-12-25', '17:34:03', '', 'dgj2pc727kibbh6ibecr4mov7e', 'Windows', 'Google Chrome', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'),
-(19, 'index.php', '::1', '2024-12-25', '17:35:17', '', 'dgj2pc727kibbh6ibecr4mov7e', 'Windows', 'Google Chrome', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'),
-(20, 'index.php', '::1', '2024-12-25', '17:35:19', '', 'dgj2pc727kibbh6ibecr4mov7e', 'Windows', 'Google Chrome', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36');
+(13, 15, 3, '2025-04-26'),
+(14, 8, 11, '2025-04-26'),
+(15, 10, 11, '2025-04-26'),
+(16, 9, 12, '2025-04-26');
 
 -- --------------------------------------------------------
 
@@ -189,22 +156,22 @@ CREATE TABLE `service` (
   `created_by` int(11) NOT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `service`
 --
 
 INSERT INTO `service` (`id`, `service_name`, `description`, `price`, `created_by`, `created_at`, `updated_at`) VALUES
-(7, 'Photography', 'Professional event photography with digital delivery of high-resolution images.', '400.00', 0, '2025-04-19 14:07:36', '2025-04-19 14:11:21'),
-(8, 'Catering', 'Full-service catering including appetizers, main course, and desserts for all guests.', '1000.00', 0, '2025-04-19 14:07:56', '2025-04-19 14:11:28'),
-(9, 'Venue Decoration', 'Custom decoration services including floral arrangements, lighting, and thematic elements.', '800.00', 0, '2025-04-19 14:08:14', '2025-04-19 14:11:34'),
-(10, 'DJ Services', 'Professional DJ with sound equipment, lights, and music selection for the entire event.', '600.00', 0, '2025-04-19 14:08:31', '2025-04-19 14:11:41'),
-(11, 'Videography', 'Professional event videography with edited highlight reel and full event coverage', '500.00', 0, '2025-04-19 14:08:45', '2025-04-19 14:11:53'),
-(12, 'Transportation', 'Luxury vehicle service for the event, including chauffeur and decorations.', '600.00', 0, '2025-04-19 14:09:00', '2025-04-19 14:11:55'),
-(13, 'Live Band', 'Professional live music performance for up to 3 hours during the event.', '750.00', 0, '2025-04-19 14:09:17', '2025-04-19 14:12:01'),
-(14, 'Bartending', 'Professional bartenders with custom cocktail menu and full bar service', '500.00', 0, '2025-04-19 14:09:33', '2025-04-19 14:12:07'),
-(15, 'Event Planning', 'Comprehensive event planning services including timeline, vendor coordination, and on-site management.', '650.00', 0, '2025-04-19 14:09:51', '2025-04-21 16:23:51');
+(7, 'Photography', 'Professional event photography with digital delivery of high-resolution images.', 400.00, 0, '2025-04-19 14:07:36', '2025-04-19 14:11:21'),
+(8, 'Catering', 'Full-service catering including appetizers, main course, and desserts for all guests.', 1000.00, 0, '2025-04-19 14:07:56', '2025-04-19 14:11:28'),
+(9, 'Venue Decoration', 'Custom decoration services including floral arrangements, lighting, and thematic elements.', 800.00, 0, '2025-04-19 14:08:14', '2025-04-19 14:11:34'),
+(10, 'DJ Services', 'Professional DJ with sound equipment, lights, and music selection for the entire event.', 600.00, 0, '2025-04-19 14:08:31', '2025-04-19 14:11:41'),
+(11, 'Videography', 'Professional event videography with edited highlight reel and full event coverage', 500.00, 0, '2025-04-19 14:08:45', '2025-04-19 14:11:53'),
+(12, 'Transportation', 'Luxury vehicle service for the event, including chauffeur and decorations.', 600.00, 0, '2025-04-19 14:09:00', '2025-04-19 14:11:55'),
+(13, 'Live Band', 'Professional live music performance for up to 3 hours during the event.', 750.00, 0, '2025-04-19 14:09:17', '2025-04-19 14:12:01'),
+(14, 'Bartending', 'Professional bartenders with custom cocktail menu and full bar service', 500.00, 0, '2025-04-19 14:09:33', '2025-04-19 14:12:07'),
+(15, 'Event Planning', 'Comprehensive event planning services including timeline, vendor coordination, and on-site management.', 650.00, 0, '2025-04-19 14:09:51', '2025-04-21 16:23:51');
 
 -- --------------------------------------------------------
 
@@ -219,7 +186,7 @@ CREATE TABLE `sessions` (
   `created_at` datetime NOT NULL,
   `AuthUsername` varchar(255) NOT NULL,
   `ip_addr` varchar(255) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `sessions`
@@ -253,7 +220,16 @@ INSERT INTO `sessions` (`id`, `AuthId`, `AuthKey`, `created_at`, `AuthUsername`,
 (152, '2', 'f25816d13a261023a1db35444d50446e', '2025-04-26 15:04:25', 'user@iwd.com', '::1'),
 (153, '1', 'b6bace38710f0eb7d3d0a5384adbef07', '2025-04-26 15:21:15', 'admin@iwd.com', '::1'),
 (154, '1', '3b1b26e1bf3ef6d6bdd401a0c16ac4bd', '2025-04-26 15:30:41', 'admin@em4.com', '::1'),
-(155, '2', '7ddd7c6ede7563029369ab65e1fac3d7', '2025-04-26 15:35:15', 'user@em4.com', '::1');
+(155, '2', '7ddd7c6ede7563029369ab65e1fac3d7', '2025-04-26 15:35:15', 'user@em4.com', '::1'),
+(156, '17', '68c0ac3e416edc938573209378acc5ee', '2025-04-26 16:13:05', 'jane@example.com', '::1'),
+(157, '17', 'a5e6824110be2b364bed54100fc6ec13', '2025-04-26 16:15:20', 'jane@example.com', '::1'),
+(158, '17', 'd8ad8e16351827cea5f7242c21aa6c19', '2025-04-26 16:15:24', 'jane@example.com', '::1'),
+(159, '17', 'dfd84e49aaf9efc7550295918d91112e', '2025-04-26 16:17:38', 'jane@example.com', '::1'),
+(160, '17', '0154e93aad789d5fe6c726f6a9c7db66', '2025-04-26 16:17:55', 'jane@example.com', '::1'),
+(161, '1', '1140e2f440aa1e103e9d0ab0f8060fc0', '2025-04-26 16:19:02', 'admin@em4.com', '::1'),
+(162, '17', '80d934b2dba6d6e076a755c512d797ed', '2025-04-26 16:35:50', 'jane@example.com', '::1'),
+(163, '17', 'e0827ddaa4ecc20285b425de5a9bb3a6', '2025-04-26 16:45:31', 'jane@example.com', '::1'),
+(164, '17', '44bd640218bb487af1dbef71fdfbdd8b', '2025-04-26 16:58:42', 'jane@example.com', '::1');
 
 -- --------------------------------------------------------
 
@@ -263,8 +239,8 @@ INSERT INTO `sessions` (`id`, `AuthId`, `AuthKey`, `created_at`, `AuthUsername`,
 
 CREATE TABLE `settings` (
   `id` int(11) NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `value` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `value` text NOT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -356,7 +332,7 @@ CREATE TABLE `users` (
   `profile` varchar(255) NOT NULL,
   `discount_permission` int(1) NOT NULL DEFAULT 0,
   `address` text NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `users`
@@ -364,8 +340,9 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `email`, `fullname`, `password`, `role`, `created_at`, `updated_at`, `phone`, `profile`, `discount_permission`, `address`) VALUES
 (1, 'admin@em4.com', 'ADMIN', 'admin123', 'admin', '2022-10-16 02:02:58', '2025-04-26 15:29:51', '6382775774', '', 1, ''),
-(2, 'user@em4.com', 'User IWD', 'user123', 'client', '2022-10-16 02:02:58', '2025-04-26 15:30:03', '9361458213', '', 0, ''),
-(3, 'manager@em4.com', 'MEMBER', 'manager123', 'manager', '2025-04-18 17:31:49', '2025-04-26 15:30:29', '9865321470', '', 1, '');
+(2, 'user@em4.com', 'User Test', 'user123', 'client', '2022-10-16 02:02:58', '2025-04-26 16:53:10', '9361458213', '', 0, ''),
+(3, 'manager@em4.com', 'MEMBER', 'manager123', 'manager', '2025-04-18 17:31:49', '2025-04-26 15:30:29', '9865321470', '', 1, ''),
+(17, 'jane@example.com', 'jane@example.com', 'jane@example.com', 'client', '2025-04-26 16:12:57', '2025-04-26 16:53:15', 'jane@example.com', '', 0, '');
 
 --
 -- Indexes for dumped tables
@@ -393,12 +370,6 @@ ALTER TABLE `package`
 -- Indexes for table `package_services`
 --
 ALTER TABLE `package_services`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `page_views`
---
-ALTER TABLE `page_views`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -434,31 +405,25 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `guests`
 --
 ALTER TABLE `guests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `package`
 --
 ALTER TABLE `package`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `package_services`
 --
 ALTER TABLE `package_services`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
-
---
--- AUTO_INCREMENT for table `page_views`
---
-ALTER TABLE `page_views`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `service`
@@ -470,7 +435,7 @@ ALTER TABLE `service`
 -- AUTO_INCREMENT for table `sessions`
 --
 ALTER TABLE `sessions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=156;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=165;
 
 --
 -- AUTO_INCREMENT for table `settings`
@@ -482,7 +447,7 @@ ALTER TABLE `settings`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
