@@ -222,24 +222,27 @@ function deleteRecord($conn, $table, $id) {
 // Additional helper functions for packages, bookings, users, etc. would follow similar patterns
 
 // COMPLETE HELPER FUNCTIONS
-function handlePackageOperation($conn, $operation) {
+function handlePackageOperation($conn, $operation, $jsonData = null) {
+    if ($jsonData === null) {
+        $jsonData = $_REQUEST;
+    }
     $required = $operation === 'insert' 
         ? ['package_name', 'price', 'description', 'service_types']
         : ['package_id', 'package_name', 'price', 'description', 'service_types'];
 
     foreach ($required as $field) {
-        if (empty($_REQUEST[$field])) {
+        if (empty($jsonData[$field])) {
             $json["error"] = ["code" => "#400", "description" => "Missing $field"];
             return;
         }
     }
 
     $packageData = [
-        'name' => trim($_REQUEST['package_name']),
-        'price' => (float)$_REQUEST['price'],
-        'desc' => trim($_REQUEST['description']),
-        'services' => json_decode($_REQUEST['service_types'], true),
-        'image' => $_REQUEST['image'] ?? null
+        'name' => trim($jsonData['package_name']),
+        'price' => (float)$jsonData['price'],
+        'desc' => trim($jsonData['description']),
+        'services' => json_decode($jsonData['service_types'], true),
+        'image' => $jsonData['image'] ?? null
     ];
 
     if (!is_array($packageData['services'])) {
@@ -262,7 +265,7 @@ function handlePackageOperation($conn, $operation) {
             ]);
             $packageId = $conn->lastInsertId();
         } else {
-            $packageId = (int)$_REQUEST['package_id'];
+            $packageId = (int)$jsonData['package_id'];
             $stmt = $conn->prepare("UPDATE package SET 
                 package_name = ?,
                 price = ?,
@@ -310,6 +313,10 @@ function deletePackage($conn, $packageId) {
 function handleCustomPackage($conn) {
     // Validate input
     $required = ['package_name', 'price', 'description', 'service_types', 'event_date', 'event_place'];
+    $json = [
+        "error" => ["code" => "#200", "description" => "Success"],
+        "data" => []
+    ];
     foreach ($required as $field) {
         if (empty($_REQUEST[$field])) {
             $json["error"] = ["code" => "#400", "description" => "Missing $field"];
@@ -319,7 +326,9 @@ function handleCustomPackage($conn) {
 
     // Create package first
     $_REQUEST['mode'] = 'addpackage';
-    handlePackageOperation($conn, $json, 'insert');
+    handlePackageOperation($conn, 'insert', $_REQUEST);
+
+    
     if ($json["error"]["code"] !== "#200") return;
 
     // Get created package ID
@@ -419,9 +428,7 @@ function handleGuestOperation($conn, $mailer) {
 
     try {
         // Insert guest
-        $stmt = $conn->prepare("INSERT INTO guests 
-            (booking_id, guest_name, guest_contact, guest_email)
-            VALUES (?, ?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO guests (booking_id, guest_name, guest_contact, guest_email) VALUES (?, ?, ?, ?)");
         $stmt->execute([
             (int)$_REQUEST['booking_id'],
             trim($_REQUEST['guest_name']),
@@ -438,15 +445,32 @@ function handleGuestOperation($conn, $mailer) {
         $stmt->execute([(int)$_REQUEST['booking_id']]);
         $booking = $stmt->fetch();
 
-        // Send invitation email
-        $mailer->clearAddresses();
+        $mailer->isSMTP();
+        $mailer->Host       = 'smtp.gmail.com';
+        $mailer->SMTPAuth   = true;
+        $mailer->Username   = GMAIL_USERNAME;
+        $mailer->Password   = GMAIL_PASSWORD;
+        $mailer->SMTPSecure = 'tls';
+        $mailer->Port       = 587;
+
+        $mailer->setFrom(GMAIL_USERNAME, "EVENT MANAGEMENT");
+        $mailer->addReplyTo(GMAIL_USERNAME, "EVENT MANAGEMENT");
+        // Add recipient
         $mailer->addAddress($_REQUEST['guest_email'], $_REQUEST['guest_name']);
+        $acceptLink = $GLOBALS['adminBaseUrl'] . "index.php?guest_id=$guestId&pageid=rsvp_attend&booking_id={$_REQUEST['booking_id']}";
+        $declineLink = $GLOBALS['adminBaseUrl'] . "index.php?guest_id=$guestId&pageid=rsvp_notattend&booking_id={$_REQUEST['booking_id']}";
+
+        $mailer->isHTML(true);
         $mailer->Subject = "Event Invitation from {$booking['user_email']}";
         $mailer->Body = generateInvitationEmail(
             $_REQUEST['guest_name'],
             $booking,
-            $guestId
+            $guestId,
+            $acceptLink,
+            $declineLink
         );
+        $mailer->AltBody = "Dear {$_REQUEST['guest_name']},\nYou're invited to an event on {$booking['event_date']} at {$booking['event_place']}\n\nAccept: $acceptLink\nDecline: $declineLink";
+        
         $mailer->send();
 
     } catch (Exception $e) {
@@ -455,15 +479,14 @@ function handleGuestOperation($conn, $mailer) {
 }
 
 // Additional helper functions
-function generateInvitationEmail($name, $booking, $guestId) {
-    $baseUrl = $GLOBALS['adminBaseUrl'];
+function generateInvitationEmail($name, $booking, $guestId, $acceptLink, $declineLink) {
     return "
-        <h3>Dear $name,</h3>
-        <p>You're invited to an event on {$booking['event_date']} at {$booking['event_place']}</p>
+        <h3>Dear " . htmlspecialchars($name) . ",</h3>
+        <p>You're invited to an event on " . htmlspecialchars($booking['event_date']) . " at " . htmlspecialchars($booking['event_place']) . "</p>
         <p>RSVP Links:</p>
         <ul>
-            <li><a href='{$baseUrl}mail/mail_read.php?guest_id=$guestId'>Accept</a></li>
-            <li><a href='{$baseUrl}mail/mail_notread.php?guest_id=$guestId'>Decline</a></li>
+            <li><a href='" . htmlspecialchars($acceptLink) . "'>Accept</a></li>
+            <li><a href='" . htmlspecialchars($declineLink) . "'>Decline</a></li>
         </ul>
     ";
 }
@@ -552,24 +575,4 @@ function handleEventBooking($conn) {
     } catch (Exception $e) {
         $json["error"] = ["code" => "#500", "description" => $e->getMessage()];
     }
-}
-
-function getSessionToken1($conn, $email, $userId) {
-    $created_at = date('Y-m-d H:i:s');
-    $token = md5($username . $id . $created_at);
-    // more than 2 days old
-    $sql = "DELETE FROM `sessions` WHERE AuthId = :id AND created_at < DATE_SUB(NOW(), INTERVAL 2 DAY)";
-    $stmt = $db->prepare($sql);
-    $stmt->bindParam(':id', $id);
-    $stmt->execute();
-    $ip = getClientIP();
-    $sql = "INSERT INTO `sessions` (`AuthId`, `AuthUsername`, `AuthKey`, `created_at`, `ip_addr`) VALUES (:id, :username, :token, :created_at, :ip)";
-    $stmt = $db->prepare($sql);
-    $stmt->bindParam(':id', $id);
-    $stmt->bindParam(':username', $username);
-    $stmt->bindParam(':token', $token);
-    $stmt->bindParam(':created_at', $created_at);
-    $stmt->bindParam(':ip', $ip);
-    $stmt->execute();
-    return $token;
 }

@@ -6,73 +6,58 @@ $stmt->execute();
 $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<div class="row">
-    <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
-        <div class="white-box">
-            <div class="text-end">
-                <a href="<?= $adminBaseUrl ?>addservice" class="btn btn-success text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 32 32">
-                        <path fill="currentColor" d="M17 15V8h-2v7H8v2h7v7h2v-7h7v-2z" />
-                    </svg>
-                    Add New Service
-                </a>
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-transparent">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Manage Services</h5>
+                    <a href="<?= $adminBaseUrl ?>addservice" class="btn btn-success">
+                        <i class="bi bi-plus-circle me-2"></i> Add New Service
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 </div>
-<div class="row">
-    <div class="col-md-12 col-lg-12 col-sm-12">
-        <div class="white-box">
-            <div class="d-md-flex mb-3">
-                <h3 class="box-title mb-0">All Service</h3>
-            </div>
-            <div class="table-responsive">
-                <table class="table no-wrap bDataTable" id="bDataTable">
-                    <thead>
-                        <tr>
-                            <th class="border-top-0">#</th>
-                            <th class="border-top-0">Service</th>
-                            <th class="border-top-0">Price</th>
-                            <th class="border-top-0">Description</th>
-                            <th class="border-top-0">Date</th>
-                            <th class="border-top-0">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        foreach ($result as $key => $value) {
-                        ?>
-                            <tr>
-                                <td><?php echo $key + 1; ?></td>
-                                <td>
-                                    <?php echo $value['service_name']; ?>
-                                </td>
-                                <td>
-                                £ <?php echo $value['price']; ?>
-                                </td>
-                                <td>
-                                    <?php echo $value['description']; ?>
-                                </td>
-                                <td>
-                                    <?php echo date('d M h:i A', strtotime($value['created_at'])); ?>
-                                </td>
-                                <td>
-                                    <a href="<?= $adminBaseUrl ?>editservice?serviceid=<?= $value['id'] ?>" class="btn btn-info">
-                                        <i class="fa fa-edit"></i>
-                                    </a>
-                                    <a href="#" onclick="deleteCode('<?= $value['id'] ?>')" class="btn btn-danger">
-                                        <i class="fa fa-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        <?php
-                        }
-                        ?>
-                    </tbody>
-                </table>
+
+<!-- Stats Row -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stat-card info">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-card-title">TOTAL SERVICES</div>
+                    <div class="stat-card-value"><?= count($result) ?></div>
+                </div>
+                <div class="stat-card-icon">
+                    <i class="bi bi-gear"></i>
+                </div>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Services List -->
+<div class="row g-4">
+    <?php $i = 1; foreach ($result as $row): ?>
+    <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="package-card h-100">
+            <div class="package-card-body d-flex flex-column">
+                <h5 class="package-title"><?= htmlspecialchars($row['service_name']) ?></h5>
+                <p class="text-muted mb-3"><?= htmlspecialchars($row['description'] ?? 'No description available.') ?></p>
+                <div class="d-flex mt-auto">
+                    <a href="<?= $adminBaseUrl ?>editservice?serviceid=<?= $row['id'] ?>" class="btn btn-primary flex-grow-1 me-2">
+                        <i class="bi bi-pencil me-1"></i> Edit
+                    </a>
+                    <button class="btn btn-danger delete-service" data-id="<?= $row['id'] ?>">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
 </div>
 <script>
     $(document).ready(function() {

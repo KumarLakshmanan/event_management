@@ -38,8 +38,8 @@
     </div>
     <form id="rsvpForm" method="POST" action="<?php echo $adminBaseUrl ?>rsvp_attend">
         <!-- No visible inputs needed -->
-        <input type="hidden" name="booking_id" id="booking_id" value="<?= htmlspecialchars($_REQUEST['booking_id']) ?>">
-        <input type="hidden" name="guest_id" id="guest_id" value="<?= htmlspecialchars($_REQUEST['guest_id']) ?>">
+        <input type="hidden" name="booking_id" id="booking_id" value="<?= htmlspecialchars($_REQUEST['booking_id'] ?? "") ?>">
+        <input type="hidden" name="guest_id" id="guest_id" value="<?= htmlspecialchars($_REQUEST['guest_id'] ?? "") ?>">
         <input type="hidden" name="mode" value="rsvp_attend">
     </form>
 

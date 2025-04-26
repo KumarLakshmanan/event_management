@@ -7,6 +7,9 @@ $baseDirectory = "D:\\xampp\\htdocs\\event_v5\\";
 $mailUsername = 'kumar.lakshmanan.projects@gmail.com';
 $mailPassword   = 'yhkrxirfwzvurbhx';
 
+define('GMAIL_USERNAME', $mailUsername);
+define('GMAIL_PASSWORD', $mailPassword);
+
 $dbHost = "localhost";
 $dbUsername = "root";
 $dbPassword = "";

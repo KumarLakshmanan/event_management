@@ -12,12 +12,18 @@ if (isset($_GET["pageid"])) {
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin Dashboard</title>
+    <title>Event Management Dashboard</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css" type="text/css">
-    <link rel="stylesheet" href="<?= $adminBaseUrl ?>css/richtext.min.css" type="text/css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Core CSS -->
     <link rel="stylesheet" href="<?= $adminBaseUrl ?>css/bootstrap.min.css" type="text/css" />
-    <link rel="stylesheet" href="<?= $adminBaseUrl ?>css/dashboard.css" type="text/css" />
+    <link rel="stylesheet" href="<?= $adminBaseUrl ?>css/modern-dashboard.css" type="text/css" />
+    <link rel="stylesheet" href="<?= $adminBaseUrl ?>css/richtext.min.css" type="text/css">
     <link rel="stylesheet" href="<?= $adminBaseUrl ?>css/dataTables.bootstrap4.min.css">
+    <!-- Core JS -->
     <script src="<?= $adminBaseUrl ?>js/jquery.min.js"></script>
     <script src="<?= $adminBaseUrl ?>js/sweetalert.js"></script>
     <script src="<?= $adminBaseUrl ?>js/jquery.dataTables.min.js"></script>
@@ -36,8 +42,32 @@ if (isset($_GET["pageid"])) {
     </div>
     <div id="main-wrapper" data-layout="vertical" data-navbarbg="skin5" data-sidebartype="full" data-sidebar-position="absolute" data-header-position="absolute" data-boxed-layout="full">
         <?php include "./partials/sidebar.php"; ?>
-        <div class="page-wrapper mt-5">
-            <div class="container-fluid">
+        <div class="page-wrapper">
+            <!-- Page Header -->
+            <div class="d-sm-flex align-items-center justify-content-between mb-4 px-4 pt-4">
+                <h1 class="h3 mb-0 text-gray-800">
+                    <?php 
+                    $pageTitle = "Dashboard";
+                    switch($pageId) {
+                        case "services": $pageTitle = "Services"; break;
+                        case "packages": $pageTitle = "Bundles"; break;
+                        case "managers": $pageTitle = "Members"; break;
+                        case "clients": $pageTitle = "Guests"; break;
+                        case "addcustompackage": $pageTitle = "Create Custom Bundle"; break;
+                        case "booking": $pageTitle = "Bookings"; break;
+                        case "clientbooking": $pageTitle = "Client Bookings"; break;
+                        case "editallbooking": $pageTitle = "Edit Booking"; break;
+                    }
+                    echo $pageTitle;
+                    ?>
+                </h1>
+                <div class="d-none d-sm-inline-block">
+                    <span class="mr-2 d-none d-lg-inline text-gray-600">
+                        Welcome, <?= $_SESSION['fullname'] ?>
+                    </span>
+                </div>
+            </div>
+            <div class="container-fluid px-4">
                 <?php
                 // Define page map
                 $adminPages = [
@@ -73,9 +103,31 @@ if (isset($_GET["pageid"])) {
                 }
                 ?>
             </div>
-            <footer class="footer text-center"> Created by <a href="#">EVENT MANAGEMENT</a></footer>
         </div>
     </div>
+    
+    <!-- Toggle Sidebar Script -->
+    <script>
+    $(document).ready(function() {
+        // Add active class to current sidebar item
+        const currentPath = window.location.pathname;
+        const pathParts = currentPath.split('/');
+        const currentPage = pathParts[pathParts.length - 1];
+        
+        $('.sidebar-link').each(function() {
+            const href = $(this).attr('href');
+            if (href && href.includes(currentPage)) {
+                $(this).addClass('active');
+            }
+        });
+        
+        // Mobile sidebar toggle
+        $('#sidebarToggle').on('click', function(e) {
+            e.preventDefault();
+            $('body').toggleClass('sidebar-toggled');
+        });
+    });
+    </script>
 </body>
 
 </html>

@@ -1,50 +1,19 @@
-<!-- Include Bootstrap 5 if not already -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<style>
-.package-card {
-    transition: all 0.4s ease;
-    border: 1px solid #e0e0e0;
-    border-radius: 1rem;
-    overflow: hidden;
-    background: #ffffff;
-}
-.package-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-}
-.package-card img {
-    height: 200px;
-    object-fit: cover;
-    width: 100%;
-}
-.package-card-body {
-    padding: 1rem;
-}
-.package-title {
-    font-weight: 700;
-    font-size: 1.25rem;
-}
-.package-services {
-    font-size: 0.9rem;
-    color: #555;
-}
-.package-price {
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: #0d6efd;
-}
-</style>
-
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">Available Bundles</h2>
-        <a href="<?= $adminBaseUrl ?>addcustompackage" class="btn btn-success">
-            + Create New Bundles
-        </a>
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-transparent">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Available Bundles</h5>
+                    <a href="<?= $adminBaseUrl ?>addcustompackage" class="btn btn-success">
+                        <i class="bi bi-plus-circle me-2"></i> Create Custom Bundle
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div class="row g-4">
+<div class="row g-4">
         <?php
             $sql = "SELECT p.*, p.id AS package_id, p.package_name, p.price, p.description, p.image_url,
                     GROUP_CONCAT(s.service_name ORDER BY s.service_name SEPARATOR ', ') AS service_name
@@ -60,22 +29,27 @@
             
             foreach ($package_list as $package):
         ?>
-            <div class="col-md-6 col-lg-4 col-xl-3">
+            <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
                 <div class="package-card h-100">
-                    <img src="<?= !empty($package['image_url']) ? $adminBaseUrl . "uploads/images/" . $package['image_url'] : 'assets/images/no-image.jpg' ?>" alt="<?= htmlspecialchars($package['package_name']) ?>">
+                    <div class="position-relative">
+                        <img src="<?= !empty($package['image_url']) ? $adminBaseUrl . "uploads/images/" . $package['image_url'] : 'assets/images/no-image.jpg' ?>" alt="<?= htmlspecialchars($package['package_name']) ?>" class="img-fluid">
+                        <div class="position-absolute top-0 end-0 p-2">
+                            <span class="badge bg-primary">£<?= htmlspecialchars($package['price']) ?></span>
+                        </div>
+                    </div>
                     <div class="package-card-body d-flex flex-column">
                         <h5 class="package-title"><?= htmlspecialchars($package['package_name']) ?></h5>
-                        <p class="package-services mb-2">
+                        <div class="package-services mb-3">
+                            <i class="bi bi-check-circle-fill text-success me-1"></i>
                             <?= htmlspecialchars($package['service_name'] ?: 'No services listed.') ?>
-                        </p>
-                        <div class="package-price mb-3">£<?= htmlspecialchars($package['price']) ?></div>
+                        </div>
                         <button 
                             class="btn btn-primary w-100 mt-auto select-package-btn"
                             data-bs-toggle="modal"
                             data-bs-target="#packageModal"
                             data-package-id="<?= $package['package_id'] ?>"
                             data-package-name="<?= htmlspecialchars($package['package_name']) ?>">
-                            Select Bundles
+                            <i class="bi bi-calendar-plus me-2"></i>Book Now
                         </button>
                     </div>
                 </div>
@@ -86,27 +60,28 @@
 
 <!-- Modal for Booking -->
 <div class="modal fade" id="packageModal" tabindex="-1" aria-labelledby="packageModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content rounded-4">
-      <div class="modal-header border-bottom-0">
-        <h5 class="modal-title fw-bold" id="packageModalLabel">Book a Bundles</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-bold" id="packageModalLabel">Book a Bundle</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body p-4">
         <input type="hidden" id="modalPackageId">
 
-        <div class="mb-3">
-          <label for="eventDate" class="form-label">Event Date</label>
-          <input type="date" id="eventDate" class="form-control" required>
+        <div class="mb-4">
+          <label for="eventDate" class="form-label"><i class="bi bi-calendar3 me-2"></i>Event Date</label>
+          <input type="date" id="eventDate" class="form-control form-control-lg" required>
         </div>
 
-        <div class="mb-3">
-          <label for="eventPlace" class="form-label">Event Place</label>
-          <input type="text" id="eventPlace" class="form-control" placeholder="Enter Event Place" required>
+        <div class="mb-4">
+          <label for="eventPlace" class="form-label"><i class="bi bi-geo-alt me-2"></i>Event Location</label>
+          <input type="text" id="eventPlace" class="form-control form-control-lg" placeholder="Enter event location" required>
         </div>
       </div>
-      <div class="modal-footer border-top-0">
-        <button type="button" id="saveButton" class="btn btn-success w-100">Book Now</button>
+      <div class="modal-footer border-top-0 justify-content-center p-3">
+        <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" id="saveButton" class="btn btn-success px-4"><i class="bi bi-check-circle me-2"></i>Confirm Booking</button>
       </div>
     </div>
   </div>

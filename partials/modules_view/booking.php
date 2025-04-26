@@ -21,80 +21,138 @@ $stmt->execute(['user_id' => $_SESSION['id']]);
 $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<!-- <div class="row">
-    <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
-        <div class="white-box">
-            <div class="text-end">
-                <a href="<?= $adminBaseUrl ?>addpackage" class="btn btn-success text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 32 32">
-                        <path fill="currentColor" d="M17 15V8h-2v7H8v2h7v7h2v-7h7v-2z" />
-                    </svg>
-                    Add New Bundles
-                </a>
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-transparent">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">My Bookings</h5>
+                    <a href="<?= $adminBaseUrl ?>explore_bundles" class="btn btn-success">
+                        <i class="bi bi-plus-circle me-2"></i> Book New Event
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-</div> -->
-<div class="row">
-    <div class="col-md-12 col-lg-12 col-sm-12">
-        <div class="white-box">
-            <div class="d-md-flex mb-3">
-                <h3 class="box-title mb-0">All Booking</h3>
-            </div>
-            <div class="table-responsive">
-                <table class="table no-wrap bDataTable" id="bDataTable">
-                    <thead>
-                        <tr>
-                            <th class="border-top-0">#</th>
-                            <th class="border-top-0">Bundles Name</th>
-                            <th class="border-top-0">Type</th>
-                            <th class="border-top-0">Services</th>
-                            <th class="border-top-0">Event Date</th>
-                            <th class="border-top-0">Event Place</th>
-                            <th class="border-top-0">Price</th>
-                            <th class="border-top-0">Status</th>
-                            <th class="border-top-0">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php foreach ($result as $index => $booking): ?>
-                        <tr>
-                            <td><?= $index + 1 ?></td>
-                            <td><?= htmlspecialchars($booking['package_name']) ?></td>
-                            <td><?= ucfirst($booking['package_type']) ?></td>
-                            <td><?= htmlspecialchars($booking['service_name']) ?></td>
-                            <td><?= htmlspecialchars($booking['event_date']) ?></td>
-                            <td><?= htmlspecialchars($booking['event_place']) ?></td>
-                            <td>£<?= number_format($booking['price'], 2) ?></td>
-                            <td>
-                                <?php
-                                    $status = strtolower($booking['status']);
-                                    $badgeClass = match ($status) {
-                                        'pending' => 'warning',
-                                        'confirmed' => 'info',
-                                        'completed' => 'success',
-                                        default => 'secondary',
-                                    };
-                                ?>
-                                <span class="badge bg-<?= $badgeClass ?>">
-                                    <?= ucfirst($status) ?>
-                                </span>
-                            </td>
-                            <td>
-                                    <a href="<?= $adminBaseUrl ?>editbooking?bookingid=<?= $booking['id'] ?>" class="btn btn-info">
-                                        <i class="fa fa-edit"></i>
-                                    </a>
-                                    <a href="#" onclick="deleteCode('<?= $booking['id'] ?>')" class="btn btn-danger">
-                                        <i class="fa fa-trash"></i>
-                                    </a>
-                                </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-                </table>
+</div>
+
+<!-- Stats Row -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stat-card primary">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-card-title">TOTAL BOOKINGS</div>
+                    <div class="stat-card-value"><?= count($result) ?></div>
+                </div>
+                <div class="stat-card-icon">
+                    <i class="bi bi-calendar-check"></i>
+                </div>
             </div>
         </div>
     </div>
+    <?php 
+    $pendingCount = 0;
+    $confirmedCount = 0;
+    $completedCount = 0;
+    
+    foreach ($result as $booking) {
+        $status = strtolower($booking['status']);
+        if ($status === 'pending') $pendingCount++;
+        if ($status === 'confirmed') $confirmedCount++;
+        if ($status === 'completed') $completedCount++;
+    }
+    ?>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stat-card warning">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-card-title">PENDING</div>
+                    <div class="stat-card-value"><?= $pendingCount ?></div>
+                </div>
+                <div class="stat-card-icon">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stat-card info">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-card-title">CONFIRMED</div>
+                    <div class="stat-card-value"><?= $confirmedCount ?></div>
+                </div>
+                <div class="stat-card-icon">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stat-card success">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-card-title">COMPLETED</div>
+                    <div class="stat-card-value"><?= $completedCount ?></div>
+                </div>
+                <div class="stat-card-icon">
+                    <i class="bi bi-trophy"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bookings List -->
+<div class="row g-4">
+    <?php foreach ($result as $key => $value): ?>
+    <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="package-card h-100">
+            <div class="position-relative">
+                <div class="position-absolute top-0 end-0 p-2">
+                    <span class="badge bg-primary">£<?= htmlspecialchars($value['price']) ?></span>
+                </div>
+                <?php if ($value['status'] == 0) { ?>
+                    <div class="position-absolute top-0 start-0 p-2">
+                        <span class="badge bg-warning">Pending</span>
+                    </div>
+                <?php } else if ($value['status'] == 1) { ?>
+                    <div class="position-absolute top-0 start-0 p-2">
+                        <span class="badge bg-success">Confirmed</span>
+                    </div>
+                <?php } else if ($value['status'] == 2) { ?>
+                    <div class="position-absolute top-0 start-0 p-2">
+                        <span class="badge bg-danger">Cancelled</span>
+                    </div>
+                <?php } ?>
+            </div>
+            <div class="package-card-body d-flex flex-column">
+                <h5 class="package-title"><?= htmlspecialchars($value['package_name']) ?></h5>
+                <div class="mb-2">
+                    <i class="bi bi-check-circle-fill text-success me-1"></i>
+                    <small><?= htmlspecialchars($value['service_name'] ?: 'No services listed.') ?></small>
+                </div>
+                <div class="mb-2">
+                    <i class="bi bi-calendar-event text-muted me-2"></i>
+                    <span><?= date('d M Y', strtotime($value['event_date'])) ?></span>
+                </div>
+                <div class="mb-3">
+                    <i class="bi bi-geo-alt text-muted me-2"></i>
+                    <span><?= htmlspecialchars($value['event_place']) ?></span>
+                </div>
+                <div class="d-flex mt-auto">
+                    <a href="<?= $adminBaseUrl ?>editbooking?bookingid=<?= $value['id'] ?>" class="btn btn-primary flex-grow-1 me-2">
+                        <i class="bi bi-pencil me-1"></i> Edit
+                    </a>
+                    <button class="btn btn-danger" onclick="deleteCode('<?= $value['id'] ?>')">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
 </div>
 <script>
     $(document).ready(function() {

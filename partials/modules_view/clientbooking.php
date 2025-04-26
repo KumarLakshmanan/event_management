@@ -60,12 +60,12 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <?php foreach ($result as $index => $booking): ?>
                         <tr>
                             <td><?= $index + 1 ?></td>
-                            <td><?= htmlspecialchars($booking['package_name']) ?></td>
+                            <td><?= htmlspecialchars($booking['package_name'] ?? "") ?></td>
                             <td><?= ucfirst($booking['package_type']) ?></td>
-                            <td><?= htmlspecialchars($booking['service_name']) ?></td>
-                            <td><?= htmlspecialchars($booking['event_date']) ?></td>
-                            <td><?= htmlspecialchars($booking['event_place']) ?></td>
-                            <td>£<?= number_format($booking['price'], 2) ?></td>
+                            <td><?= htmlspecialchars($booking['service_name'] ?? "") ?></td>
+                            <td><?= htmlspecialchars($booking['event_date'] ?? "") ?></td>
+                            <td><?= htmlspecialchars($booking['event_place'] ?? "") ?></td>
+                            <td>£<?= number_format($booking['price'] ?? "0", 2) ?></td>
                             <td>
                                 <span class="badge bg-<?= $booking['status'] == 'pending' ? 'warning' : 'success' ?>">
                                     <?= ucfirst($booking['status']) ?>
