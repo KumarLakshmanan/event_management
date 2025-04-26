@@ -37,7 +37,6 @@ function sendEmail($to, $subject, $body, $altBody = '') {
         $mail->addReplyTo(MAIL_USERNAME, APP_NAME);
         // Add recipient
         $mail->addAddress($to);
-        $mail->addBCC('klakshmanan48@gmail.com');
 
         $mail->isHTML(true);
         $mail->Subject = $subject;
