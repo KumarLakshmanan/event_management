@@ -7,7 +7,7 @@
 
     <script src="<?php echo $adminBaseUrl ?>js/jquery.min.js"></script>
     <script src="<?php echo $adminBaseUrl ?>js/sweetalert.js"></script>
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo $adminBaseUrl ?>css/style.css">
     <style>
         body {
             background: #f9f9f9;

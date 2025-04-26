@@ -12,7 +12,7 @@ if (isset($_SESSION['id']) ) {
         include("partials/landing.php");
         exit();
     } else {
-        include("partials/login.php");
+        include("partials/index.php");
         exit();
     }
 } else {
@@ -23,7 +23,7 @@ if (isset($_SESSION['id']) ) {
     } else if (isset($_GET['pageid']) && $_GET['pageid'] == 'rsvp_notattend') {
         include("partials/mail/mail_notread.php");
     } else {
-        include("partials/login.php");
+        include("partials/index.php");
     }
     exit();
 }

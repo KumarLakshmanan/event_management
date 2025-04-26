@@ -20,7 +20,7 @@
 </header>
 
 <!-- Sidebar -->
-<aside class="left-sidebar" style="position: fixed; top: 70px; width: 250px; height: calc(100% - 70px); background-color: #ffffff; box-shadow: 2px 0 5px rgba(0,0,0,0.1); overflow-y: auto; z-index: 998;">
+<aside class="left-sidebar" style="margin: 0; padding: 0; position: fixed; top: 60px; width: 250px; height: calc(100% - 60px); background-color: #ffffff; box-shadow: 2px 0 5px rgba(0,0,0,0.1); overflow-y: auto; z-index: 998;">
     <div class="scroll-sidebar">
         <nav class="sidebar-nav">
             <ul id="sidebarnav" class="list-unstyled">

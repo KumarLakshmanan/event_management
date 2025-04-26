@@ -6,7 +6,7 @@
   <title>Event Management</title>
   <script src="<?php echo $adminBaseUrl ?>js/jquery.min.js"></script>
   <script src="<?php echo $adminBaseUrl ?>js/sweetalert.js"></script>
-  <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="stylesheet" type="text/css" href="<?php echo $adminBaseUrl ?>css/style.css">
   <style>
     * {
       margin: 0;
@@ -67,14 +67,16 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      background-image: url('img/e_image.jpg'); /* Add your image URL here */
+      background-image: url('img/e_image.jpg');
+      /* Add your image URL here */
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
     }
 
     header {
-      background-color: rgba(0, 150, 136, 0.8); /* Transparent background to make it stand out over image */
+      background-color: rgba(0, 150, 136, 0.8);
+      /* Transparent background to make it stand out over image */
       color: white;
       padding: 20px;
       font-size: 24px;
@@ -237,7 +239,7 @@
     </div>
     <a href="#" onclick="showWelcome()">🏠 Home</a>
     <a href="#" onclick="showLogin()">🔐 Login</a>
-    <a href="index.php?pageid=register">📝 Register</a>
+    <a href="#" onclick="showRegister()">📝 Register</a>
   </aside>
 
   <!-- Main Content -->
@@ -251,7 +253,7 @@
           <p>Manage events, registrations, bookings, and services — all in one place.</p>
           <div>
             <button class="button" onclick="showLogin()">Login</button>
-            <a href="index.php?pageid=register"><button class="button">Register</button></a>
+            <button class="button" onclick="showRegister()">Register</button>
           </div>
         </div>
       </div>
@@ -281,6 +283,49 @@
           </div>
         </div>
       </div>
+
+      <!-- Register -->
+      <!-- Register -->
+      <div class="login-screen" id="registerScreen">
+        <div class="formbg">
+          <h2 style="text-align: center; color: #004d40;">Admin Registration</h2>
+          <p style="text-align: center; color: #607d8b; font-size: 14px; margin-bottom: 20px;">
+            Please fill in the details to create an account.
+          </p>
+          <form id="register-form" action="<?= $apiUrl ?>">
+            <div class="field">
+              <label for="fullname">Full Name</label>
+              <input type="text" name="fullname" required>
+            </div>
+            <div class="field">
+              <label for="email">Email</label>
+              <input type="email" name="email" required>
+            </div>
+            <div class="field">
+              <label for="password">Password</label>
+              <input type="password" name="password" required>
+            </div>
+            <div class="field">
+              <label for="confirm_password">Confirm Password</label>
+              <input type="password" name="confirm_password" required>
+            </div>
+            <div class="field">
+              <label for="phone">Phone</label>
+              <input type="text" name="phone" required>
+            </div>
+            <div class="field">
+              <label for="address">Address</label>
+              <input type="text" name="address" required>
+            </div>
+            <div class="field">
+              <input type="submit" name="submit" value="Register">
+            </div>
+            <div class="field" style="text-align: center; margin-top: 15px;">
+              <button class="button" onclick="goBack()">← Back to Home</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </main>
 
     <footer>
@@ -292,19 +337,27 @@
     function showLogin() {
       $('#welcomeScreen').removeClass('active');
       $('#loginScreen').addClass('active');
+      $('#registerScreen').removeClass('active');
     }
 
     function showWelcome() {
       $('#loginScreen').removeClass('active');
       $('#welcomeScreen').addClass('active');
+      $('#registerScreen').removeClass('active');
+    }
+
+    function showRegister() {
+      $('#loginScreen').removeClass('active');
+      $('#welcomeScreen').removeClass('active');
+      $('#registerScreen').addClass('active');
     }
 
     function goBack() {
       showWelcome();
     }
 
-    $(document).ready(function () {
-      $("#admin-login-form").submit(function (e) {
+    $(document).ready(function() {
+      $("#admin-login-form").submit(function(e) {
         e.preventDefault();
         var form = $(this);
         var url = form.attr('action');
@@ -313,13 +366,59 @@
           type: "POST",
           url: url,
           data: data,
-          success: function (data) {
+          success: function(data) {
             if (data.error.code == '#200') {
               swal("Success", "Login Success", "success").then(() => {
                 window.location.href = '<?= $adminBaseUrl ?>';
               });
             } else {
               swal("Error", data.error.description, "error");
+            }
+          }
+        });
+      });
+
+      $("#register-form").submit(function(e) {
+        e.preventDefault();
+        const password = $("#register-form input[name='password']").val();
+        const confirmPassword = $("#register-form input[name='confirm_password']").val();
+
+        if (password !== confirmPassword) {
+          swal({
+            title: 'Password Mismatch',
+            text: 'Password and Confirm Password must match!',
+            icon: 'warning',
+            confirmButtonText: 'Ok'
+          });
+          return;
+        }
+
+        var form = $(this);
+        var url = form.attr('action');
+        var data = form.serialize();
+        data += '&mode=register'; // adjust as per your API mode
+
+        $.ajax({
+          type: "POST",
+          url: url,
+          data: data,
+          success: function(data) {
+            if (data.error.code == '#200') {
+              swal({
+                title: 'Success',
+                text: "Registered successfully",
+                icon: 'success',
+                confirmButtonText: 'Ok'
+              }).then(() => {
+                window.location.href = '<?= $adminBaseUrl ?>'; // redirect after success
+              });
+            } else {
+              swal({
+                title: 'Error',
+                text: data.error.description,
+                icon: 'error',
+                confirmButtonText: 'Ok'
+              });
             }
           }
         });
