@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Package management page for Event Planning Platform
  */
@@ -22,7 +23,7 @@ $allServices = [];
 // Check permissions based on role
 if (hasRole('client')) {
     // Clients can view packages and create customized packages
-    if ($action !== 'list' && $action !== 'create' && $action !== 'customize') {
+    if ($action != 'list' && $action != 'view' && $action != 'customize') {
         $action = 'list';
     }
 } elseif (!hasRole('manager') && !hasRole('administrator')) {
@@ -42,26 +43,26 @@ switch ($action) {
             header('Location: packages.php');
             exit;
         }
-        
+
         // Get all available services
-        $stmt = $db->query("SELECT * FROM products ORDER BY name");
+        $stmt = $db->query("SELECT * FROM products WHERE deleted = 0 ORDER BY name");
         $allServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
+
         // Process form submission for creating a customized package
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = sanitizeInput($_POST['name'] ?? 'Customized Package');
             $description = sanitizeInput($_POST['description'] ?? '');
             $selectedServiceIds = $_POST['services'] ?? [];
             $calculatedPrice = isset($_POST['calculated_price']) ? (float)$_POST['calculated_price'] : 0;
-            
+
             // Calculate price based on selected services if not provided
             if ($calculatedPrice == 0 && !empty($selectedServiceIds)) {
                 $serviceIds = implode(',', array_map('intval', $selectedServiceIds));
-                $stmt = $db->query("SELECT SUM(price) as total FROM products WHERE id IN ($serviceIds)");
+                $stmt = $db->query("SELECT SUM(price) as total FROM products WHERE deleted = 0 AND id IN ($serviceIds)");
                 $result = $stmt->fetch(PDO::FETCH_ASSOC);
                 $calculatedPrice = $result['total'] ?? 0;
             }
-            
+
             // Validate input
             if (empty($name)) {
                 $error = "Package name is required";
@@ -70,31 +71,31 @@ switch ($action) {
             } else {
                 // Begin transaction
                 $db->beginTransaction();
-                
+
                 try {
                     // Insert package into database (always customized for this action)
                     $customized = 1;
-                    $stmt = $db->prepare("INSERT INTO bundles (name, description, price, customized, created_by, created_at) 
-                                         VALUES (:name, :description, :price, :customized, :created_by, CURRENT_TIMESTAMP)");
+                    $stmt = $db->prepare("INSERT INTO bundles (name, description, price, customized, created_by, created_role, created_at) 
+                                         VALUES (:name, :description, :price, :customized, :created_by, 'client', CURRENT_TIMESTAMP)");
                     $stmt->bindParam(':name', $name);
                     $stmt->bindParam(':description', $description);
                     $stmt->bindParam(':price', $calculatedPrice);
                     $stmt->bindParam(':customized', $customized);
                     $stmt->bindParam(':created_by', $_SESSION['user_id']);
                     $stmt->execute();
-                    
+
                     // Get the newly inserted package ID
                     $packageId = $db->lastInsertId();
-                    
+
                     // Insert package services
                     $insertServiceStmt = $db->prepare("INSERT INTO bundle_products (bundle_id, product_id) VALUES (:bundle_id, :product_id)");
-                    
+
                     foreach ($selectedServiceIds as $serviceId) {
                         $insertServiceStmt->bindParam(':bundle_id', $packageId);
                         $insertServiceStmt->bindParam(':product_id', $serviceId);
                         $insertServiceStmt->execute();
                     }
-                    
+
                     // Create notification
                     createNotification(
                         $_SESSION['user_id'],
@@ -102,10 +103,10 @@ switch ($action) {
                         'Created a new customized package: ' . $name,
                         'packages.php?action=view&id=' . $packageId
                     );
-                    
+
                     // Commit transaction
                     $db->commit();
-                    
+
                     // Set success message and redirect to view
                     setAlert('success', 'Your customized package has been created successfully with a total price of ' . formatCurrency($calculatedPrice));
                     header('Location: packages.php?action=view&id=' . $packageId);
@@ -118,12 +119,12 @@ switch ($action) {
             }
         }
         break;
-        
+
     case 'create':
         // Get all available services
-        $stmt = $db->query("SELECT * FROM products ORDER BY name");
+        $stmt = $db->query("SELECT * FROM products WHERE deleted = 0  ORDER BY name");
         $allServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
+
         // Process form submission for creating a package
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = sanitizeInput($_POST['name'] ?? '');
@@ -131,7 +132,7 @@ switch ($action) {
             $price = floatval($_POST['price'] ?? 0);
             $customized = isset($_POST['customized']) ? 1 : 0;
             $selectedServiceIds = $_POST['services'] ?? [];
-            
+
             // Validate input
             if (empty($name)) {
                 $error = "Package name is required";
@@ -142,36 +143,36 @@ switch ($action) {
             } else {
                 // Begin transaction
                 $db->beginTransaction();
-                
+
                 try {
                     // Insert package into database
-                    $stmt = $db->prepare("INSERT INTO bundles (name, description, price, customized, created_by, created_at) 
-                                         VALUES (:name, :description, :price, :customized, :created_by, CURRENT_TIMESTAMP)");
+                    $stmt = $db->prepare("INSERT INTO bundles (name, description, price, customized, created_by, created_role, created_at) 
+                                         VALUES (:name, :description, :price, 0, :created_by, 'administrator', CURRENT_TIMESTAMP)");
                     $stmt->bindParam(':name', $name);
                     $stmt->bindParam(':description', $description);
                     $stmt->bindParam(':price', $price);
                     $stmt->bindParam(':customized', $customized);
                     $stmt->bindParam(':created_by', $_SESSION['user_id']);
                     $stmt->execute();
-                    
+
                     // Get the newly inserted package ID
                     $packageId = $db->lastInsertId();
-                    
+
                     // Insert package services if any selected
                     if (!empty($selectedServiceIds)) {
                         $insertServiceStmt = $db->prepare("INSERT INTO bundle_products (bundle_id, product_id) VALUES (:bundle_id, :product_id)");
-                        
+
                         foreach ($selectedServiceIds as $serviceId) {
                             $insertServiceStmt->bindParam(':bundle_id', $packageId);
                             $insertServiceStmt->bindParam(':product_id', $serviceId);
                             $insertServiceStmt->execute();
                         }
                     }
-                    
+
                     // Upload image if provided
-                    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-                        $imagePath = uploadImage($_FILES['image'], 'assets/img/packages');
-                        
+                    if (isset($_FILES['image']) && $_FILES['image']['error'] == UPLOAD_ERR_OK) {
+                        $imagePath = uploadImage($_FILES['image'], 'assets/img');
+
                         if ($imagePath) {
                             // Update package with image path
                             $stmt = $db->prepare("UPDATE bundles SET image_url = :image_url WHERE id = :id");
@@ -180,10 +181,10 @@ switch ($action) {
                             $stmt->execute();
                         }
                     }
-                    
+
                     // Commit transaction
                     $db->commit();
-                    
+
                     // Set success message and redirect to list view
                     $_SESSION['alert_message'] = "Package '$name' has been created successfully";
                     $_SESSION['alert_type'] = "success";
@@ -197,29 +198,29 @@ switch ($action) {
             }
         }
         break;
-        
+
     case 'edit':
         // Get package ID
         $packageId = isset($_GET['id']) ? intval($_GET['id']) : 0;
-        
+
         // Get all available services
-        $stmt = $db->query("SELECT * FROM products ORDER BY name");
+        $stmt = $db->query("SELECT * FROM products WHERE deleted = 0 ORDER BY name");
         $allServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
+
         // Get package data
         if ($packageId > 0) {
-            $stmt = $db->prepare("SELECT * FROM bundles WHERE id = :id");
+            $stmt = $db->prepare("SELECT * FROM bundles WHERE deleted = 0 AND id = :id");
             $stmt->bindParam(':id', $packageId);
             $stmt->execute();
             $package = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+
             if (!$package) {
                 $_SESSION['alert_message'] = "Package not found";
                 $_SESSION['alert_type'] = "danger";
                 header("Location: packages.php");
                 exit;
             }
-            
+
             // Get package services
             $stmt = $db->prepare("
                 SELECT ps.*, p.name, p.price
@@ -230,9 +231,9 @@ switch ($action) {
             $stmt->bindParam(':bundle_id', $packageId);
             $stmt->execute();
             $packageServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
+
             // Create array of service IDs for easier checking in the form
-            $selectedServiceIds = array_map(function($service) {
+            $selectedServiceIds = array_map(function ($service) {
                 return $service['product_id'];
             }, $packageServices);
         } else {
@@ -241,7 +242,7 @@ switch ($action) {
             header("Location: packages.php");
             exit;
         }
-        
+
         // Process form submission for editing a package
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = sanitizeInput($_POST['name'] ?? '');
@@ -249,7 +250,7 @@ switch ($action) {
             $price = floatval($_POST['price'] ?? 0);
             $customized = isset($_POST['customized']) ? 1 : 0;
             $selectedServiceIds = $_POST['services'] ?? [];
-            
+
             // Validate input
             if (empty($name)) {
                 $error = "Package name is required";
@@ -260,7 +261,7 @@ switch ($action) {
             } else {
                 // Begin transaction
                 $db->beginTransaction();
-                
+
                 try {
                     // Update package in database
                     $stmt = $db->prepare("UPDATE bundles SET name = :name, description = :description, price = :price, customized = :customized WHERE id = :id");
@@ -270,27 +271,27 @@ switch ($action) {
                     $stmt->bindParam(':customized', $customized);
                     $stmt->bindParam(':id', $packageId);
                     $stmt->execute();
-                    
+
                     // Delete existing package services
                     $stmt = $db->prepare("DELETE FROM bundle_products WHERE bundle_id = :bundle_id");
                     $stmt->bindParam(':bundle_id', $packageId);
                     $stmt->execute();
-                    
+
                     // Insert new package services if any selected
                     if (!empty($selectedServiceIds)) {
                         $insertServiceStmt = $db->prepare("INSERT INTO bundle_products (bundle_id, product_id) VALUES (:bundle_id, :product_id)");
-                        
+
                         foreach ($selectedServiceIds as $serviceId) {
                             $insertServiceStmt->bindParam(':bundle_id', $packageId);
                             $insertServiceStmt->bindParam(':product_id', $serviceId);
                             $insertServiceStmt->execute();
                         }
                     }
-                    
+
                     // Upload image if provided
-                    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-                        $imagePath = uploadImage($_FILES['image'], 'assets/img/packages');
-                        
+                    if (isset($_FILES['image']) && $_FILES['image']['error'] == UPLOAD_ERR_OK) {
+                        $imagePath = uploadImage($_FILES['image'], 'assets/img');
+
                         if ($imagePath) {
                             // Update package with image path
                             $stmt = $db->prepare("UPDATE bundles SET image_url = :image_url WHERE id = :id");
@@ -299,10 +300,10 @@ switch ($action) {
                             $stmt->execute();
                         }
                     }
-                    
+
                     // Commit transaction
                     $db->commit();
-                    
+
                     // Set success message and redirect to list view
                     $_SESSION['alert_message'] = "Package '$name' has been updated successfully";
                     $_SESSION['alert_type'] = "success";
@@ -316,51 +317,34 @@ switch ($action) {
             }
         }
         break;
-        
+
     case 'delete':
         // Require manager or admin role
         requireRole(['manager', 'administrator']);
-        
+
         // Get package ID
         $packageId = isset($_GET['id']) ? intval($_GET['id']) : 0;
-        
+
         // Check if package is used in any bookings
         if ($packageId > 0) {
-            $stmt = $db->prepare("SELECT COUNT(*) as count FROM reservations WHERE bundle_id = :id");
-            $stmt->bindParam(':id', $packageId);
-            $stmt->execute();
-            $usageCount = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
-            
-            if ($usageCount > 0) {
-                $_SESSION['alert_message'] = "This package cannot be deleted because it is used in $usageCount booking(s)";
-                $_SESSION['alert_type'] = "danger";
-                header("Location: packages.php");
-                exit;
-            }
-            
             // Get package name for confirmation message
-            $stmt = $db->prepare("SELECT name FROM bundles WHERE id = :id");
+            $stmt = $db->prepare("SELECT name FROM bundles WHERE deleted = 0 AND id = :id");
             $stmt->bindParam(':id', $packageId);
             $stmt->execute();
             $packageName = $stmt->fetch(PDO::FETCH_ASSOC)['name'];
-            
+
             // Begin transaction
             $db->beginTransaction();
-            
+
             try {
-                // Delete package services
-                $stmt = $db->prepare("DELETE FROM bundle_products WHERE bundle_id = :id");
-                $stmt->bindParam(':id', $packageId);
-                $stmt->execute();
-                
                 // Delete package
-                $stmt = $db->prepare("DELETE FROM bundles WHERE id = :id");
+                $stmt = $db->prepare("UPDATE bundles SET deleted = 1 WHERE id = :id");
                 $stmt->bindParam(':id', $packageId);
                 $stmt->execute();
-                
+
                 // Commit transaction
                 $db->commit();
-                
+
                 // Set success message and redirect to list view
                 $_SESSION['alert_message'] = "Package '$packageName' has been deleted successfully";
                 $_SESSION['alert_type'] = "success";
@@ -381,11 +365,11 @@ switch ($action) {
             exit;
         }
         break;
-        
+
     case 'view':
         // Get package ID
         $packageId = isset($_GET['id']) ? intval($_GET['id']) : 0;
-        
+
         // Get package data
         if ($packageId > 0) {
             $stmt = $db->prepare("
@@ -397,14 +381,14 @@ switch ($action) {
             $stmt->bindParam(':id', $packageId);
             $stmt->execute();
             $package = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+
             if (!$package) {
                 $_SESSION['alert_message'] = "Package not found";
                 $_SESSION['alert_type'] = "danger";
                 header("Location: packages.php");
                 exit;
             }
-            
+
             // Get package services
             $stmt = $db->prepare("
                 SELECT ps.*, p.name, p.description, p.price
@@ -422,7 +406,7 @@ switch ($action) {
             exit;
         }
         break;
-        
+
     case 'list':
     default:
         // Determine which packages to show based on user role
@@ -431,6 +415,7 @@ switch ($action) {
             $stmt = $db->query("SELECT b.*, u.name as created_by_name 
                                 FROM bundles b
                                 LEFT JOIN members u ON b.created_by = u.id
+                                WHERE b.deleted = 0 AND b.created_role = 'administrator'
                                 ORDER BY b.name");
         } else {
             // Regular clients see only:
@@ -440,15 +425,15 @@ switch ($action) {
             $stmt = $db->prepare("SELECT b.*, u.name as created_by_name 
                                   FROM bundles b
                                   LEFT JOIN members u ON b.created_by = u.id
-                                  WHERE b.created_by IS NULL 
+                                  WHERE b.deleted = 0
                                   OR b.created_by = :user_id 
                                   ORDER BY b.name");
             $stmt->bindParam(':user_id', $userId);
             $stmt->execute();
         }
-        
+
         $packages = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
+
         // Get services count for each package
         foreach ($packages as &$pkg) {
             $stmt = $db->prepare("SELECT COUNT(*) as count FROM bundle_products WHERE bundle_id = :id");
@@ -482,7 +467,7 @@ if ($action == 'create' || $action == 'edit' || $action == 'customize') {
         </script>
         ';
     }
-    
+
     $extraScripts .= '
         <script>
             document.addEventListener("DOMContentLoaded", function() {
@@ -550,7 +535,6 @@ if ($action == 'create' || $action == 'edit' || $action == 'customize') {
 // Include header
 include_once TEMPLATES_PATH . 'header.php';
 ?>
-
 <div class="container">
     <?php if ($action == 'list'): ?>
         <!-- Packages list view -->
@@ -569,7 +553,6 @@ include_once TEMPLATES_PATH . 'header.php';
                 <?php endif; ?>
             </div>
         </div>
-        
         <?php if (empty($packages)): ?>
             <div class="alert alert-info">
                 <i class="bi bi-info-circle me-2"></i>No packages found.
@@ -579,57 +562,56 @@ include_once TEMPLATES_PATH . 'header.php';
             </div>
         <?php else: ?>
             <div class="row">
-                <?php foreach ($packages as $pkg): ?>
+                <?php foreach ($packages as $package): ?>
                     <div class="col-md-4 mb-4">
                         <div class="card package-card h-100">
-                            <?php if (!empty($pkg['image_url'])): ?>
-                                <img src="/<?= htmlspecialchars($pkg['image_url']) ?>" class="card-img-top" alt="<?= htmlspecialchars($pkg['name']) ?>">
+                            <?php if (!empty($package['image_url'])): ?>
+                                <img src="<?= htmlspecialchars($package['image_url']) ?>" class="card-img-top" alt="<?= htmlspecialchars($package['name']) ?>">
                             <?php else: ?>
                                 <div class="card-img-top bg-light d-flex align-items-center justify-content-center">
                                     <i class="bi bi-box text-secondary" style="font-size: 4rem;"></i>
                                 </div>
                             <?php endif; ?>
-                            
+
                             <div class="card-body">
-                                <h5 class="card-title"><?= htmlspecialchars($pkg['name']) ?></h5>
+                                <h5 class="card-title"><?= htmlspecialchars($package['name']) ?></h5>
                                 <p class="card-text text-muted">
-                                    <?php if ($pkg['customized']): ?>
+                                    <?php if ($package['customized']): ?>
                                         <span class="badge bg-info">Customizable</span>
                                     <?php else: ?>
-                                        <small><?= $pkg['services_count'] ?> services included</small>
+                                        <small><?= $package['services_count'] ?> services included</small>
                                     <?php endif; ?>
                                 </p>
-                                
-                                <?php if (!empty($pkg['description'])): ?>
-                                    <p class="card-text"><?= nl2br(htmlspecialchars($pkg['description'])) ?></p>
+
+                                <?php if (!empty($package['description'])): ?>
+                                    <p class="card-text"><?= nl2br(htmlspecialchars($package['description'])) ?></p>
                                 <?php endif; ?>
-                                
+
                                 <div class="d-flex justify-content-between align-items-center mt-3">
                                     <span class="fs-5 fw-bold text-primary">
-                                        <?= !empty($pkg['price']) ? formatCurrency($pkg['price']) : 'Custom pricing' ?>
+                                        <?= !empty($package['price']) ? formatCurrency($package['price']) : 'Custom pricing' ?>
                                     </span>
                                     <div>
-                                        <a href="?action=view&id=<?= $pkg['id'] ?>" class="btn btn-outline-primary">View Details</a>
+                                        <a href="?action=view&id=<?= $package['id'] ?>" class="btn btn-outline-primary">View Details</a>
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <?php if (hasRole(['manager', 'administrator'])): ?>
                                 <div class="card-footer bg-white">
                                     <div class="d-flex justify-content-between">
-                                        <a href="?action=edit&id=<?= $pkg['id'] ?>" class="btn btn-sm btn-outline-primary">
+                                        <a href="?action=edit&id=<?= $package['id'] ?>" class="btn btn-sm btn-outline-primary">
                                             <i class="bi bi-pencil me-1"></i>Edit
                                         </a>
-                                        <a href="?action=delete&id=<?= $pkg['id'] ?>" class="btn btn-sm btn-outline-danger btn-delete"
-                                           data-name="<?= htmlspecialchars($pkg['name']) ?>"
-                                           onclick="return confirm('Are you sure you want to delete the package: <?= htmlspecialchars($pkg['name']) ?>?');">
+                                        <a href="?action=delete&id=<?= $package['id'] ?>" class="btn btn-sm btn-outline-danger btn-delete"
+                                            data-name="<?= htmlspecialchars($package['name']) ?>">
                                             <i class="bi bi-trash me-1"></i>Delete
                                         </a>
                                     </div>
                                 </div>
                             <?php elseif (hasRole('client')): ?>
                                 <div class="card-footer bg-white">
-                                    <a href="<?= BASE_URL ?>dashboard/bookings.php?action=create&package_id=<?= $pkg['id'] ?>" class="btn btn-primary w-100">
+                                    <a href="<?= BASE_URL ?>dashboard/bookings.php?action=create&package_id=<?= $package['id'] ?>" class="btn btn-primary w-100">
                                         <i class="bi bi-calendar-plus me-2"></i>Book This Package
                                     </a>
                                 </div>
@@ -639,7 +621,7 @@ include_once TEMPLATES_PATH . 'header.php';
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
-        
+
     <?php elseif ($action == 'customize'): ?>
         <?php if (hasRole('administrator')): ?>
             <div class="alert alert-warning">
@@ -649,19 +631,19 @@ include_once TEMPLATES_PATH . 'header.php';
                 <a href="<?= BASE_URL ?>dashboard/packages.php" class="btn btn-primary">Return to Packages</a>
             </div>
         <?php else: ?>
-        <!-- Customize Package Form -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>Create Your Customized Package</h1>
-            <a href="<?= BASE_URL ?>dashboard/packages.php" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-2"></i>Back to Packages
-            </a>
-        </div>
-        
-        <?php if (!empty($error)): ?>
-            <div class="alert alert-danger mb-4"><?php echo $error; ?></div>
+            <!-- Customize Package Form -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Create Your Customized Package</h1>
+                <a href="<?= BASE_URL ?>dashboard/packages.php" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Packages
+                </a>
+            </div>
+
+            <?php if (!empty($error)): ?>
+                <div class="alert alert-danger mb-4"><?php echo $error; ?></div>
+            <?php endif; ?>
         <?php endif; ?>
-        <?php endif; ?>
-        
+
         <form method="post" action="packages.php?action=customize">
             <div class="row">
                 <div class="col-md-4">
@@ -672,25 +654,25 @@ include_once TEMPLATES_PATH . 'header.php';
                         <div class="card-body">
                             <div class="mb-3">
                                 <label for="name" class="form-label">Package Name</label>
-                                <input type="text" class="form-control" id="name" name="name" 
-                                       value="My Customized Package" required>
+                                <input type="text" class="form-control" id="name" name="name"
+                                    value="My Customized Package" required>
                                 <div class="form-text">Name your custom package</div>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="description" class="form-label">Notes</label>
                                 <textarea class="form-control" id="description" name="description" rows="3"></textarea>
                                 <div class="form-text">Any special requirements or notes</div>
                             </div>
-                            
+
                             <input type="hidden" id="calculated_price" name="calculated_price" value="0">
-                            
+
                             <div class="alert alert-info">
                                 <p><i class="bi bi-info-circle me-2"></i>Select the services you want included in your custom package. The price will update automatically.</p>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="card-body">
                             <div class="d-grid gap-2">
@@ -700,7 +682,7 @@ include_once TEMPLATES_PATH . 'header.php';
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-md-8">
                     <div id="servicesSection" class="card mb-4">
                         <div class="card-header d-flex justify-content-between align-items-center">
@@ -719,10 +701,10 @@ include_once TEMPLATES_PATH . 'header.php';
                                             <div class="card h-100">
                                                 <div class="card-body">
                                                     <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox" id="service_<?= $service['id'] ?>" 
-                                                               name="services[]" value="<?= $service['id'] ?>">
+                                                        <input class="form-check-input" type="checkbox" id="service_<?= $service['id'] ?>"
+                                                            name="services[]" value="<?= $service['id'] ?>">
                                                         <label class="form-check-label fw-bold" for="service_<?= $service['id'] ?>">
-                                                            <?= htmlspecialchars($service['name']) ?> 
+                                                            <?= htmlspecialchars($service['name']) ?>
                                                             <span class="badge bg-info">(£<?= number_format($service['price'], 2) ?>)</span>
                                                         </label>
                                                     </div>
@@ -753,7 +735,7 @@ include_once TEMPLATES_PATH . 'header.php';
                 </a>
             </div>
         </div>
-        
+
         <div class="row">
             <div class="col-md-8">
                 <div class="card mb-4">
@@ -766,7 +748,7 @@ include_once TEMPLATES_PATH . 'header.php';
                                 <p class="text-muted">No description available.</p>
                             <?php endif; ?>
                         </div>
-                        
+
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <h6>Price</h6>
@@ -787,7 +769,7 @@ include_once TEMPLATES_PATH . 'header.php';
                                 </p>
                             </div>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <h6>Created By</h6>
@@ -800,7 +782,7 @@ include_once TEMPLATES_PATH . 'header.php';
                         </div>
                     </div>
                 </div>
-                
+
                 <?php if (!$package['customized']): ?>
                     <div class="card">
                         <div class="card-header">
@@ -820,9 +802,9 @@ include_once TEMPLATES_PATH . 'header.php';
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php 
+                                            <?php
                                             $totalValue = 0;
-                                            foreach ($packageServices as $service): 
+                                            foreach ($packageServices as $service):
                                                 $totalValue += $service['price'];
                                             ?>
                                                 <tr>
@@ -854,7 +836,7 @@ include_once TEMPLATES_PATH . 'header.php';
                     </div>
                 <?php endif; ?>
             </div>
-            
+
             <div class="col-md-4">
                 <div class="card mb-4">
                     <div class="card-header">
@@ -862,7 +844,7 @@ include_once TEMPLATES_PATH . 'header.php';
                     </div>
                     <div class="card-body text-center">
                         <?php if (!empty($package['image_url'])): ?>
-                            <img src="/<?= htmlspecialchars($package['image_url']) ?>" class="img-fluid rounded" alt="<?= htmlspecialchars($package['name']) ?>">
+                            <img src="<?= htmlspecialchars($package['image_url']) ?>" class="img-fluid rounded" alt="<?= htmlspecialchars($package['name']) ?>">
                         <?php else: ?>
                             <div class="bg-light py-5 rounded">
                                 <i class="bi bi-image text-secondary" style="font-size: 3rem;"></i>
@@ -871,7 +853,7 @@ include_once TEMPLATES_PATH . 'header.php';
                         <?php endif; ?>
                     </div>
                 </div>
-                
+
                 <?php if (hasRole(['manager', 'administrator'])): ?>
                     <div class="card">
                         <div class="card-header">
@@ -883,8 +865,7 @@ include_once TEMPLATES_PATH . 'header.php';
                                     <i class="bi bi-pencil me-2"></i>Edit Package
                                 </a>
                                 <a href="?action=delete&id=<?= $package['id'] ?>" class="btn btn-outline-danger btn-delete"
-                                   data-name="<?= htmlspecialchars($package['name']) ?>"
-                                   onclick="return confirm('Are you sure you want to delete the package: <?= htmlspecialchars($package['name']) ?>?');">
+                                    data-name="<?= htmlspecialchars($package['name']) ?>">
                                     <i class="bi bi-trash me-2"></i>Delete Package
                                 </a>
                             </div>
@@ -907,7 +888,7 @@ include_once TEMPLATES_PATH . 'header.php';
                 <?php endif; ?>
             </div>
         </div>
-        
+
     <?php elseif ($action == 'create' || $action == 'edit'): ?>
         <!-- Create/Edit package form -->
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -916,13 +897,13 @@ include_once TEMPLATES_PATH . 'header.php';
                 <i class="bi bi-arrow-left me-2"></i>Back to Packages
             </a>
         </div>
-        
+
         <?php if (!empty($error)): ?>
             <div class="alert alert-danger">
                 <i class="bi bi-exclamation-triangle me-2"></i><?= $error ?>
             </div>
         <?php endif; ?>
-        
+
         <form method="post" action="?action=<?= $action ?><?= ($action == 'edit') ? '&id=' . $package['id'] : '' ?>" class="needs-validation" novalidate enctype="multipart/form-data">
             <div class="row">
                 <div class="col-md-8">
@@ -933,31 +914,31 @@ include_once TEMPLATES_PATH . 'header.php';
                         <div class="card-body">
                             <div class="mb-3">
                                 <label for="name" class="form-label">Package Name*</label>
-                                <input type="text" class="form-control" id="name" name="name" 
-                                       value="<?= isset($package['name']) ? htmlspecialchars($package['name']) : '' ?>" required>
+                                <input type="text" class="form-control" id="name" name="name"
+                                    value="<?= isset($package['name']) ? htmlspecialchars($package['name']) : '' ?>" required>
                                 <div class="invalid-feedback">
                                     Please enter a package name.
                                 </div>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="description" class="form-label">Description</label>
                                 <textarea class="form-control" id="description" name="description" rows="4"><?= isset($package['description']) ? htmlspecialchars($package['description']) : '' ?></textarea>
                                 <div class="form-text">Provide details about what this package offers and what makes it special.</div>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="price" class="form-label">Package Price</label>
                                 <div class="input-group">
                                     <span class="input-group-text">£</span>
-                                    <input type="number" step="0.01" min="0" class="form-control" id="price" name="price" 
-                                           value="<?= isset($package['price']) ? htmlspecialchars($package['price']) : '' ?>">
+                                    <input type="number" step="0.01" min="0" class="form-control" id="price" name="price"
+                                        value="<?= isset($package['price']) ? htmlspecialchars($package['price']) : '' ?>">
                                 </div>
                                 <div class="form-text">Leave blank or set to 0 for custom pricing.</div>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div id="servicesSection" class="card mb-4" <?= (isset($package['customized']) && $package['customized'] == 1) ? 'style="display: none;"' : '' ?>>
                         <div class="card-header">
                             <h5 class="mb-0">Included Services</h5>
@@ -974,11 +955,11 @@ include_once TEMPLATES_PATH . 'header.php';
                                         <?php foreach ($allServices as $service): ?>
                                             <div class="col-md-6 mb-2">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="service_<?= $service['id'] ?>" 
-                                                           name="services[]" value="<?= $service['id'] ?>" 
-                                                           <?= (isset($selectedServiceIds) && in_array($service['id'], $selectedServiceIds)) ? 'checked' : '' ?>>
+                                                    <input class="form-check-input" type="checkbox" id="service_<?= $service['id'] ?>"
+                                                        name="services[]" value="<?= $service['id'] ?>"
+                                                        <?= (isset($selectedServiceIds) && in_array($service['id'], $selectedServiceIds)) ? 'checked' : '' ?>>
                                                     <label class="form-check-label" for="service_<?= $service['id'] ?>">
-                                                        <?= htmlspecialchars($service['name']) ?> 
+                                                        <?= htmlspecialchars($service['name']) ?>
                                                         <span class="text-muted">(<?= formatCurrency($service['price']) ?>)</span>
                                                     </label>
                                                 </div>
@@ -990,7 +971,7 @@ include_once TEMPLATES_PATH . 'header.php';
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-md-4">
                     <div class="card mb-4">
                         <div class="card-header">
@@ -1002,7 +983,7 @@ include_once TEMPLATES_PATH . 'header.php';
                                 <input type="file" class="form-control" id="image" name="image" accept="image/*">
                                 <div class="form-text">Recommended size: 800x600 pixels. Max file size: 2MB.</div>
                             </div>
-                            
+
                             <div class="text-center mt-3">
                                 <?php if ($action == 'edit' && !empty($package['image_url'])): ?>
                                     <p>Current Image:</p>
@@ -1012,7 +993,7 @@ include_once TEMPLATES_PATH . 'header.php';
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="card-body">
                             <div class="d-grid gap-2">

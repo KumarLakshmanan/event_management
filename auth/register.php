@@ -32,13 +32,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $error = "Please enter a valid email address";
     } elseif (strlen($password) < 6) {
         $error = "Password must be at least 6 characters long";
-    } elseif ($password !== $confirmPassword) {
+    } elseif ($password != $confirmPassword) {
         $error = "Passwords do not match";
     } else {
         // Attempt registration
         $result = registerUser($name, $email, $password, $phone, $address);
         
-        if ($result === true) {
+        if ($result == true) {
             // Registration successful, show success message
             $success = true;
             // Clear form data

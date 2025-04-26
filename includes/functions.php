@@ -60,7 +60,7 @@ function sanitizeInput($data) {
  * @return bool True if valid, false otherwise
  */
 function isValidEmail($email) {
-    return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+    return filter_var($email, FILTER_VALIDATE_EMAIL) != false;
 }
 
 /**
@@ -133,7 +133,7 @@ function generateRandomString($length = 10) {
  */
 function uploadImage($file, $destination = 'assets/img') {
     // Check if file is a valid upload
-    if (!isset($file['error']) || $file['error'] !== UPLOAD_ERR_OK) {
+    if (!isset($file['error']) || $file['error'] != UPLOAD_ERR_OK) {
         return false;
     }
     
@@ -144,18 +144,18 @@ function uploadImage($file, $destination = 'assets/img') {
     }
     
     // Create destination directory if it doesn't exist
-    if (!file_exists($destination)) {
-        mkdir($destination, 0777, true);
+    if (!file_exists(BASE_PATH . $destination)) {
+        mkdir(BASE_PATH . $destination, 0777, true);
     }
     
     // Generate a unique filename
     $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
     $filename = generateRandomString() . '.' . $extension;
-    $targetPath = $destination . '/' . $filename;
+    $targetPath = BASE_PATH . $destination . '/' . $filename;
     
     // Move uploaded file
     if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-        return $targetPath;
+        return BASE_URL . $destination . '/' . $filename;
     }
     
     return false;
@@ -298,7 +298,7 @@ function addNotification($type, $message, $relatedId = null, $userId = null) {
         $db->beginTransaction();
         
         // If no user ID specified, add notification for all admins and managers
-        if ($userId === null) {
+        if ($userId == null) {
             if (isLoggedIn()) {
                 // Add for current user
                 $userId = $_SESSION['user_id'];

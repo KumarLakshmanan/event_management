@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Attempt login
         $result = loginUser($email, $password);
         
-        if ($result === true) {
+        if ($result == true) {
             // Successful login, redirect to dashboard
             header("Location: " . getDashboardUrl());
             exit;

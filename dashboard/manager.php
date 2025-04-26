@@ -17,11 +17,11 @@ requireRole(['manager', 'administrator']);
 $db = getDBConnection();
 
 // Get count of services
-$stmt = $db->query("SELECT COUNT(*) as count FROM products");
+$stmt = $db->query("SELECT COUNT(*) as count FROM products WHERE deleted = 0 ");
 $servicesCount = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
 // Get count of packages
-$stmt = $db->query("SELECT COUNT(*) as count FROM bundles");
+$stmt = $db->query("SELECT COUNT(*) as count FROM bundles WHERE deleted = 0 ");
 $packagesCount = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
 // Get count of pending bookings

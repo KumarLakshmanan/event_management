@@ -21,10 +21,10 @@ if (!hasRole('administrator') && !hasRole('manager')) {
 $db = getDBConnection();
 
 // Process form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $action = isset($_GET['action']) ? $_GET['action'] : '';
     
-    if ($action === 'create' || $action === 'edit') {
+    if ($action == 'create' || $action == 'edit') {
         // Get form data
         $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
         $name = trim($_POST['name']);
@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // If there are no errors, create or update user
         if (empty($errors)) {
-            if ($action === 'create') {
+            if ($action == 'create') {
                 // Generate a random password
                 $password = generateRandomString(10);
                 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
@@ -117,12 +117,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             setAlert('danger', implode('<br>', $errors));
         }
-    } elseif ($action === 'delete') {
+    } elseif ($action == 'delete') {
         // Delete user
         $id = (int)$_POST['id'];
         
         // Make sure user is not deleting themselves
-        if ($id === $_SESSION['user_id']) {
+        if ($id == $_SESSION['user_id']) {
             setAlert('danger', 'You cannot delete your own account');
             header('Location: users.php');
             exit;
@@ -134,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute();
         $role = $stmt->fetchColumn();
         
-        if ($role === 'administrator') {
+        if ($role == 'administrator') {
             $stmt = $db->prepare("SELECT COUNT(*) FROM members WHERE role = 'administrator'");
             $stmt->execute();
             $adminCount = $stmt->fetchColumn();
@@ -158,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         header('Location: users.php');
         exit;
-    } elseif ($action === 'reset_password') {
+    } elseif ($action == 'reset_password') {
         // Reset user password
         $id = (int)$_POST['id'];
         
@@ -198,7 +198,7 @@ $user = [
 ];
 
 // If editing, get user data
-if ($action === 'edit' && $id > 0) {
+if ($action == 'edit' && $id > 0) {
     $stmt = $db->prepare("SELECT * FROM members WHERE id = :id");
     $stmt->bindParam(':id', $id);
     $stmt->execute();
@@ -215,16 +215,16 @@ if ($action === 'edit' && $id > 0) {
 
 // Get all users for list view
 $users = [];
-if ($action === '' || $action === 'list') {
+if ($action == '' || $action == 'list') {
     $stmt = $db->query("SELECT * FROM members ORDER BY name");
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 // Set page title based on action
 $pageTitle = 'User Management';
-if ($action === 'create') {
+if ($action == 'create') {
     $pageTitle = 'Create User';
-} elseif ($action === 'edit') {
+} elseif ($action == 'edit') {
     $pageTitle = 'Edit User';
 }
 
@@ -236,7 +236,7 @@ require_once '../templates/header.php';
     <div class="row bg-light rounded align-items-center justify-content-center p-3 mx-1">
         <div class="d-flex align-items-center justify-content-between">
             <h4 class="mb-0"><?php echo $pageTitle; ?></h4>
-            <?php if ($action === '' || $action === 'list'): ?>
+            <?php if ($action == '' || $action == 'list'): ?>
                 <a href="users.php?action=create" class="btn btn-primary">
                     <i class="bi bi-plus-lg"></i> Create User
                 </a>
@@ -247,7 +247,7 @@ require_once '../templates/header.php';
 
 <div class="container-fluid pt-4 px-4">
     <div class="row bg-light rounded align-items-center justify-content-center p-3 mx-1">
-        <?php if ($action === 'create' || $action === 'edit'): ?>
+        <?php if ($action == 'create' || $action == 'edit'): ?>
             <!-- Create/Edit Form -->
             <div class="col-12">
                 <form method="post" action="users.php?action=<?php echo $action; ?>" class="row g-3">
@@ -273,9 +273,9 @@ require_once '../templates/header.php';
                     <div class="col-md-6">
                         <label for="role" class="form-label">Role</label>
                         <select class="form-select" id="role" name="role" required>
-                            <option value="client" <?php echo $user['role'] === 'client' ? 'selected' : ''; ?>>Client</option>
-                            <option value="manager" <?php echo $user['role'] === 'manager' ? 'selected' : ''; ?>>Manager</option>
-                            <option value="administrator" <?php echo $user['role'] === 'administrator' ? 'selected' : ''; ?>>Administrator</option>
+                            <option value="client" <?php echo $user['role'] == 'client' ? 'selected' : ''; ?>>Client</option>
+                            <option value="manager" <?php echo $user['role'] == 'manager' ? 'selected' : ''; ?>>Manager</option>
+                            <option value="administrator" <?php echo $user['role'] == 'administrator' ? 'selected' : ''; ?>>Administrator</option>
                         </select>
                     </div>
                     
@@ -330,8 +330,8 @@ require_once '../templates/header.php';
                                         <td><?php echo htmlspecialchars($user['phone'] ?? ""); ?></td>
                                         <td>
                                             <span class="badge bg-<?php 
-                                                echo $user['role'] === 'administrator' ? 'danger' : 
-                                                    ($user['role'] === 'manager' ? 'warning' : 'info'); 
+                                                echo $user['role'] == 'administrator' ? 'danger' : 
+                                                    ($user['role'] == 'manager' ? 'warning' : 'info'); 
                                             ?>">
                                                 <?php echo ucfirst($user['role']); ?>
                                             </span>
@@ -356,7 +356,7 @@ require_once '../templates/header.php';
                                                 </button>
                                                 
                                                 <!-- Delete Button -->
-                                                <?php if ($user['id'] !== $_SESSION['user_id']): ?>
+                                                <?php if ($user['id'] != $_SESSION['user_id']): ?>
                                                     <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $user['id']; ?>">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
@@ -387,7 +387,7 @@ require_once '../templates/header.php';
                                             </div>
                                             
                                             <!-- Delete Modal -->
-                                            <?php if ($user['id'] !== $_SESSION['user_id']): ?>
+                                            <?php if ($user['id'] != $_SESSION['user_id']): ?>
                                                 <div class="modal fade" id="deleteModal<?php echo $user['id']; ?>" tabindex="-1" aria-labelledby="deleteModalLabel<?php echo $user['id']; ?>" aria-hidden="true">
                                                     <div class="modal-dialog">
                                                         <div class="modal-content">

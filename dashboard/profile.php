@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $error = "New password cannot be empty";
                 } elseif (strlen($newPassword) < 6) {
                     $error = "New password must be at least 6 characters long";
-                } elseif ($newPassword !== $confirmPassword) {
+                } elseif ($newPassword != $confirmPassword) {
                     $error = "New passwords do not match";
                 } elseif (!password_verify($currentPassword, $user['password'])) {
                     $error = "Current password is incorrect";
@@ -196,7 +196,7 @@ include_once TEMPLATES_PATH . 'header.php';
                 <div class="card-body">
                     <p><strong>Member since:</strong> <?= formatDate($user['created_at'], 'M d, Y') ?></p>
                     
-                    <?php if ($user['role'] === 'client'): ?>
+                    <?php if ($user['role'] == 'client'): ?>
                         <?php 
                         // Get booking stats for client
                         $db = getDBConnection();
@@ -209,9 +209,9 @@ include_once TEMPLATES_PATH . 'header.php';
                         <div class="d-grid gap-2 mt-3">
                             <a href="<?= BASE_URL ?>dashboard/bookings.php" class="btn btn-outline-primary">View My Bookings</a>
                         </div>
-                    <?php elseif ($user['role'] === 'manager' || $user['role'] === 'administrator'): ?>
+                    <?php elseif ($user['role'] == 'manager' || $user['role'] == 'administrator'): ?>
                         <p><strong>Discount permission:</strong> <?= $user['can_give_discount'] ? 'Yes' : 'No' ?></p>
-                        <?php if ($user['role'] === 'manager'): ?>
+                        <?php if ($user['role'] == 'manager'): ?>
                             <p class="text-muted">As a manager, you can create packages and confirm bookings.</p>
                         <?php else: ?>
                             <p class="text-muted">As an administrator, you have access to all system features.</p>

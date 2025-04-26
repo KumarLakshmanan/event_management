@@ -16,7 +16,7 @@ requireLogin();
 $db = getDBConnection();
 
 // Process actions
-if (isset($_GET['action']) && $_GET['action'] === 'mark_read') {
+if (isset($_GET['action']) && $_GET['action'] == 'mark_read') {
     $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
     
     if ($id > 0) {

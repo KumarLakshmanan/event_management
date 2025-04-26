@@ -26,7 +26,7 @@ $db = getDBConnection();
 // Handle RSVP updates from email links
 if (isset($_GET['token']) && isset($_GET['response'])) {
     $token = $_GET['token'];
-    $response = $_GET['response'] === 'yes' ? 'attending' : 'declined';
+    $response = $_GET['response'] == 'yes' ? 'attending' : 'declined';
     
     // Find guest by token
     $stmt = $db->prepare("SELECT id, booking_id, name FROM attendees WHERE rsvp_token = :token");
@@ -42,8 +42,8 @@ if (isset($_GET['token']) && isset($_GET['response'])) {
         
         if ($stmt->execute()) {
             // Add notification
-            $message = $guest['name'] . ' has ' . ($response === 'attending' ? 'accepted' : 'declined') . ' the invitation';
-            $type = 'guest_' . ($response === 'attending' ? 'accepted' : 'rejected');
+            $message = $guest['name'] . ' has ' . ($response == 'attending' ? 'accepted' : 'declined') . ' the invitation';
+            $type = 'guest_' . ($response == 'attending' ? 'accepted' : 'rejected');
             addNotification($type, $message, $guest['id']);
             
             setAlert('success', 'Thank you for your response. Your RSVP status has been updated to: ' . ucfirst($response));
@@ -60,10 +60,10 @@ if (isset($_GET['token']) && isset($_GET['response'])) {
 }
 
 // Process form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $action = isset($_GET['action']) ? $_GET['action'] : '';
     
-    if ($action === 'create' || $action === 'edit') {
+    if ($action == 'create' || $action == 'edit') {
         // Get form data
         $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
         $bookingId = (int)$_POST['booking_id'];
@@ -94,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Generate token for RSVP
             $rsvpToken = generateRandomString(32);
             
-            if ($action === 'create') {
+            if ($action == 'create') {
                 // Create guest
                 $stmt = $db->prepare("INSERT INTO attendees (booking_id, name, email, phone, rsvp_status, rsvp_token) 
                                     VALUES (:booking_id, :name, :email, :phone, :rsvp_status, :rsvp_token)");
@@ -130,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 // Only generate new token if email changed
                 $rsvpToken = $currentGuest['rsvp_token'];
-                $emailChanged = $email !== $currentGuest['email'];
+                $emailChanged = $email != $currentGuest['email'];
                 
                 if ($emailChanged) {
                     $rsvpToken = generateRandomString(32);
@@ -170,7 +170,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             setAlert('danger', implode('<br>', $errors));
         }
-    } elseif ($action === 'delete') {
+    } elseif ($action == 'delete') {
         // Delete guest
         $id = (int)$_POST['id'];
         $bookingId = (int)$_POST['booking_id'];
@@ -186,7 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         header('Location: guests.php?booking_id=' . $bookingId);
         exit;
-    } elseif ($action === 'send_all') {
+    } elseif ($action == 'send_all') {
         // Send invitation emails to all pending guests
         $bookingId = (int)$_POST['booking_id'];
         
@@ -235,7 +235,7 @@ if ($bookingId > 0) {
     }
     
     // Check if user has permission to access this booking
-    if (!hasRole('administrator') && !hasRole('manager') && $booking['user_id'] !== $_SESSION['user_id']) {
+    if (!hasRole('administrator') && !hasRole('manager') && $booking['user_id'] != $_SESSION['user_id']) {
         setAlert('danger', 'You do not have permission to access this booking');
         header('Location: bookings.php');
         exit;
@@ -253,7 +253,7 @@ $guest = [
 ];
 
 // If editing, get guest data
-if ($action === 'edit' && $id > 0) {
+if ($action == 'edit' && $id > 0) {
     $stmt = $db->prepare("SELECT * FROM attendees WHERE id = :id");
     $stmt->bindParam(':id', $id);
     $stmt->execute();
@@ -279,7 +279,7 @@ if ($action === 'edit' && $id > 0) {
 
 // Get all guests for a booking
 $guests = [];
-if ($bookingId > 0 && ($action === '' || $action === 'list')) {
+if ($bookingId > 0 && ($action == '' || $action == 'list')) {
     $stmt = $db->prepare("SELECT * FROM attendees WHERE booking_id = :booking_id ORDER BY name");
     $stmt->bindParam(':booking_id', $bookingId);
     $stmt->execute();
@@ -300,9 +300,9 @@ if ($bookingId > 0 && ($action === '' || $action === 'list')) {
 
 // Set page title based on action
 $pageTitle = 'Guest Management';
-if ($action === 'create') {
+if ($action == 'create') {
     $pageTitle = 'Add Guest';
-} elseif ($action === 'edit') {
+} elseif ($action == 'edit') {
     $pageTitle = 'Edit Guest';
 }
 
@@ -442,7 +442,7 @@ function sendRsvpEmail($name, $email, $token, $bookingId) {
         <div class="d-flex align-items-center justify-content-between">
             <h4 class="mb-0"><?php echo $pageTitle; ?></h4>
             <div>
-                <?php if (isset($booking) && ($action === '' || $action === 'list')): ?>
+                <?php if (isset($booking) && ($action == '' || $action == 'list')): ?>
                     <a href="guests.php?booking_id=<?php echo $bookingId; ?>&action=create" class="btn btn-primary">
                         <i class="bi bi-plus-lg"></i> Add Guest
                     </a>
@@ -454,7 +454,7 @@ function sendRsvpEmail($name, $email, $token, $bookingId) {
                     <a href="bookings.php" class="btn btn-secondary">
                         <i class="bi bi-arrow-left"></i> Back to Bookings
                     </a>
-                <?php elseif ($action === 'create' || $action === 'edit'): ?>
+                <?php elseif ($action == 'create' || $action == 'edit'): ?>
                     <a href="guests.php?booking_id=<?php echo $bookingId; ?>" class="btn btn-secondary">
                         <i class="bi bi-arrow-left"></i> Back to Guest List
                     </a>
@@ -468,7 +468,7 @@ function sendRsvpEmail($name, $email, $token, $bookingId) {
     </div>
 </div>
 
-<?php if (isset($booking) && ($action === '' || $action === 'list')): ?>
+<?php if (isset($booking) && ($action == '' || $action == 'list')): ?>
     <div class="container-fluid pt-4 px-4">
         <div class="row bg-light rounded align-items-center justify-content-center p-3 mx-1">
             <div class="col-12">
@@ -506,7 +506,7 @@ function sendRsvpEmail($name, $email, $token, $bookingId) {
 
 <div class="container-fluid pt-4 px-4">
     <div class="row bg-light rounded align-items-center justify-content-center p-3 mx-1">
-        <?php if ($action === 'create' || $action === 'edit'): ?>
+        <?php if ($action == 'create' || $action == 'edit'): ?>
             <!-- Create/Edit Form -->
             <div class="col-12">
                 <form method="post" action="guests.php?action=<?php echo $action; ?><?php echo isset($_GET['redirect']) ? '&redirect=' . $_GET['redirect'] : ''; ?>" class="row g-3">
@@ -531,7 +531,7 @@ function sendRsvpEmail($name, $email, $token, $bookingId) {
                         <input type="text" class="form-control" id="phone" name="phone" value="<?php echo htmlspecialchars($guest['phone']); ?>">
                     </div>
                     
-                    <?php if ($action === 'edit'): ?>
+                    <?php if ($action == 'edit'): ?>
                         <div class="col-12">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="resend_email" name="resend_email">
@@ -548,7 +548,7 @@ function sendRsvpEmail($name, $email, $token, $bookingId) {
                     </div>
                 </form>
             </div>
-        <?php elseif (isset($booking) && ($action === '' || $action === 'list')): ?>
+        <?php elseif (isset($booking) && ($action == '' || $action == 'list')): ?>
             <!-- Guest List -->
             <div class="col-12">
                 <div class="table-responsive">

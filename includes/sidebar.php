@@ -44,15 +44,6 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 </a>
             </li>
             
-            <?php if (hasRole('client')): ?>
-                <!-- Guest management - Client only -->
-                <li class="nav-item">
-                    <a class="nav-link <?= $currentPage == 'guests.php' ? 'active' : '' ?>" href="<?= BASE_URL ?>dashboard/guests.php">
-                        <i class="bi bi-people me-2"></i> Guests
-                    </a>
-                </li>
-            <?php endif; ?>
-            
             <?php if (hasRole('administrator')): ?>
                 <!-- User management - Admin only -->
                 <li class="nav-item">

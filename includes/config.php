@@ -19,7 +19,6 @@ ini_set('error_log', './php-error.log');
 // Define base paths
 define('BASE_PATH', dirname(__DIR__) . DIRECTORY_SEPARATOR);
 define('INCLUDES_PATH', BASE_PATH . 'includes' . DIRECTORY_SEPARATOR);
-define('CONTROLLERS_PATH', BASE_PATH . 'controllers' . DIRECTORY_SEPARATOR);
 define('TEMPLATES_PATH', BASE_PATH . 'templates' . DIRECTORY_SEPARATOR);
 
 define('DB_PATH', BASE_PATH . 'database.sqlite');
