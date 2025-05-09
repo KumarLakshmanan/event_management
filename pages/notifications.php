@@ -139,4 +139,37 @@ if (!isset($_SESSION['user_id'])) {
     </div>
 </div>
 
+<script>
+$(document).ready(function() {
+    // Mark notifications as read when viewing the page
+    $.ajax({
+        url: '../handlers/notifications.php?action=mark_read',
+        method: 'GET',
+        success: function(response) {
+            if (response.success) {
+                // Update notification count in header
+                updateNotificationCount(response.unreadCount);
+            }
+        }
+    });
+
+    // Function to update notification count in header
+    function updateNotificationCount(count) {
+        const badgeCounter = $('.badge-counter');
+        if (count > 0) {
+            badgeCounter.text(count > 9 ? '9+' : count).show();
+        } else {
+            badgeCounter.hide();
+        }
+    }
+
+    // Handle delete button clicks
+    $('.btn-delete').on('click', function(e) {
+        if (!confirm('Are you sure you want to delete this notification?')) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
+
 <?php require_once '../includes/footer.php'; ?>

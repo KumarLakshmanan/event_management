@@ -153,6 +153,45 @@ if ($viewBooking) {
                 </div>
             </div>
 
+            <!-- Approval Section for Admin/Manager -->
+            <?php if ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'manager'): ?>
+                <div class="mt-4">
+                    <div class="card border-left-primary">
+                        <div class="card-body">
+                            <h5 class="font-weight-bold text-primary">Booking Approval</h5>
+                            <?php if ($viewBooking['status'] === 'pending'): ?>
+                                <form id="approvalForm" class="api-form" action="../handlers/bookings.php" method="POST">
+                                    <input type="hidden" name="action" value="confirm">
+                                    <input type="hidden" name="id" value="<?php echo $viewBooking['id']; ?>">
+
+                                    <div class="form-group">
+                                        <label for="discount">Discount Amount (Optional)</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">£</span>
+                                            </div>
+                                            <input type="number" class="form-control" id="discount" name="discount"
+                                                min="0" step="0.01" placeholder="Enter discount amount">
+                                        </div>
+                                        <small class="form-text text-muted">Leave empty for no discount</small>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="fas fa-check"></i> Confirm Booking
+                                        </button>
+                                    </div>
+                                </form>
+                            <?php else: ?>
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> This booking has already been <?php echo $viewBooking['status']; ?>.
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <!-- Guest Management Section -->
             <?php if ($viewBooking['status'] === 'confirmed'): ?>
                 <div class="mt-4">
@@ -327,6 +366,27 @@ if ($viewBooking) {
                     $('.alert').alert('close');
                 }, 5000);
             }
+
+            // Handle form submission
+            $('#approvalForm').on('submit', function(e) {
+                e.preventDefault();
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    method: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            window.location.reload();
+                        } else {
+                            alert(response.error || 'Failed to confirm booking');
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred while processing your request');
+                    }
+                });
+            });
         });
     </script>
 

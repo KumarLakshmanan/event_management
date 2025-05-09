@@ -10,7 +10,7 @@ class Database {
     private function __construct() {
         $host = "localhost";
         $port = "3306";
-        $dbname = "eventmanagement";
+        $dbname = "event_v2";
         $user = "root";
         $password = "";
 

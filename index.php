@@ -14,13 +14,17 @@ if (isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Event Management</title>
+    <title>Home</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f4f4f9;
+            background-image: url('images/background.jpeg');
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
         }
         header, footer {
             background-color: #007BFF;
@@ -29,7 +33,6 @@ if (isset($_SESSION['user_id'])) {
             padding: 15px 0;
         }
         .banner {
-            background: linear-gradient(to right, #007BFF, #0056b3);
             color: #fff;
             text-align: center;
             padding: 60px 20px;
@@ -96,8 +99,8 @@ if (isset($_SESSION['user_id'])) {
 </head>
 <body>
     <div class="banner">
-        <h1>Welcome to Event Management</h1>
-        <p>Organize and manage your events effortlessly</p>
+        <h1>Welcome to Expert Events</h1>
+        <p>Organize and Manage your Events Effortlessly</p>
     </div>
     <main>
         <p>Please choose an option below:</p>
@@ -114,8 +117,6 @@ if (isset($_SESSION['user_id'])) {
             </div>
         </div>
     </main>
-    <footer>
-        <p>&copy; <?php echo date("Y"); ?> Event Management. All rights reserved.</p>
-    </footer>
+    
 </body>
 </html>

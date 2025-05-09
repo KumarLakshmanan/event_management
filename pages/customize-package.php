@@ -27,7 +27,7 @@ $services = $db->query("SELECT * FROM services ORDER BY name");
         <h6 class="m-0 font-weight-bold text-primary">Customize Your Package</h6>
     </div>
     <div class="card-body">
-        <form id="customPackageForm" class="api-form" action="../handlers/packages.php" method="POST" data-redirect="packages.php">
+        <form id="customPackageForm" class="api-form" action="../handlers/packages.php" method="POST" data-redirect="packages.php" enctype="multipart/form-data">
             <input type="hidden" name="action" value="create_custom">
             <input type="hidden" name="customized" value="1">
             <input type="hidden" name="created_by" value="<?php echo $_SESSION['user_id']; ?>">
@@ -42,6 +42,16 @@ $services = $db->query("SELECT * FROM services ORDER BY name");
                 <label for="description">Package Description</label>
                 <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
                 <div id="descriptionFeedback" class="invalid-feedback"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="image">Package Image</label>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="image" name="image" accept="image/*">
+                    <label class="custom-file-label" for="image">Choose file</label>
+                </div>
+                <small class="form-text text-muted">Upload an image for your package (optional). Supported formats: JPG, PNG, GIF. Max size: 5MB</small>
+                <div id="imageFeedback" class="invalid-feedback"></div>
             </div>
 
             <div class="form-group">
@@ -119,6 +129,22 @@ $services = $db->query("SELECT * FROM services ORDER BY name");
         // Calculate total price when services are selected/deselected
         $('.service-checkbox').on('change', function() {
             calculateTotalPrice();
+        });
+
+        // Handle file input display
+        $('#image').on('change', function() {
+            var fileName = $(this).val().split('\\').pop();
+            $(this).next('.custom-file-label').html(fileName || 'Choose file');
+            
+            // Validate file size (5MB max)
+            var fileSize = this.files[0]?.size || 0;
+            if (fileSize > 5 * 1024 * 1024) {
+                $('#imageFeedback').text('File size must be less than 5MB').show();
+                $(this).val('');
+                $(this).next('.custom-file-label').html('Choose file');
+            } else {
+                $('#imageFeedback').hide();
+            }
         });
 
         // Initial calculation when page loads

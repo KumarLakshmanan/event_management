@@ -142,6 +142,14 @@ function handleCreateCustomPackage()
             'created_at' => date('Y-m-d H:i:s')
         ];
 
+        // Handle image upload if provided
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+            $imagePath = handleImageUpload($_FILES['image']);
+            if ($imagePath) {
+                $packageData['image_url'] = $imagePath;
+            }
+        }
+
         // Insert package and get ID
         $packageId = insertRecord('packages', $packageData);
 

@@ -18,6 +18,9 @@ switch ($action) {
     case 'clear_all':
         handleClearAll();
         break;
+    case 'mark_read':
+        handleMarkRead();
+        break;
     default:
         header("Location: ../pages/notifications.php");
         exit;
@@ -104,5 +107,45 @@ function handleClearAll()
     }
 
     header("Location: ../pages/notifications.php");
+    exit;
+}
+
+/**
+ * Handle marking notifications as read
+ */
+function handleMarkRead()
+{
+    // Get user info
+    $userId = $_SESSION['user_id'];
+    $userRole = $_SESSION['user_role'];
+
+    // Update notifications in database
+    $db = Database::getInstance();
+
+    // For admin/manager, mark all notifications as read
+    // For client, mark only their notifications as read
+    if ($userRole === 'admin' || $userRole === 'manager') {
+        $result = $db->execute("
+            UPDATE notifications 
+            SET is_read = true 
+            WHERE user_id IS NULL
+        ");
+    } else {
+        $result = $db->execute("
+            UPDATE notifications 
+            SET is_read = true 
+            WHERE user_id = ?
+        ", [$userId]);
+    }
+
+    // Get updated unread count
+    $unreadCount = getUnreadNotificationsCount();
+
+    // Return JSON response
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => true,
+        'unreadCount' => $unreadCount
+    ]);
     exit;
 }

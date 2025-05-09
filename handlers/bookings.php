@@ -127,7 +127,7 @@ function handleCreate()
             'booking_created',
             "{$userName} has created a new booking for {$package['name']} on " . date('F d, Y', strtotime($eventDate)),
             null, // System notification (for admins/managers)
-            "../pages/my-bookings.php?view{$bookingId}"
+            "../pages/my-bookings.php?view={$bookingId}"
         );
     }
 
@@ -229,7 +229,7 @@ function handleConfirm()
         'booking_confirmed',
         "Your booking for {$package['name']} on " . date('F d, Y', strtotime($updatedBooking['event_date'])) . " has been confirmed{$discountMsg}.",
         $updatedBooking['user_id'],
-        "../pages/my-bookings.php?view{$id}"
+        "../pages/my-bookings.php?view={$id}"
     );
 
     // Return success response
@@ -311,7 +311,7 @@ function handleCancel()
         'booking_cancelled',
         "Booking for {$package['name']} on " . date('F d, Y', strtotime($updatedBooking['event_date'])) . " has been cancelled.",
         $updatedBooking['user_id'],
-        "../pages/my-bookings.php?view{$id}"
+        "../pages/my-bookings.php?view={$id}"
     );
 
     // Return success response

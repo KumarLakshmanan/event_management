@@ -1,0 +1,33 @@
+[09-May-2025 11:23:54 Europe/Berlin] PHP Fatal error:  Uncaught PHPMailer\PHPMailer\Exception: SMTP Error: Could not authenticate. in D:\xampp\htdocs\event_v2\PHPMailer\src\PHPMailer.php:2261
+Stack trace:
+#0 D:\xampp\htdocs\event_v2\PHPMailer\src\PHPMailer.php(2058): PHPMailer\PHPMailer\PHPMailer->smtpConnect(Array)
+#1 D:\xampp\htdocs\event_v2\PHPMailer\src\PHPMailer.php(1687): PHPMailer\PHPMailer\PHPMailer->smtpSend('Date: Fri, 9 Ma...', '--b1=_2S1VNmf5I...')
+#2 D:\xampp\htdocs\event_v2\PHPMailer\src\PHPMailer.php(1521): PHPMailer\PHPMailer\PHPMailer->postSend()
+#3 D:\xampp\htdocs\event_v2\includes\email.php(45): PHPMailer\PHPMailer\PHPMailer->send()
+#4 D:\xampp\htdocs\event_v2\includes\email.php(98): sendEmail('client@example....', 'Client User', 'Your Booking is...', '\n    <html>\n   ...')
+#5 D:\xampp\htdocs\event_v2\handlers\bookings.php(224): sendBookingConfirmationEmail(Array, Array, Array)
+#6 D:\xampp\htdocs\event_v2\handlers\bookings.php(22): handleConfirm()
+#7 {main}
+  thrown in D:\xampp\htdocs\event_v2\PHPMailer\src\PHPMailer.php on line 2261
+[09-May-2025 11:25:26 Europe/Berlin] PHP Fatal error:  Uncaught PHPMailer\PHPMailer\Exception: SMTP Error: Could not authenticate. in D:\xampp\htdocs\event_v2\PHPMailer\src\PHPMailer.php:2261
+Stack trace:
+#0 D:\xampp\htdocs\event_v2\PHPMailer\src\PHPMailer.php(2058): PHPMailer\PHPMailer\PHPMailer->smtpConnect(Array)
+#1 D:\xampp\htdocs\event_v2\PHPMailer\src\PHPMailer.php(1687): PHPMailer\PHPMailer\PHPMailer->smtpSend('Date: Fri, 9 Ma...', '--b1=_PEszs8MJX...')
+#2 D:\xampp\htdocs\event_v2\PHPMailer\src\PHPMailer.php(1521): PHPMailer\PHPMailer\PHPMailer->postSend()
+#3 D:\xampp\htdocs\event_v2\includes\email.php(45): PHPMailer\PHPMailer\PHPMailer->send()
+#4 D:\xampp\htdocs\event_v2\includes\email.php(141): sendEmail('lakshmanan.code...', 'Test', 'You Are Invited...', '\n    <html>\n   ...')
+#5 D:\xampp\htdocs\event_v2\handlers\guests.php(81): sendGuestInvitationEmail(Array, Array, Array)
+#6 D:\xampp\htdocs\event_v2\handlers\guests.php(16): handleCreateGuest()
+#7 {main}
+  thrown in D:\xampp\htdocs\event_v2\PHPMailer\src\PHPMailer.php on line 2261
+[09-May-2025 11:25:37 Europe/Berlin] PHP Fatal error:  Uncaught PHPMailer\PHPMailer\Exception: SMTP Error: Could not authenticate. in D:\xampp\htdocs\event_v2\PHPMailer\src\PHPMailer.php:2261
+Stack trace:
+#0 D:\xampp\htdocs\event_v2\PHPMailer\src\PHPMailer.php(2058): PHPMailer\PHPMailer\PHPMailer->smtpConnect(Array)
+#1 D:\xampp\htdocs\event_v2\PHPMailer\src\PHPMailer.php(1687): PHPMailer\PHPMailer\PHPMailer->smtpSend('Date: Fri, 9 Ma...', '--b1=_qTNEYPAlf...')
+#2 D:\xampp\htdocs\event_v2\PHPMailer\src\PHPMailer.php(1521): PHPMailer\PHPMailer\PHPMailer->postSend()
+#3 D:\xampp\htdocs\event_v2\includes\email.php(45): PHPMailer\PHPMailer\PHPMailer->send()
+#4 D:\xampp\htdocs\event_v2\includes\email.php(141): sendEmail('lakshmanan.code...', 'Test', 'You Are Invited...', '\n    <html>\n   ...')
+#5 D:\xampp\htdocs\event_v2\handlers\guests.php(252): sendGuestInvitationEmail(Array, Array, Array)
+#6 D:\xampp\htdocs\event_v2\handlers\guests.php(28): handleInviteGuest()
+#7 {main}
+  thrown in D:\xampp\htdocs\event_v2\PHPMailer\src\PHPMailer.php on line 2261

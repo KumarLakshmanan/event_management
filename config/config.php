@@ -1,11 +1,11 @@
 <?php
 // Application configuration
-define('APP_NAME', 'Event Management System');
+define('APP_NAME', 'Expert Events Management');
 
 define('MAIL_USERNAME',  'kumar.lakshmanan.projects@gmail.com');
-define('MAIL_PASSWORD',  'vgwjdkoiirxcvhds');
+define('MAIL_PASSWORD',  'yhkrxirfwzvurbhx');
 
-define('WEBSITE_ADDRESS', 'http://localhost/eventmanagement/');
+define('WEBSITE_ADDRESS', 'http://localhost/event_v2/');
 
 define('SESSION_TIMEOUT', 1800);
 

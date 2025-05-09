@@ -2,6 +2,12 @@
 session_start();
 require_once __DIR__ . '/../config/config.php';
 
+// Prevent caching of pages
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
+
 // Check if user is logged in
 $isLoggedIn = isset($_SESSION['user_id']);
 $currentPage = basename($_SERVER['PHP_SELF']);
@@ -146,7 +152,6 @@ switch ($currentPage) {
                                     }
                                 }
 
-
                                 if (empty($notifications)):
                                 ?>
                                     <a class="dropdown-item d-flex align-items-center" href="#">
@@ -219,6 +224,29 @@ switch ($currentPage) {
                                 <a class="dropdown-item text-center small text-gray-500" href="notifications.php">Show All Notifications</a>
                             </div>
                         </li>
+
+                        <script>
+                        $(document).ready(function() {
+                            // Mark notifications as read when clicking the notification icon
+                            $('#alertsDropdown').on('click', function() {
+                                $.ajax({
+                                    url: '../handlers/notifications.php?action=mark_read',
+                                    method: 'GET',
+                                    success: function(response) {
+                                        if (response.success) {
+                                            // Update notification count
+                                            const badgeCounter = $('.badge-counter');
+                                            if (response.unreadCount > 0) {
+                                                badgeCounter.text(response.unreadCount > 9 ? '9+' : response.unreadCount).show();
+                                            } else {
+                                                badgeCounter.hide();
+                                            }
+                                        }
+                                    }
+                                });
+                            });
+                        });
+                        </script>
 
                         <div class="topbar-divider d-none d-sm-block"></div>
 

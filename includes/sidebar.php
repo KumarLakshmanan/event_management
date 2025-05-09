@@ -37,7 +37,7 @@ $navItems = $sidebarItems[$userRole] ?? $sidebarItems['client'];
     <!-- Sidebar - Brand -->
     <a class="brand-link" href="dashboard.php">
         <i class="fas fa-calendar-day mr-2"></i>
-        <span>Event Manager</span>
+        <span>Expert Events</span>
     </a>
     
     <!-- Divider -->

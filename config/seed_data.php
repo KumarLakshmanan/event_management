@@ -96,11 +96,11 @@ try {
 
     // Add packages - using admin ID for created_by
     $packages = [
-        ['Basic Wedding Package', 'https://placehold.co/500x300', 'A simple package for small weddings', 2000.00, 'false', $adminId],
-        ['Premium Wedding Package', 'https://placehold.co/500x300', 'Our most popular wedding package with all essential services', 4000.00, 'false', $adminId],
-        ['Deluxe Wedding Package', 'https://placehold.co/500x300', 'The ultimate wedding experience with premium services', 6000.00, 'false', $adminId],
-        ['Corporate Event Package', 'https://placehold.co/500x300', 'Perfect for business meetings and corporate events', 3000.00, 'false', $managerId],
-        ['Birthday Celebration Package', 'https://placehold.co/500x300', 'Make your birthday special with our celebration package', 1500.00, 'false', $managerId]
+        ['Basic Wedding Package', '../assets/uploads/680a4f81c0db9_C8D3fLVB.jpeg', 'A simple package for small weddings', 2000.00, 'false', $adminId],
+        ['Premium Wedding Package', '../assets/uploads/680a4f8a7c474_GOLD+WEDDING+PACKAGE.jpeg', 'Our most popular wedding package with all essential services', 4000.00, 'false', $adminId],
+        ['Destination Wedding Package', '../assets/uploads/680a4f91133d2_Destination-Wedding-e1736780129298.jpg', 'The ultimate wedding experience with premium services', 6000.00, 'false', $adminId],
+        ['Corporate Event Package', '../assets/uploads/680a4f9863a83_What-Is-Included-in-A-Typical-Corporate-Event-Package.jpg', 'Perfect for business meetings and corporate events', 3000.00, 'false', $managerId],
+        ['Birthday Celebration Package', '../assets/uploads/680a4f9dd5f83_balloon_decor.jpg', 'Make your birthday special with our celebration package', 1500.00, 'false', $managerId]
     ];
 
     foreach ($packages as $package) {
