@@ -2,7 +2,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>IWD: Register</title>
+    <title>Xpert Event Register</title>
     <script src="<?php echo $adminBaseUrl ?>js/jquery.min.js"></script>
     <script src="<?php echo $adminBaseUrl ?>js/sweetalert.js"></script>
     <link rel="stylesheet" type="text/css" href="style.css">
@@ -31,12 +31,16 @@
         }
 
         .login-root {
-            background: #fff;
-            display: flex;
-            width: 100%;
+            background-image: url('img/bgimage.jpg'); /* Replace with your image path */
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-attachment: fixed;
             min-height: 100vh;
-            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
+
 
         .loginbackground {
             min-height: 692px;
@@ -289,10 +293,10 @@
                     <div class="formbg">
                         <div class="formbg-inner padding-horizontal--48">
                             <center>
-                                <!-- <img src="img/justdial.jpeg" alt="IWD"> -->
-                                <h3><a href="#" rel="dofollow">IWD Register</a></h3>
+                                <h2>Xpert Event</h2><br>
+                                <h3><a href="#" rel="dofollow">Registration Form</a></h3>
                             </center>
-                            <br />
+                            <br /><br>
                             <form id="register-form" action="<?= $apiUrl ?>">
                                 <div class="field padding-bottom--24">
                                     <label for="fullname">Full Name</label>

@@ -34,6 +34,7 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <th class="border-top-0">Username/Email</th>
                             <th class="border-top-0">Password</th>                            
                             <th class="border-top-0">Phone</th>
+                            <th class="border-top-0">Email Status</th>
                             <th class="border-top-0">Date</th>
                             <th class="border-top-0">Action</th>
                         </tr>
@@ -55,6 +56,13 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </td>
                                 <td>
                                     <?php echo $value['phone']; ?>
+                                </td>
+                                <td>
+                                    <?php if ($value['email_verified'] == 0): ?>
+                                        <span class="badge bg-danger">Not Verified</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-success">Verified</span>
+                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <?php echo date('d M h:i A', strtotime($value['created_at'])); ?>

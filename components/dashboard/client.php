@@ -1,11 +1,4 @@
 <?php
-if (!isset($conn)) {
-    $path = $_SERVER['DOCUMENT_ROOT'];
-    include_once($baseDirectory . "/admin/api/config.php");
-    $db = new Connection();
-    $conn = $db->getConnection();
-}
-
 $sql = "SELECT * FROM users where type=0 ORDER BY id DESC";
 $stmt = $conn->prepare($sql);
 $stmt->execute();
@@ -42,7 +35,7 @@ $result = $stmt->fetchAll();
                                 <td><?php echo $value["phone"] ?? ""; ?></td>
                                 <td><?php echo $value["gender"] ?? ""; ?></td>
                                 <td><?php echo $value["address"] ?? ""; ?></td>
-                                <td><?php echo date('d M h:i A', strtotime($value['created_at'])); ?></td>                                
+                                <td><?php echo date('d M h:i A', strtotime($value['created_at'])); ?></td>
                             </tr>
                         <?php
                         }

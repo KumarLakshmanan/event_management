@@ -13,7 +13,7 @@ if (isset($_GET["pageid"])) {
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin Dashboard</title>
+    <title>Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css" type="text/css">
     <link rel="stylesheet" href="<?= $adminBaseUrl ?>css/richtext.min.css" type="text/css">
     <link rel="stylesheet" href="<?= $adminBaseUrl ?>css/bootstrap.min.css" type="text/css" />
@@ -69,6 +69,8 @@ if (isset($_GET["pageid"])) {
                         include "dashboard/clientbooking.php";
                     } elseif ($pageId == "editallbooking") {
                         include "dashboard/editallbooking.php";
+                    } elseif ($pageId == "contactus") {
+                        include "dashboard/contactus.php";
                     } else {
                         include "dashboard/services.php";
                     }
@@ -83,6 +85,8 @@ if (isset($_GET["pageid"])) {
                         include "rsvp_attend.php";
                     } elseif ($pageId == "rsvp_notattend") {
                         include "rsvp_notattend.php";
+                    } elseif ($pageId == "email_verification") {
+                        include "email_verification.php";
                     } else {
                         include "dashboard/pick_a_package.php";
                     }
@@ -90,7 +94,7 @@ if (isset($_GET["pageid"])) {
 
                 ?>
             </div>
-            <footer class="footer text-center"> Created by <a href="#">IWD</a></footer>
+            <footer class="footer text-center"> Xpert Event</footer>
         </div>
     </div>
 </body>

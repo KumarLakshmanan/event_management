@@ -6,7 +6,6 @@ header('Access-Control-Allow-Origin: *');
 ini_set('log_errors', true);
 ini_set('error_log', './php-error.log');
 require_once "./config.php";
-require_once __DIR__ . '/config.php';
 
 require '../PHPMailer/src/PHPMailer.php';
 require '../PHPMailer/src/SMTP.php';
@@ -113,6 +112,48 @@ if (isset($_REQUEST["mode"])) {
                     $stmt->bindParam(":phone", $phone);
                     $stmt->bindParam(":address", $address);
                     if ($stmt->execute()) {
+                        $user_id = $conn->lastInsertId();
+                        $verifyUrl = $adminBaseUrl . "email_verification.php?user_id=" . $user_id;
+                        $mailnew->isSMTP();
+                        $mailnew->Host       = 'smtp.gmail.com';
+                        $mailnew->SMTPAuth   = true;
+                        $mailnew->Username   = $mailUsername;
+                        $mailnew->Password   = $mailPassword;
+                        $mailnew->SMTPSecure = 'tls';
+                        $mailnew->Port       = 587;
+
+                        $mailnew->setFrom($mailUsername, $webName);
+                        $mailnew->addAddress($email, $fullname);
+
+                        $mailnew->isHTML(true);
+                        $mailnew->Subject = 'Verify Your Email - Xpert Event';
+                        $mailnew->Body    = '
+                        <html>
+                        <head><title>Verify Your Email</title></head>
+                        <body style="font-family: Arial, sans-serif; color: #333;">
+                            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                                <div style="background-color: #4e73df; color: white; padding: 10px 20px; text-align: center;">
+                                    <h2>Verify Your Email Address</h2>
+                                </div>
+                                <div style="padding: 20px; border: 1px solid #ddd;">
+                                    <p>Hi ' . htmlspecialchars($fullname) . ',</p>
+                                    <p>Thank you for registering with Xpert Event!</p>
+                                    <p>Please click the button below to verify your email address and complete your registration:</p>
+                                    <p style="text-align: center; margin: 30px 0;">
+                                        <a href="' . $verifyUrl . '" style="display: inline-block; padding: 12px 24px; background-color: #28a745; color: white; text-decoration: none; border-radius: 6px;">Verify Email</a>
+                                    </p>
+                                    <p>If you did not create this account, please ignore this email.</p>
+                                </div>
+                                <div style="text-align: center; font-size: 12px; color: #777; margin-top: 20px;">
+                                    &copy; ' . date("Y") . ' Xpert Event. All rights reserved.
+                                </div>
+                            </div>
+                        </body>
+                        </html>';
+                        $mailnew->AltBody = 'Hi ' . $fullname . ', Please verify your email by visiting this link: ' . $verifyUrl;
+
+                        $mailnew->send();
+
                         $json["error"] = array("code" => "#200", "description" => "Success.");
                     } else {
                         $json["error"] = array("code" => "#500", "description" => "Failed to register. Please try again.");
@@ -132,6 +173,13 @@ if (isset($_REQUEST["mode"])) {
         $stmt->bindParam(":guest_id", $guest_id);
         $stmt->execute();
         $json["error"] = array("code" => "#200", "description" => "Success.");
+    } else if ($mode == 'email_verification') {
+        $user_id = trim(htmlspecialchars($_REQUEST['user_id']));
+        $sql = "UPDATE users SET email_verified = 1 WHERE id = :user_id";
+        $stmt = $conn->prepare($sql);
+        $stmt->bindParam(":user_id", $user_id);
+        $stmt->execute();
+        $json["error"] = array("code" => "#200", "description" => "Success.");
     } else if ($mode == 'rsvp_notattend') {
         $guest_id = trim(htmlspecialchars($_REQUEST['guest_id']));
         $booking_id = trim(htmlspecialchars($_REQUEST['booking_id']));
@@ -140,6 +188,56 @@ if (isset($_REQUEST["mode"])) {
         $stmt->bindParam(":guest_id", $guest_id);
         $stmt->execute();
         $json["error"] = array("code" => "#200", "description" => "Success.");
+    } else if ($mode == 'contactus') {
+        $name = trim(htmlspecialchars($_REQUEST['name']));
+        $email = trim(htmlspecialchars($_REQUEST['email']));
+        $phone = trim(htmlspecialchars($_REQUEST['phone']));
+        $message = trim(htmlspecialchars($_REQUEST['message']));
+        $sql = "INSERT INTO contactus ( `name`,`email`,`phone`,`message` ) VALUES ( :name, :email, :phone, :message )";
+        $stmt = $conn->prepare($sql);
+        $stmt->bindParam(":name", $name);
+        $stmt->bindParam(":email", $email);
+        $stmt->bindParam(":phone", $phone);
+        $stmt->bindParam(":message", $message);
+        $stmt->execute();
+
+        $mailnew->isSMTP();
+        $mailnew->Host       = 'smtp.gmail.com';
+        $mailnew->SMTPAuth   = true;
+        $mailnew->Username   = $mailUsername;
+        $mailnew->Password   = $mailPassword;
+        $mailnew->SMTPSecure = 'tls';
+        $mailnew->Port       = 587;
+
+        $mailnew->setFrom($mailUsername, $webName);
+        $mailnew->addAddress($email, $name);
+
+        $mailnew->isHTML(true);
+        $mailnew->Subject = 'Thank You for Contacting Us - Xpert Event';
+        $mailnew->Body    = '
+        <html>
+        <head><title>Contact Confirmation</title></head>
+        <body style="font-family: Arial, sans-serif; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="background-color: #4e73df; color: white; padding: 10px 20px; text-align: center;">
+                    <h2>Thank You for Reaching Out!</h2>
+                </div>
+                <div style="padding: 20px; border: 1px solid #ddd;">
+                    <p>Hi ' . htmlspecialchars($name) . ',</p>
+                    <p>Thank you for contacting <strong>Xpert Event</strong>.</p>
+                    <p>We’ve received your message and our admin team will get back to you shortly.</p>
+                    <p>If you have any urgent concerns, feel free to reply to this email.</p>
+                </div>
+                <div style="text-align: center; font-size: 12px; color: #777; margin-top: 20px;">
+                    &copy; ' . date("Y") . ' Xpert Event. All rights reserved.
+                </div>
+            </div>
+        </body>
+        </html>';
+        $mailnew->AltBody = 'Hi ' . $name . ', Thank you for contacting Xpert Event. Our admin will contact you soon.';
+        $mailnew->send();
+
+        $json["error"] = array("code" => "#200", "description" => "Success.");        
     } else if ($mode == 'addservice') {
         $service_name = trim(htmlspecialchars($_REQUEST['service_name']));
         $description = trim(htmlspecialchars($_REQUEST['description']));
@@ -506,7 +604,7 @@ if (isset($_REQUEST["mode"])) {
                                         </div>
                                         <div style="font-size: 12px; text-align: center; margin-top: 20px; color: #666;">
                                             <p>This is an automated email. Please do not reply to this message.</p>
-                                            <p>&copy; ' . date('Y') . ' IWD. All rights reserved.</p>
+                                            <p>&copy; ' . date('Y') . ' Xpert Event. All rights reserved.</p>
                                         </div>
                                     </div>
                                 </body>

@@ -20,6 +20,7 @@ RewriteRule ^home index.php?pageid=home [NC,QSA,L]
 RewriteRule ^register index.php?pageid=register [NC,QSA,L]
 
 RewriteRule ^rsvp_attend index.php?pageid=rsvp_attend [NC,QSA,L]
+RewriteRule ^email_verification index.php?pageid=email_verification [NC,QSA,L]
 RewriteRule ^rsvp_notattend index.php?pageid=rsvp_notattend [NC,QSA,L]
 
 RewriteRule ^services index.php?pageid=services [NC,QSA,L]
@@ -53,5 +54,6 @@ RewriteRule ^logout components/logout.php [NC,QSA,L]
 RewriteRule ^allbooking index.php?pageid=allbooking [NC,QSA,L]
 RewriteRule ^blog/([a-zA-Z0-9-]+) blog-details.php?slug=$1 [NC,QSA,L]
 
+RewriteRule ^contactus index.php?pageid=contactus [NC,QSA,L]
 
 ErrorDocument 404 index.php?pageid=404

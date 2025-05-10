@@ -1,12 +1,11 @@
 <?php
-// https://dev.codingfrontend.in/
-$apiUrl  = "http://localhost/iwd/api/v1.php";
-$adminBaseUrl  = "http://localhost/iwd/";
-$webAddress = "http://localhost/iwd/";
-$baseDirectory = "D:\\xampp\\htdocs\\iwd\\";
+
+$apiUrl  = "http://localhost/event_v1/api/v1.php";
+$adminBaseUrl  = "http://localhost/event_v1/";
+$webAddress = "http://localhost/event_v1/";
 
 $mailUsername = 'kumar.lakshmanan.projects@gmail.com';
-$mailPassword   = 'vgwjdkoiirxcvhds';
+$mailPassword   = 'yhkrxirfwzvurbhx';
 
 $dbHost = "localhost";
 $dbUsername = "root";
@@ -32,6 +31,6 @@ $fileNotFound =  array("code" => "#115", "description" => "File not found.");
 $pleaseFillAll =  array("code" => "#116", "description" => "Please fill all the fields.");
 $successErrorCode =  array("code" => "#200", "description" => "Success.");
 
-$webName = "IWD";
+$webName = "Xpert Event";
 $webLogo = $webAddress . "/img/logo-white.png";
-$webDescription = "IWD";
+$webDescription = "Xpert Event";

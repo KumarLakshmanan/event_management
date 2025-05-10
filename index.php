@@ -25,6 +25,8 @@ if (isset($_SESSION['id']) ) {
         include("components/rsvp_attend.php");
     } else if (isset($_GET['pageid']) && $_GET['pageid'] == 'rsvp_notattend') {
         include("components/rsvp_notattend.php");
+    } else if (isset($_GET['pageid']) && $_GET['pageid'] == 'email_verification') {
+        include("components/email_verification.php");
     } else {
         include("components/login.php");
     }

@@ -7,7 +7,7 @@
                     <img src="<?= $adminBaseUrl ?>img/icon-black.png" alt="homepage" style="height: 40px;">
                 </b> -->
                 <span class="logo-text">
-                    <img src="<?= $adminBaseUrl ?>img/justdial.jpeg" alt="homepage" style="height: 30px;width: 150px;">
+                    <img src="<?= $adminBaseUrl ?>img/logo.jpeg" alt="homepage" style="height: 40px;width: 200px;">
                 </span>
             </a>
             <a class="nav-toggler waves-effect waves-light text-dark d-block d-md-none" href="javascript:void(0)"><i class="ti-menu ti-close"></i></a>
@@ -15,7 +15,7 @@
         <ul class="navbar-nav ms-auto d-flex align-items-center px-2">
             <li>
                 <a class="profile-pic" href="#">
-                    <img src="<?= $adminBaseUrl ?>img/varun.png" alt="user-img" width="36" class="img-circle"><span class="text-white font-medium">
+                    <img src="<?= $adminBaseUrl ?>img/user.png" alt="user-img" width="36" class="img-circle"><span class="text-white font-medium">
                         <?php
                         if (isset($_SESSION['fullname'])) {
                             echo $_SESSION['fullname'];
@@ -71,6 +71,15 @@
                             <path fill="currentColor" d="M15 14v1H0v-1z" />
                         </svg>
                         <span class="hide-menu px-2">Clients</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link waves-effect waves-dark sidebar-link" href="<?= $adminBaseUrl ?>contactus" aria-expanded="false">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 15 15">
+                            <path fill="currentColor" fill-rule="evenodd" d="M11 2H4V0H3v2H1.5A1.5 1.5 0 0 0 0 3.5v8A1.5 1.5 0 0 0 1.5 13h12a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 13.5 2H12V0h-1zM3 6a2 2 0 1 1 4 0a2 2 0 0 1-4 0m-.618 4.618a2.927 2.927 0 0 1 5.236 0l.33.658A.5.5 0 0 1 7.5 12h-5a.5.5 0 0 1-.447-.724zM9 6h3V5H9zm0 3h3V8H9z" clip-rule="evenodd" />
+                            <path fill="currentColor" d="M15 14v1H0v-1z" />
+                        </svg>
+                        <span class="hide-menu px-2">Contacts</span>
                     </a>
                 </li>
                 <li class="sidebar-item">

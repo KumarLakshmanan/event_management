@@ -2,7 +2,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>IWD: Guest</title>
+    <title>Xpert Event: Guest</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <script src="<?php echo $adminBaseUrl ?>js/jquery.min.js"></script>
