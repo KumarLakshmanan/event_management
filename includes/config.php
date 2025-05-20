@@ -10,16 +10,17 @@ error_reporting(E_ERROR | E_WARNING | E_PARSE);
 @ini_set('error_reporting', E_ALL);
 ini_set('log_errors', true);
 ini_set('error_log', './php-error.log');
-// Database configuration
-define('DB_PATH', __DIR__ . '/../database.sqlite');
+
+// Database configuration - MySQL
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'event_v3');
+define('DB_USER', 'root');
+define('DB_PASS', '');
 
 // Application settings
 define('APP_NAME', 'Event Planning Platform');
 define('APP_URL', 'http://' . $_SERVER['HTTP_HOST'] . '/event_v3/');
 define('UPLOADS_DIR', __DIR__ . '/../uploads');
-
-// $mailUsername = 'kumar.lakshmanan.projects@gmail.com';
-// $mailPassword   = 'vgwjdkoiirxcvhds';
 
 define('MAIL_USERNAME', 'kumar.lakshmanan.projects@gmail.com');
 define('MAIL_PASSWORD', 'yhkrxirfwzvurbhx');
@@ -65,9 +66,9 @@ ini_set('display_errors', 1);
 // Function to get database connection
 function getDB() {
     try {
-        $db = new PDO("sqlite:" . DB_PATH);
+        $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4";
+        $db = new PDO($dsn, DB_USER, DB_PASS);
         $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $db->exec('PRAGMA foreign_keys = ON;');
         return $db;
     } catch (PDOException $e) {
         die("Database connection failed: " . $e->getMessage());

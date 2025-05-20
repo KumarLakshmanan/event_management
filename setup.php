@@ -6,104 +6,101 @@ require_once 'includes/config.php';
 
 try {
     // Create a new PDO instance
-    $db = new PDO("sqlite:" . DB_PATH);
+    $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4";
+    $db = new PDO($dsn, DB_USER, DB_PASS);
     
     // Set the PDO error mode to exception
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
-    // Enable foreign keys
-    $db->exec('PRAGMA foreign_keys = ON;');
-    
     // Create users table
     $db->exec('CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        role TEXT NOT NULL DEFAULT "client",
-        can_apply_discount INTEGER DEFAULT 0,
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255)  NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        role VARCHAR(50) NOT NULL DEFAULT "client",
+        can_apply_discount TINYINT DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )');
     
     // Create services table
     $db->exec('CREATE TABLE IF NOT EXISTS services (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(255) NOT NULL,
         description TEXT,
-        price REAL NOT NULL,
+        price DECIMAL(10,2) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )');
     
     // Create packages table
     $db->exec('CREATE TABLE IF NOT EXISTS packages (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(255) NOT NULL,
         description TEXT,
-        price REAL NOT NULL,
-        image_path TEXT,
-        user_id INTEGER,
+        price DECIMAL(10,2) NOT NULL,
+        image_path VARCHAR(255),
+        user_id INT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )');
-    // ALTER TABLE packages ADD COLUMN user_id INTEGER;
+    
     // Create package_services junction table
     $db->exec('CREATE TABLE IF NOT EXISTS package_services (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        package_id INTEGER,
-        service_id INTEGER,
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        package_id INT,
+        service_id INT,
         FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE CASCADE,
-        FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE,
-        UNIQUE(package_id, service_id)
+        FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE
     )');
     
     // Create bookings table
     $db->exec('CREATE TABLE IF NOT EXISTS bookings (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        package_id INTEGER,
-        event_date TEXT NOT NULL,
-        event_location TEXT NOT NULL,
-        status TEXT DEFAULT "pending",
-        total_price REAL NOT NULL,
-        discount_applied REAL DEFAULT 0,
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT,
+        package_id INT,
+        event_date DATE NOT NULL,
+        event_location VARCHAR(255) NOT NULL,
+        status VARCHAR(50) DEFAULT "pending",
+        total_price DECIMAL(10,2) NOT NULL,
+        discount_applied DECIMAL(10,2) DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
         FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE CASCADE
     )');
     
     // Create booking_services for custom packages
     $db->exec('CREATE TABLE IF NOT EXISTS booking_services (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        booking_id INTEGER,
-        service_id INTEGER,
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        booking_id INT,
+        service_id INT,
         FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
         FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE
     )');
     
     // Create guests table
     $db->exec('CREATE TABLE IF NOT EXISTS guests (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        booking_id INTEGER,
-        name TEXT NOT NULL,
-        email TEXT,
-        phone TEXT,
-        rsvp_status TEXT DEFAULT "pending",
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        booking_id INT,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255),
+        phone VARCHAR(50),
+        rsvp_status VARCHAR(50) DEFAULT "pending",
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
     )');
     
     // Create notifications table
     $db->exec('CREATE TABLE IF NOT EXISTS notifications (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        type TEXT NOT NULL,
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT,
+        type VARCHAR(50) NOT NULL,
         message TEXT NOT NULL,
-        is_read INTEGER DEFAULT 0,
-        related_id INTEGER,
+        is_read TINYINT DEFAULT 0,
+        related_id INT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )');
@@ -114,7 +111,7 @@ try {
     $clientPassword = password_hash('Client123', PASSWORD_DEFAULT);
 
     // Admin user
-    $stmt = $db->prepare('INSERT OR IGNORE INTO users (name, email, password, role, can_apply_discount) VALUES (?, ?, ?, ?, ?)');
+    $stmt = $db->prepare('INSERT IGNORE INTO users (name, email, password, role, can_apply_discount) VALUES (?, ?, ?, ?, ?)');
     $stmt->execute(['Admin User', 'admin@example.com', $adminPassword, 'administrator', 1]);
     
     // Manager user with discount permission
@@ -127,14 +124,14 @@ try {
     $stmt->execute(['Client User', 'client@example.com', $clientPassword, 'client', 0]);
     
     // Insert sample packages
-    $packageStmt = $db->prepare('INSERT OR IGNORE INTO packages (name, description, price, image_path) VALUES (?, ?, ?, ?)');
+    $packageStmt = $db->prepare('INSERT IGNORE INTO packages (name, description, price, image_path) VALUES (?, ?, ?, ?)');
     $packageStmt->execute(['Basic Wedding', 'Essential wedding services including photographer, basic decoration, and music.', 999.99, 'default_package.jpg']);
     $packageStmt->execute(['Premium Wedding', 'Premium wedding package with professional photography, videography, gourmet catering, and elegant decorations.', 2499.99, 'default_package.jpg']);
     $packageStmt->execute(['Birthday Party', 'Fun-filled birthday party package with decorations, entertainment, and catering.', 399.99, 'default_package.jpg']);
     $packageStmt->execute(['Corporate Event', 'Professional corporate event solution with A/V equipment, catering, and venue decoration.', 1499.99, 'default_package.jpg']);
     
     // Insert sample services
-    $serviceStmt = $db->prepare('INSERT OR IGNORE INTO services (name, description, price) VALUES (?, ?, ?)');
+    $serviceStmt = $db->prepare('INSERT IGNORE INTO services (name, description, price) VALUES (?, ?, ?)');
     $serviceStmt->execute(['Photography', 'Professional event photography service (4 hours)', 349.99]);
     $serviceStmt->execute(['Videography', 'HD video recording and editing of your event', 449.99]);
     $serviceStmt->execute(['Catering', 'Gourmet food service for up to 50 guests', 799.99]);

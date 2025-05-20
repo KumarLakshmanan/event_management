@@ -8,9 +8,12 @@ class Database {
      */
     private function __construct() {
         try {
-            $this->db = new PDO("sqlite:" . DB_PATH);
+            $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4";
+            $this->db = new PDO($dsn, DB_USER, DB_PASS);
             $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $this->db->exec('PRAGMA foreign_keys = ON;');
+            // Add these settings for better MySQL compatibility
+            $this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+            $this->db->setAttribute(PDO::MYSQL_ATTR_FOUND_ROWS, true);
         } catch (PDOException $e) {
             die("Database connection failed: " . $e->getMessage());
         }
@@ -47,10 +50,35 @@ class Database {
     public function executeQuery($query, $params = []) {
         try {
             $stmt = $this->db->prepare($query);
-            $stmt->execute($params);
+            
+            // Bind parameters properly based on their types
+            foreach ($params as $key => $value) {
+                // If using named parameters
+                if (is_string($key)) {
+                    $paramKey = (strpos($key, ':') === 0) ? $key : ':' . $key;
+                    
+                    if (is_int($value)) {
+                        $stmt->bindValue($paramKey, $value, PDO::PARAM_INT);
+                    } elseif (is_bool($value)) {
+                        $stmt->bindValue($paramKey, $value, PDO::PARAM_BOOL);
+                    } elseif (is_null($value)) {
+                        $stmt->bindValue($paramKey, $value, PDO::PARAM_NULL);
+                    } else {
+                        $stmt->bindValue($paramKey, $value, PDO::PARAM_STR);
+                    }
+                }
+            }
+            
+            // Execute with or without parameters
+            if (empty($params) || !is_string(key($params))) {
+                $stmt->execute($params); // For numeric keys or empty params
+            } else {
+                $stmt->execute(); // Named parameters were bound above
+            }
+            
             return $stmt;
         } catch (PDOException $e) {
-            error_log("Query execution error: " . $e->getMessage());
+            error_log("Query execution error: " . $e->getMessage() . " in query: " . $query);
             return false;
         }
     }
@@ -64,11 +92,34 @@ class Database {
      * @return mixed The result
      */
     public function fetchOne($query, $params = [], $fetchMode = PDO::FETCH_ASSOC) {
-        $stmt = $this->executeQuery($query, $params);
-        if ($stmt === false) {
+        try {
+            $stmt = $this->db->prepare($query);
+            
+            // If using named parameters, need to bind them properly
+            if (!empty($params) && is_string(key($params))) {
+                foreach ($params as $key => $value) {
+                    $paramKey = (strpos($key, ':') === 0) ? $key : ':' . $key;
+                    
+                    if (is_int($value)) {
+                        $stmt->bindValue($paramKey, $value, PDO::PARAM_INT);
+                    } elseif (is_bool($value)) {
+                        $stmt->bindValue($paramKey, $value, PDO::PARAM_BOOL);
+                    } elseif (is_null($value)) {
+                        $stmt->bindValue($paramKey, $value, PDO::PARAM_NULL);
+                    } else {
+                        $stmt->bindValue($paramKey, $value, PDO::PARAM_STR);
+                    }
+                }
+                $stmt->execute();
+            } else {
+                $stmt->execute($params);
+            }
+            
+            return $stmt->fetch($fetchMode);
+        } catch (PDOException $e) {
+            error_log("fetchOne error: " . $e->getMessage() . " in query: " . $query);
             return false;
         }
-        return $stmt->fetch($fetchMode);
     }
     
     /**
@@ -80,11 +131,34 @@ class Database {
      * @return array The results
      */
     public function fetchAll($query, $params = [], $fetchMode = PDO::FETCH_ASSOC) {
-        $stmt = $this->executeQuery($query, $params);
-        if ($stmt === false) {
+        try {
+            $stmt = $this->db->prepare($query);
+            
+            // If using named parameters, need to bind them properly
+            if (!empty($params) && is_string(key($params))) {
+                foreach ($params as $key => $value) {
+                    $paramKey = (strpos($key, ':') === 0) ? $key : ':' . $key;
+                    
+                    if (is_int($value)) {
+                        $stmt->bindValue($paramKey, $value, PDO::PARAM_INT);
+                    } elseif (is_bool($value)) {
+                        $stmt->bindValue($paramKey, $value, PDO::PARAM_BOOL);
+                    } elseif (is_null($value)) {
+                        $stmt->bindValue($paramKey, $value, PDO::PARAM_NULL);
+                    } else {
+                        $stmt->bindValue($paramKey, $value, PDO::PARAM_STR);
+                    }
+                }
+                $stmt->execute();
+            } else {
+                $stmt->execute($params);
+            }
+            
+            return $stmt->fetchAll($fetchMode);
+        } catch (PDOException $e) {
+            error_log("fetchAll error: " . $e->getMessage() . " in query: " . $query);
             return [];
         }
-        return $stmt->fetchAll($fetchMode);
     }
     
     /**
@@ -204,12 +278,34 @@ class Database {
             $query .= " WHERE $where";
         }
         
-        $stmt = $this->executeQuery($query, $params);
-        if ($stmt === false) {
+        try {
+            $stmt = $this->db->prepare($query);
+            
+            // If using named parameters, need to bind them properly
+            if (!empty($params) && is_string(key($params))) {
+                foreach ($params as $key => $value) {
+                    $paramKey = (strpos($key, ':') === 0) ? $key : ':' . $key;
+                    
+                    if (is_int($value)) {
+                        $stmt->bindValue($paramKey, $value, PDO::PARAM_INT);
+                    } elseif (is_bool($value)) {
+                        $stmt->bindValue($paramKey, $value, PDO::PARAM_BOOL);
+                    } elseif (is_null($value)) {
+                        $stmt->bindValue($paramKey, $value, PDO::PARAM_NULL);
+                    } else {
+                        $stmt->bindValue($paramKey, $value, PDO::PARAM_STR);
+                    }
+                }
+                $stmt->execute();
+            } else {
+                $stmt->execute($params);
+            }
+            
+            return (int) $stmt->fetchColumn();
+        } catch (PDOException $e) {
+            error_log("Count error: " . $e->getMessage() . " in query: " . $query);
             return 0;
         }
-        
-        return (int) $stmt->fetchColumn();
     }
 }
 ?>
